@@ -3,8 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@+id/nav_login">
 
+    <fragment
+        android:id="@+id/nav_login"
+        android:name="com.example.rocacotizacion.LoginFragment"
+        android:label="@string/menu_login"
+        tools:layout="@layout/fragment_login" />
+
+    <!-- The rest of your fragments -->
     <fragment
         android:id="@+id/nav_home"
         android:name="com.example.rocacotizacion.ui.home.HomeFragment"
