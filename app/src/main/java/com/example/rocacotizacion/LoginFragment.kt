@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -72,6 +73,8 @@ class LoginFragment : Fragment() {
                             if (result) {
                                 // Login success
                                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                                findNavController().navigate(R.id.nav_home)
+
 
                             } else {
                                 // Login failed, show the message to the user
