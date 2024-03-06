@@ -4,17 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.rocacotizacion.R
 import com.example.rocacotizacion.databinding.FragmentHomeBinding
+import com.google.android.material.navigation.NavigationView
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -28,10 +30,28 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textHome
+        // Set up the toolbar
+        val toolbar: Toolbar = binding.toolbarHome
+        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+
+        // Set up the navigation drawer toggle
+        val drawerLayout: DrawerLayout = binding.drawerLayoutHome
+        val navView: NavigationView = binding.navViewHome
+        val toggle = ActionBarDrawerToggle(
+            activity,
+            drawerLayout,
+            toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        // Observe the ViewModel's LiveData
         homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+            binding.textHome.text = it
         }
+
         return root
     }
 
