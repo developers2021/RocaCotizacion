@@ -39,8 +39,13 @@ class LoginFragment : Fragment() {
         loginButton.setOnClickListener {
             val username = view.findViewById<EditText>(R.id.username).text.toString()
             val password = view.findViewById<EditText>(R.id.password).text.toString()
-
-            sendLoginRequest(username, password)
+            if(username!="" && password!="")
+            {
+                sendLoginRequest(username, password)
+            }
+            else{
+                Toast.makeText(context, "Datos Invalidos", Toast.LENGTH_LONG).show()
+            }
         }
     }
     fun isOnline(context: Context): Boolean {
@@ -82,7 +87,7 @@ class LoginFragment : Fragment() {
                                 // Update your UI based on 'result' and 'message'
                                 if (result) {
                                     // Login success
-                                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Bienvenido $username", Toast.LENGTH_LONG).show()
                                     findNavController().navigate(R.id.nav_home)
                                 } else {
                                     // Login failed, show the message to the user
