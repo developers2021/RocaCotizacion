@@ -46,12 +46,6 @@ class HomeFragment : Fragment() {
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-
-        // Observe the ViewModel's LiveData
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            binding.textHome.text = it
-        }
-
         return root
     }
 

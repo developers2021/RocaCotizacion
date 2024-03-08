@@ -11,6 +11,11 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.example.rocacotizacion.DAO.Agente
+import com.example.rocacotizacion.DAO.DatabaseApplication
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -53,6 +58,40 @@ class LoginFragment : Fragment() {
         val activeNetwork = connectivityManager.activeNetworkInfo
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting
     }
+    // Assuming 'context' is the application context or an activity context that you pass to the function
+    fun handleUserLoginResponse(jsonString: String, context: Context) {
+        val jsonObject = JSONObject(jsonString)
+
+        val userJson = jsonObject.getJSONObject("user")
+        val agente = Agente(
+            idAgentes = userJson.getInt("idagentes"),
+            codigoAgentes = userJson.optString("codigoagentes"),
+            idSucursal = userJson.getInt("idsucursal"),
+            idTipoAgente = userJson.getInt("idtipoagente"),
+            cuentaContable = userJson.optString("cuentacontable"),
+            flagPos = userJson.optBoolean("flagpos"),
+            pctgeComisVenta = userJson.optDouble("pctgecomisventa"),
+            descripcionCorta = userJson.optString("descripcioncorta"),
+            descripcionLarga = userJson.optString("descripcionlarga"),
+            // ... handle the rest of the fields similarly ...
+            flagActivo = userJson.getBoolean("flagactivo"),
+            ordenReporte = userJson.getInt("ordenreporte"),
+            username = userJson.optString("username"),
+            codigoAuxiliar = userJson.optString("codigoauxiliar"),
+            usuarioCreacion = userJson.optString("usuariocreacion"),
+            usuarioModificacion = userJson.optString("usuariomodificacion"),
+            password = userJson.optString("password"),
+            rutadesc = userJson.optString("rutadesc"),
+            nombodega= userJson.optString("nombodega")
+            )
+
+        // Now insert 'agente' into the database
+        CoroutineScope(Dispatchers.IO).launch {
+            // Ensure you get an instance of your Room database and then get the DAO instance
+            val db = DatabaseApplication.getDatabase(context)
+            db.AgenteDAO().insert(agente) // Use the DAO's insert method directly
+        }
+    }
     private fun sendLoginRequest(username: String, password: String) {
 
         if (isOnline(requireContext())) {
@@ -80,14 +119,20 @@ class LoginFragment : Fragment() {
 
                             // Parsing the JSON response
                             val json = JSONObject(responseBodyString)
-                            val result = json.getBoolean("result")
-                            val message = json.getString("message")
+                            val resultObject = json.getJSONObject("result")
+                            val result = resultObject.getBoolean("result")
+                            val message = resultObject.getString("message")
 
                             activity?.runOnUiThread {
                                 // Update your UI based on 'result' and 'message'
                                 if (result) {
                                     // Login success
                                     Toast.makeText(context, "Bienvenido $username", Toast.LENGTH_LONG).show()
+                                    if (responseBodyString != null) {
+                                        context?.let { it1 ->
+                                            handleUserLoginResponse(responseBodyString, it1   )
+                                        }
+                                    }
                                     findNavController().navigate(R.id.nav_home)
                                 } else {
                                     // Login failed, show the message to the user
