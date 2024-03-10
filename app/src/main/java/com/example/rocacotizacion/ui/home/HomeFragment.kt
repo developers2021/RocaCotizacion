@@ -7,6 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.example.rocacotizacion.DAO.Agente
 import com.example.rocacotizacion.DAO.AppDatabase
@@ -29,7 +32,19 @@ class HomeFragment : Fragment() {
         // Assuming you are storing the logged-in username in SharedPreferences
         val sharedPreferences = activity?.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
         val loggedInUsername = sharedPreferences?.getString("LoggedInUsername", null)
+        // Set up the ActionBarDrawerToggle
+        val drawerLayout: DrawerLayout = view.findViewById(R.id.drawer_layout_home)
+        val toolbar: Toolbar = view.findViewById(R.id.toolbar_home)
+        val toggle = ActionBarDrawerToggle(
+            activity,
+            drawerLayout,
+            toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
 
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
         // Execute the AsyncTask
         loggedInUsername?.let { username ->
             GetAgenteAsyncTask(requireContext(), username) { agente ->
