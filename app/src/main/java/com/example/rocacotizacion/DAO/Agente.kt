@@ -23,5 +23,5 @@ data class Agente(
     @ColumnInfo(name = "codigoauxiliar") val codigoAuxiliar: String?,
     @ColumnInfo(name = "password") val password: String?,
     @ColumnInfo(name="nombodega") val nombodega: String?,
-    @ColumnInfo (name ="rutadesc") val rutadesc : String
-    )
+    @ColumnInfo (name ="rutadesc") val rutadesc : String,
+    @ColumnInfo (name ="tipoagente") val tipoagente : String    )

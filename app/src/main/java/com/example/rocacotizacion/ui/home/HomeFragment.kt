@@ -51,9 +51,11 @@ class HomeFragment : Fragment() {
                 // This is your callback that gets executed on the main thread.
                 // Update your UI here with the agent details.
                 if (agente != null) {
-                    val agentDetailsTextView = view.findViewById<TextView>(R.id.tvCodigoAgentes)
-                    val details = "ID: ${agente.idAgentes}, Username: ${agente.username}"
-                    agentDetailsTextView.text = details
+                    view.findViewById<TextView>(R.id.tvCodigoAgentes).text="${agente.descripcionCorta}"
+                    view.findViewById<TextView>(R.id.textViewUsuario).text="${agente.descripcionLarga} - ${agente.username}"
+                    view.findViewById<TextView>(R.id.textviewTipoAgente).text="${agente.tipoagente}"
+                    view.findViewById<TextView>(R.id.textViewPOS).text = if (agente.flagPos == true) "Si" else "No"
+                    view.findViewById<TextView>(R.id.textviewSucursal).text = "${agente.nombodega}"
                 }
             }.execute()
         }

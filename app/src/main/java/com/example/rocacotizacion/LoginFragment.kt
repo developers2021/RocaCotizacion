@@ -82,7 +82,8 @@ class LoginFragment : Fragment() {
             usuarioModificacion = userJson.optString("usuariomodificacion"),
             password = userJson.optString("password"),
             rutadesc = userJson.optString("rutadesc"),
-            nombodega= userJson.optString("nombodega")
+            nombodega= userJson.optString("nombodega"),
+            tipoagente = userJson.optString("tipoagente")
             )
 
         // Now insert 'agente' into the database
