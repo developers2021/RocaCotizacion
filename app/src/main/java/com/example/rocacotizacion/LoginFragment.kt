@@ -127,13 +127,15 @@ class LoginFragment : Fragment() {
                                 // Update your UI based on 'result' and 'message'
                                 if (result) {
                                     // Login success
-                                    Toast.makeText(context, "Bienvenido $username", Toast.LENGTH_LONG).show()
+                                    val sharedPreferences = activity?.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+                                    sharedPreferences?.edit()?.putString("LoggedInUsername", username)?.apply()
                                     if (responseBodyString != null) {
                                         context?.let { it1 ->
                                             handleUserLoginResponse(responseBodyString, it1   )
                                         }
+                                        Toast.makeText(context, "Bienvenido $username", Toast.LENGTH_LONG).show()
+                                        findNavController().navigate(R.id.nav_home)
                                     }
-                                    findNavController().navigate(R.id.nav_home)
                                 } else {
                                     // Login failed, show the message to the user
                                     Toast.makeText(context, message, Toast.LENGTH_LONG).show()

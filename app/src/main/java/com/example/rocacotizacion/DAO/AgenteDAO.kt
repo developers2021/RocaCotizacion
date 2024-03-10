@@ -10,6 +10,6 @@ interface AgenteDAO {
     @Insert
     fun insert(agente: Agente)
 
-    @Query("SELECT * FROM agnagente WHERE username = :username")
-    fun getUserByUsername(username: String): LiveData<Agente?>
+    @Query("SELECT * FROM AgnAgente WHERE username = :username")
+    fun getAgenteByUsername(username: String): Agente?
 }

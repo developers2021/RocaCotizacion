@@ -1,56 +1,66 @@
 package com.example.rocacotizacion.ui.home
 
+import android.content.Context
+import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.drawerlayout.widget.DrawerLayout
+import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import com.example.rocacotizacion.DAO.Agente
+import com.example.rocacotizacion.DAO.AppDatabase
+import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.R
-import com.example.rocacotizacion.databinding.FragmentHomeBinding
-import com.google.android.material.navigation.NavigationView
 
 class HomeFragment : Fragment() {
 
-    private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
-
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        val homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
-
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
-        // Set up the toolbar
-        val toolbar: Toolbar = binding.toolbarHome
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
-
-        // Set up the navigation drawer toggle
-        val drawerLayout: DrawerLayout = binding.drawerLayoutHome
-        val navView: NavigationView = binding.navViewHome
-        val toggle = ActionBarDrawerToggle(
-            activity,
-            drawerLayout,
-            toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-        return root
+    ): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Assuming you are storing the logged-in username in SharedPreferences
+        val sharedPreferences = activity?.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+        val loggedInUsername = sharedPreferences?.getString("LoggedInUsername", null)
+
+        // Execute the AsyncTask
+        loggedInUsername?.let { username ->
+            GetAgenteAsyncTask(requireContext(), username) { agente ->
+                // This is your callback that gets executed on the main thread.
+                // Update your UI here with the agent details.
+                if (agente != null) {
+                    val agentDetailsTextView = view.findViewById<TextView>(R.id.tvCodigoAgentes)
+                    val details = "ID: ${agente.idAgentes}, Username: ${agente.username}"
+                    agentDetailsTextView.text = details
+                }
+            }.execute()
+        }
+    }
+
+    private class GetAgenteAsyncTask(
+        private val context: Context,
+        private val username: String,
+        private val callback: (Agente?) -> Unit
+    ) : AsyncTask<Void, Void, Agente?>() {
+
+        private val db: AppDatabase = DatabaseApplication.getDatabase(context)
+
+        override fun doInBackground(vararg params: Void?): Agente? {
+            // Perform database operation in background
+            return db.AgenteDAO().getAgenteByUsername(username)
+        }
+
+        override fun onPostExecute(result: Agente?) {
+            super.onPostExecute(result)
+            // Runs on the main thread, update your UI here
+            callback(result)
+        }
     }
 }
