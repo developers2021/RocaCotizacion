@@ -15,6 +15,7 @@ import com.example.rocacotizacion.DAO.Agente
 import com.example.rocacotizacion.DAO.AppDatabase
 import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.R
+import com.google.android.material.navigation.NavigationView
 
 class HomeFragment : Fragment() {
 
@@ -45,7 +46,15 @@ class HomeFragment : Fragment() {
 
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-        // Execute the AsyncTask
+        // Find the NavigationView
+        val navigationView: NavigationView = view.findViewById(R.id.nav_view_home)
+
+        // Check if the header is already present before inflating
+        val headerView = if (navigationView.getHeaderCount() > 0) {
+            navigationView.getHeaderView(0)
+        } else {
+            navigationView.inflateHeaderView(R.layout.nav_header_main)
+        }
         loggedInUsername?.let { username ->
             GetAgenteAsyncTask(requireContext(), username) { agente ->
                 // This is your callback that gets executed on the main thread.
@@ -56,6 +65,9 @@ class HomeFragment : Fragment() {
                     view.findViewById<TextView>(R.id.textviewTipoAgente).text="${agente.tipoagente}"
                     view.findViewById<TextView>(R.id.textViewPOS).text = if (agente.flagPos == true) "Si" else "No"
                     view.findViewById<TextView>(R.id.textviewSucursal).text = "${agente.nombodega}"
+                    navigationView.findViewById<TextView>(R.id.MenuName).text="${agente.descripcionLarga}"
+                    navigationView.findViewById<TextView>(R.id.textView).text="${agente.descripcionCorta}"
+
                 }
             }.execute()
         }
