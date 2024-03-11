@@ -3,7 +3,16 @@
     android:height="24dp"
     android:viewportWidth="24.0"
     android:viewportHeight="24.0">
+    <!-- Outline of the receipt -->
     <path
         android:fillColor="#FF000000"
-        android:pathData="M22,16V4c0,-1.1 -0.9,-2 -2,-2H8c-1.1,0 -2,0.9 -2,2v12c0,1.1 0.9,2 2,2h12c1.1,0 2,-0.9 2,-2zm-11,-4l2.03,2.71L16,11l4,5H8l3,-4zM2,6v14c0,1.1 0.9,2 2,2h14v-2H4V6H2z" />
+        android:pathData="M19,3H5c-1.1,0 -1.99,0.9 -1.99,2L3,21c0,1.1 0.9,2 2,2h14c1.1,0 2,-0.9 2,-2V5c0,-1.1 -0.9,-2 -2,-2zM19,21H5V5h14v16z"/>
+    <!-- Lines on the receipt to represent text -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M15,7H9v2h6V7zm0,3H9v2h6v-2zm-3,3H9v2h3v-2z"/>
+    <!-- Tear-off section at the bottom -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5,19h14v2H5v-2z"/>
 </vector>
