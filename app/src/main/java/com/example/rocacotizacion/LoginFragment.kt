@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.rocacotizacion.DAO.Agente
+import com.example.rocacotizacion.DAO.Clientes
 import com.example.rocacotizacion.DAO.DatabaseApplication
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +60,7 @@ class LoginFragment : Fragment() {
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting
     }
     // Assuming 'context' is the application context or an activity context that you pass to the function
-    fun handleUserLoginResponse(jsonString: String, context: Context) {
+    fun InsertDataDB(jsonString: String, context: Context) {
         val jsonObject = JSONObject(jsonString)
 
         val userJson = jsonObject.getJSONObject("user")
@@ -85,12 +86,27 @@ class LoginFragment : Fragment() {
             nombodega= userJson.optString("nombodega"),
             tipoagente = userJson.optString("tipoagente")
             )
+        val clienteJsonArray = jsonObject.getJSONArray("clnClientes")
+        val clientesList = mutableListOf<Clientes>()
 
-        // Now insert 'agente' into the database
+        for (i in 0 until clienteJsonArray.length()) {
+            val clienteJsonObject = clienteJsonArray.getJSONObject(i)
+            val cliente = Clientes(
+                idcliente = clienteJsonObject.getInt("idcliente"),
+                nombrecliente = clienteJsonObject.optString("nombrecliente"),
+                Codigocliente = clienteJsonObject.optString("codigocliente"),
+                Rtncliente = clienteJsonObject.optString("rtncliente")
+            )
+            clientesList.add(cliente)
+        }
+
+        // Now insert the data into the database
         CoroutineScope(Dispatchers.IO).launch {
             // Ensure you get an instance of your Room database and then get the DAO instance
+            // Use the DAO's insert method directly
             val db = DatabaseApplication.getDatabase(context)
-            db.AgenteDAO().insert(agente) // Use the DAO's insert method directly
+            db.AgenteDAO().insert(agente)
+            db.ClientesDAO().insertAll(clientesList)
         }
     }
     private fun sendLoginRequest(username: String, password: String) {
@@ -132,7 +148,7 @@ class LoginFragment : Fragment() {
                                     sharedPreferences?.edit()?.putString("LoggedInUsername", username)?.apply()
                                     if (responseBodyString != null) {
                                         context?.let { it1 ->
-                                            handleUserLoginResponse(responseBodyString, it1   )
+                                            InsertDataDB(responseBodyString, it1   )
                                         }
                                         Toast.makeText(context, "Bienvenido $username", Toast.LENGTH_LONG).show()
                                         findNavController().navigate(R.id.nav_home)

@@ -9,8 +9,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.rocacotizacion.DAO.Agente
 import com.example.rocacotizacion.DAO.AppDatabase
 import com.example.rocacotizacion.DAO.DatabaseApplication
@@ -48,7 +50,30 @@ class HomeFragment : Fragment() {
         toggle.syncState()
         // Find the NavigationView
         val navigationView: NavigationView = view.findViewById(R.id.nav_view_home)
-
+        // Setting up the NavigationItemSelectedListener
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            // Handle menu item selected
+            when (menuItem.itemId) {
+                R.id.nav_clientes -> {
+                    // Assuming nav_clientes_fragment is the id of the destination in your nav graph
+                    findNavController().navigate(R.id.nav_gallery)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
+               // R.id.nav_gallery -> {
+               //     findNavController().navigate(R.id.nav_gallery_fragment)
+               //     drawerLayout.closeDrawer(GravityCompat.START)
+               //     true
+               // }
+               // R.id.nav_slideshow -> {
+               //     findNavController().navigate(R.id.nav_slideshow_fragment)
+               //     drawerLayout.closeDrawer(GravityCompat.START)
+               //     true
+               // }
+                // Add more menu item clicks here
+                else -> false
+            }
+        }
         // Check if the header is already present before inflating
         val headerView = if (navigationView.getHeaderCount() > 0) {
             navigationView.getHeaderView(0)
