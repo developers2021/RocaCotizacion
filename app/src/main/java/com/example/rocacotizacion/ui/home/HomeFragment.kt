@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
+import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -54,22 +55,17 @@ class HomeFragment : Fragment() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             // Handle menu item selected
             when (menuItem.itemId) {
-                R.id.nav_clientes -> {
-                    // Assuming nav_clientes_fragment is the id of the destination in your nav graph
-                    findNavController().navigate(R.id.nav_gallery)
+                R.id.nav_home -> {
+                    findNavController().navigate(R.id.nav_view_home)
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
-               // R.id.nav_gallery -> {
-               //     findNavController().navigate(R.id.nav_gallery_fragment)
-               //     drawerLayout.closeDrawer(GravityCompat.START)
-               //     true
-               // }
-               // R.id.nav_slideshow -> {
-               //     findNavController().navigate(R.id.nav_slideshow_fragment)
-               //     drawerLayout.closeDrawer(GravityCompat.START)
-               //     true
-               // }
+                R.id.nav_clientes -> {
+                    // Assuming nav_clientes_fragment is the id of the destination in your nav graph
+                    findNavController().navigate(R.id.nav_clientes)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
                 // Add more menu item clicks here
                 else -> false
             }
@@ -98,7 +94,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private class GetAgenteAsyncTask(
+    class GetAgenteAsyncTask(
         private val context: Context,
         private val username: String,
         private val callback: (Agente?) -> Unit
