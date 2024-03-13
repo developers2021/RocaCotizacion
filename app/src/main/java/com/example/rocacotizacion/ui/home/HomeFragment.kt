@@ -56,12 +56,11 @@ class HomeFragment : Fragment() {
             // Handle menu item selected
             when (menuItem.itemId) {
                 R.id.nav_home -> {
-                    findNavController().navigate(R.id.nav_view_home)
+                    findNavController().navigate(R.id.nav_home)
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
                 R.id.nav_clientes -> {
-                    // Assuming nav_clientes_fragment is the id of the destination in your nav graph
                     findNavController().navigate(R.id.nav_clientes)
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
@@ -71,11 +70,7 @@ class HomeFragment : Fragment() {
             }
         }
         // Check if the header is already present before inflating
-        val headerView = if (navigationView.getHeaderCount() > 0) {
-            navigationView.getHeaderView(0)
-        } else {
-            navigationView.inflateHeaderView(R.layout.nav_header_main)
-        }
+
         loggedInUsername?.let { username ->
             GetAgenteAsyncTask(requireContext(), username) { agente ->
                 // This is your callback that gets executed on the main thread.

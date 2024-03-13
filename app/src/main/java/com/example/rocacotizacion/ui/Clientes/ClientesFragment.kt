@@ -8,8 +8,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.rocacotizacion.R
 import com.example.rocacotizacion.ui.home.HomeFragment
 import com.google.android.material.navigation.NavigationView
@@ -35,9 +37,30 @@ class ClientesFragment : Fragment() {
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+
+        //Set up of the username and description  in the title for the ActionBarDrawer
         val sharedPreferences = activity?.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
         val loggedInUsername = sharedPreferences?.getString("LoggedInUsername", null)
         val navigationView: NavigationView = view.findViewById(R.id.nav_clientes)
+        // Setting up the NavigationItemSelectedListener
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            // Handle menu item selected
+            when (menuItem.itemId) {
+                R.id.nav_home -> {
+                    findNavController().navigate(R.id.nav_home)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
+                R.id.nav_clientes -> {
+                    findNavController().navigate(R.id.nav_clientes)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
+                // Add more menu item clicks here
+                else -> false
+            }
+        }
+
         loggedInUsername?.let { username ->
             HomeFragment.GetAgenteAsyncTask(requireContext(), username) { agente ->
                 // This is your callback that gets executed on the main thread.
