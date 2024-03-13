@@ -1,17 +1,25 @@
 package com.example.rocacotizacion.ui.Clientes
 
 import android.content.Context
+import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.rocacotizacion.DAO.Agente
+import com.example.rocacotizacion.DAO.AppDatabase
+import com.example.rocacotizacion.DAO.Clientes
+import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.R
 import com.example.rocacotizacion.ui.home.HomeFragment
 import com.google.android.material.navigation.NavigationView
@@ -70,6 +78,58 @@ class ClientesFragment : Fragment() {
                     navigationView.findViewById<TextView>(R.id.textView).text = "${agente.descripcionCorta}"
                 }
             }.execute()
+
+            GetClienteAsyncTask(requireContext()) { clientesList ->
+                val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewClientes)
+                recyclerView.layoutManager = LinearLayoutManager(context)
+                recyclerView.adapter = ClientesAdapter(clientesList) { cliente ->
+                    // Handle the click event for the clicked 'cliente' object
+                    // For now, you can show a Toast or log the clicked item
+                    Toast.makeText(context, "Clicked: ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
+                }
+            }.execute()
+
         }
     }
+
+    class GetClienteAsyncTask(
+        private val context: Context,
+        private val callback: (List<Clientes>) -> Unit
+    ) : AsyncTask<Void, Void, List<Clientes>>() {
+        private val db: AppDatabase = DatabaseApplication.getDatabase(context)
+        override fun doInBackground(vararg params: Void?): List<Clientes> {
+            // Perform database operation in background
+            return db.ClientesDAO().getSelectClientes()
+        }
+        override fun onPostExecute(result: List<Clientes>) {
+            super.onPostExecute(result)
+            // Runs on the main thread, update your UI here
+            callback(result)
+        }
+    }
+    class ClientesAdapter(
+        private val clientesList: List<Clientes>,
+        private val onItemClick: (Clientes) -> Unit
+    ) : RecyclerView.Adapter<ClientesAdapter.ViewHolder>() {
+
+        class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val textView: TextView = view.findViewById(R.id.textViewCliente)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.cliente_item, parent, false)
+            return ViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val cliente = clientesList[position]
+            holder.textView.text = cliente.nombrecliente // Assuming 'nombre' is a property of the Clientes class
+            holder.itemView.setOnClickListener { onItemClick(cliente) }
+        }
+
+        override fun getItemCount(): Int = clientesList.size
+    }
+
+
+
 }

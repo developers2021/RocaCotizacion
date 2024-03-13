@@ -11,4 +11,7 @@ interface ClientesDAO {
     //fun insert(clientes: Clientes)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
      fun insertAll(clientes: List<Clientes>)
+
+    @Query("SELECT * FROM clientes")
+    fun getSelectClientes(): List< Clientes>
 }
