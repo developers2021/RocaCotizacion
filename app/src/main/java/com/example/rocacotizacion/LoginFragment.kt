@@ -1,6 +1,9 @@
 package com.example.rocacotizacion
 
+import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -46,18 +49,29 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val loginButton: Button = view.findViewById(R.id.login_button)
+        val progressDialog = Dialog(requireContext()).apply {
+            setContentView(R.layout.dialog_progress)
+            setCancelable(false)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+
         loginButton.setOnClickListener {
             val username = view.findViewById<EditText>(R.id.username).text.toString()
             val password = view.findViewById<EditText>(R.id.password).text.toString()
-            if(username!="" && password!="")
-            {
-                sendLoginRequest(username, password)
-            }
-            else{
+            if (username != "" && password != "") {
+                progressDialog.show()
+
+                sendLoginRequest(username, password) {
+                    requireActivity().runOnUiThread {
+                        progressDialog.dismiss()
+                    }
+                }
+            } else {
                 Toast.makeText(context, "Datos Invalidos", Toast.LENGTH_LONG).show()
             }
         }
     }
+
     fun isOnline(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = connectivityManager.activeNetworkInfo
@@ -179,14 +193,13 @@ class LoginFragment : Fragment() {
             db.NivelPrecioPredeterminadoDAO().insertAll(NivelPrecioPredeterminadoList)
         }
     }
-    private fun sendLoginRequest(username: String, password: String) {
+    private fun sendLoginRequest(username: String, password: String, onComplete: () -> Unit) {
 
         if (isOnline(requireContext())) {
             // Proceed with login process (e.g., make API call)
             val okHttpClient = OkHttpClient()
             val json = """{"username":"$username","password":"$password"}"""
             val requestBody = RequestBody.create("application/json".toMediaTypeOrNull(), json)
-
 
             val request = Request.Builder()
                 .url(Utilidades.URL_AUTH_LOGIN)
@@ -197,6 +210,9 @@ class LoginFragment : Fragment() {
                 override fun onFailure(call: Call, e: IOException) {
                     // Handle the error
                     e.printStackTrace()
+                    activity?.runOnUiThread {
+                        onComplete() // Call the callback function
+                    }
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -218,7 +234,7 @@ class LoginFragment : Fragment() {
                                     sharedPreferences?.edit()?.putString("LoggedInUsername", username)?.apply()
                                     if (responseBodyString != null) {
                                         context?.let { it1 ->
-                                            InsertDataDB(responseBodyString, it1   )
+                                            InsertDataDB(responseBodyString, it1)
                                         }
                                         Toast.makeText(context, "Bienvenido $username", Toast.LENGTH_LONG).show()
                                         findNavController().navigate(R.id.nav_home)
@@ -227,11 +243,13 @@ class LoginFragment : Fragment() {
                                     // Login failed, show the message to the user
                                     Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                                 }
+                                onComplete() // Call the callback function
                             }
                         } else {
                             // Handle the case where the server responded with an error status
                             activity?.runOnUiThread {
                                 // Update UI to show an error message
+                                onComplete() // Call the callback function
                             }
                         }
                     }
@@ -241,8 +259,8 @@ class LoginFragment : Fragment() {
         } else {
             // Show error message
             Toast.makeText(requireContext(), "Revise su Conexión a Internet", Toast.LENGTH_SHORT).show()
+            onComplete() // Call the callback function even if there's no internet connection
         }
-
-
     }
+
 }
