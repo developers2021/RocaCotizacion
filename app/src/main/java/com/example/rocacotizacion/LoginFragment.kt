@@ -14,6 +14,10 @@ import androidx.navigation.fragment.findNavController
 import com.example.rocacotizacion.DAO.Agente
 import com.example.rocacotizacion.DAO.Clientes
 import com.example.rocacotizacion.DAO.DatabaseApplication
+import com.example.rocacotizacion.DAO.Grupos
+import com.example.rocacotizacion.DAO.NivelPrecioPredeterminado
+import com.example.rocacotizacion.DAO.PreciosNivelTipoVenta
+import com.example.rocacotizacion.DAO.Productos
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -84,7 +88,8 @@ class LoginFragment : Fragment() {
             password = userJson.optString("password"),
             rutadesc = userJson.optString("rutadesc"),
             nombodega= userJson.optString("nombodega"),
-            tipoagente = userJson.optString("tipoagente")
+            tipoagente = userJson.optString("tipoagente"),
+            idbodega = userJson.optString("idbodega")
             )
         val clienteJsonArray = jsonObject.getJSONArray("clnClientes")
         val clientesList = mutableListOf<Clientes>()
@@ -99,6 +104,67 @@ class LoginFragment : Fragment() {
             )
             clientesList.add(cliente)
         }
+        val ProductoJsonArray = jsonObject.getJSONArray("productos")
+        val ProductosList = mutableListOf<Productos>()
+
+        for (i in 0 until ProductoJsonArray.length()) {
+            val clienteJsonObject = ProductoJsonArray.getJSONObject(i)
+            val producto = Productos(
+                idproducto = clienteJsonObject.getInt("idproducto"),
+                codigoproducto = clienteJsonObject.optString("codigoproducto"),
+                producto = clienteJsonObject.optString("producto"),
+                idgrupo = clienteJsonObject.getInt("idgrupo"),
+                grupo = clienteJsonObject.optString("grupo"),
+                idtipoproducto = clienteJsonObject.getInt("idtipoproducto"),
+                costoactual = clienteJsonObject.optDouble("costoactual"),
+                idimpuesto = clienteJsonObject.getInt("idimpuesto"),
+                porcentajeimpuesto = clienteJsonObject.optDouble("porcentajeimpuesto"),
+                precio = clienteJsonObject.optDouble("precio"),
+                descuento = clienteJsonObject.optDouble("descuento")
+            )
+
+            ProductosList.add(producto)
+        }
+
+        val GruposJsonArray = jsonObject.getJSONArray("grupos")
+        val GruposList = mutableListOf<Grupos>()
+
+        for (i in 0 until GruposJsonArray.length()) {
+            val clienteJsonObject = GruposJsonArray.getJSONObject(i)
+            val producto = Grupos(
+                idgrupo = clienteJsonObject.getInt("idgrupo"),
+                grupo = clienteJsonObject.optString("grupo")
+            )
+            GruposList.add(producto)
+        }
+        val PreciosNivelTipoVentaJsonArray = jsonObject.getJSONArray("preciosNivelTipoVenta")
+        val PreciosNivelTipoVentaList = mutableListOf<PreciosNivelTipoVenta>()
+
+        for (i in 0 until PreciosNivelTipoVentaJsonArray.length()) {
+            val clienteJsonObject = PreciosNivelTipoVentaJsonArray.getJSONObject(i)
+            val producto = PreciosNivelTipoVenta(
+                idproducto = clienteJsonObject.getInt("idproducto"),
+                precio = clienteJsonObject.optDouble("precio"),
+                idnivelprecio = clienteJsonObject.getInt("idnivelprecio"),
+                idtipoventa = clienteJsonObject.getInt("idtipoventa"),
+                nivelprecio = clienteJsonObject.optString("nivelprecio"),
+                tipoventa = clienteJsonObject.optString("tipoventa"),
+                codigotipoventa = clienteJsonObject.optString("codigotipoventa"),
+            )
+            PreciosNivelTipoVentaList.add(producto)
+        }
+
+        val NivelPrecioPredeterminadoJsonArray = jsonObject.getJSONArray("nivelPrecioPredeterminado")
+        val NivelPrecioPredeterminadoList = mutableListOf<NivelPrecioPredeterminado>()
+
+        for (i in 0 until NivelPrecioPredeterminadoJsonArray.length()) {
+            val clienteJsonObject = NivelPrecioPredeterminadoJsonArray.getJSONObject(i)
+            val producto = NivelPrecioPredeterminado(
+                id = clienteJsonObject.getInt("id"),
+                text = clienteJsonObject.optString("text")
+            )
+            NivelPrecioPredeterminadoList.add(producto)
+        }
 
         // Now insert the data into the database
         CoroutineScope(Dispatchers.IO).launch {
@@ -107,6 +173,10 @@ class LoginFragment : Fragment() {
             val db = DatabaseApplication.getDatabase(context)
             db.AgenteDAO().insert(agente)
             db.ClientesDAO().insertAll(clientesList)
+            db.ProductosDAO().insertAll(ProductosList)
+            db.GrupoDAO().insertAll(GruposList)
+            db.PreciosNivelTipoVentaDAO().insertAll(PreciosNivelTipoVentaList)
+            db.NivelPrecioPredeterminadoDAO().insertAll(NivelPrecioPredeterminadoList)
         }
     }
     private fun sendLoginRequest(username: String, password: String) {
