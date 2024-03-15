@@ -14,4 +14,7 @@ interface ClientesDAO {
 
     @Query("SELECT * FROM clientes")
     fun getSelectClientes(): List< Clientes>
+
+    @Query("DELETE FROM clientes")
+     fun deleteAll()
 }

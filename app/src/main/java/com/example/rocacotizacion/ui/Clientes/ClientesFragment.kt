@@ -2,6 +2,7 @@ package com.example.rocacotizacion.ui.Clientes
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -23,6 +24,7 @@ import com.example.rocacotizacion.DAO.AppDatabase
 import com.example.rocacotizacion.DAO.Clientes
 import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.R
+import com.example.rocacotizacion.ui.Facturacion.FacturacionActivity
 import com.example.rocacotizacion.ui.home.HomeFragment
 import com.google.android.material.navigation.NavigationView
 
@@ -123,41 +125,40 @@ class ClientesFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val cliente = clientesList[position]
-            holder.textView.text = cliente.nombrecliente // Assuming 'nombre' is a property of the Clientes class
+            holder.textView.text = cliente.nombrecliente
             holder.itemView.setOnClickListener {
-                // Show an AlertDialog when a row is tapped
                 val context = holder.itemView.context
                 val builder = AlertDialog.Builder(context)
                 builder.setTitle("Tipo de Pago")
                 builder.setMessage("Escoja el tipo de pago para la creacion del pedido")
 
                 builder.setPositiveButton("Contado") { dialog, _ ->
-                    // Handle "Yes" button click
                     Toast.makeText(context, "Pedido Contado para : ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
-                    val navController = Navigation.findNavController(holder.itemView)
-                    navController.navigate(R.id.action_clientes_to_facturacion)
-
+                    val intent = Intent(context, FacturacionActivity::class.java)
+                    intent.putExtra("tipoPago", "Contado")
+                    intent.putExtra("clienteNombre", cliente.nombrecliente)
+                    context.startActivity(intent)
                     dialog.dismiss()
                 }
 
                 builder.setNegativeButton("Credito") { dialog, _ ->
-                    // Handle "No" button click
                     Toast.makeText(context, "Pedido Credito para : ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
-                    val navController = Navigation.findNavController(holder.itemView)
-                    navController.navigate(R.id.action_clientes_to_facturacion)
+                    val intent = Intent(context, FacturacionActivity::class.java)
+                    intent.putExtra("tipoPago", "Credito")
+                    intent.putExtra("clienteNombre", cliente.nombrecliente)
+                    context.startActivity(intent)
                     dialog.dismiss()
                 }
 
                 builder.setNeutralButton("Cancelar") { dialog, _ ->
-                    // Handle "Cancel" button click
                     dialog.dismiss()
                 }
 
                 val alertDialog = builder.create()
                 alertDialog.show()
-
             }
         }
+
 
         override fun getItemCount(): Int = clientesList.size
 

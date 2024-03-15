@@ -11,4 +11,7 @@ interface AgenteDAO {
 
     @Query("SELECT * FROM AgnAgente WHERE username = :username")
     fun getAgenteByUsername(username: String): Agente?
+
+    @Query("DELETE FROM AgnAgente")
+     fun deleteAll()
 }

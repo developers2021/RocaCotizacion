@@ -10,4 +10,7 @@ interface ProductosDAO {
     fun insertAll(productos: MutableList<Productos>)
     @Query("SELECT * FROM productos")
     fun getProductos(): List<Productos>
+
+    @Query("DELETE FROM productos")
+     fun deleteAll()
 }

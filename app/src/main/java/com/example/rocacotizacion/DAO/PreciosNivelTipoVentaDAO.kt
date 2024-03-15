@@ -12,4 +12,6 @@ interface PreciosNivelTipoVentaDAO {
 
     @Query("SELECT * FROM PreciosNivelTipoVenta")
     fun getSelectPreciosNivelTipoVenta(): List< PreciosNivelTipoVenta>
+    @Query("DELETE FROM PreciosNivelTipoVenta")
+     fun deleteAll()
 }

@@ -12,4 +12,7 @@ interface NivelPrecioPredeterminadoDAO {
 
     @Query("SELECT * FROM NivelPrecioPredeterminado")
     fun getSelectNivelPrecioPredeterminado(): List< NivelPrecioPredeterminado>
+
+    @Query("DELETE FROM NivelPrecioPredeterminado")
+     fun deleteAll()
 }

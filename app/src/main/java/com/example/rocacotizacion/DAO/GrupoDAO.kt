@@ -12,4 +12,7 @@ interface GrupoDAO {
 
     @Query("SELECT * FROM grupos")
     fun getSelectGrupos(): List< Grupos>
+
+    @Query("DELETE FROM grupos")
+     fun deleteAll()
 }
