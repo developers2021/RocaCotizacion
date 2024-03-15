@@ -1,5 +1,6 @@
 package com.example.rocacotizacion.ui.Clientes
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.AsyncTask
 import android.os.Bundle
@@ -13,6 +14,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -83,9 +85,7 @@ class ClientesFragment : Fragment() {
                 val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewClientes)
                 recyclerView.layoutManager = LinearLayoutManager(context)
                 recyclerView.adapter = ClientesAdapter(clientesList) { cliente ->
-                    // Handle the click event for the clicked 'cliente' object
-                    // For now, you can show a Toast or log the clicked item
-                    Toast.makeText(context, "Clicked: ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
+                    // The lambda here is where the AlertDialog will be shown when a row is tapped
                 }
             }.execute()
 
@@ -124,10 +124,43 @@ class ClientesFragment : Fragment() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val cliente = clientesList[position]
             holder.textView.text = cliente.nombrecliente // Assuming 'nombre' is a property of the Clientes class
-            holder.itemView.setOnClickListener { onItemClick(cliente) }
+            holder.itemView.setOnClickListener {
+                // Show an AlertDialog when a row is tapped
+                val context = holder.itemView.context
+                val builder = AlertDialog.Builder(context)
+                builder.setTitle("Tipo de Pago")
+                builder.setMessage("Escoja el tipo de pago para la creacion del pedido")
+
+                builder.setPositiveButton("Contado") { dialog, _ ->
+                    // Handle "Yes" button click
+                    Toast.makeText(context, "Pedido Contado para : ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
+                    val navController = Navigation.findNavController(holder.itemView)
+                    navController.navigate(R.id.action_clientes_to_facturacion)
+
+                    dialog.dismiss()
+                }
+
+                builder.setNegativeButton("Credito") { dialog, _ ->
+                    // Handle "No" button click
+                    Toast.makeText(context, "Pedido Credito para : ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
+                    val navController = Navigation.findNavController(holder.itemView)
+                    navController.navigate(R.id.action_clientes_to_facturacion)
+                    dialog.dismiss()
+                }
+
+                builder.setNeutralButton("Cancelar") { dialog, _ ->
+                    // Handle "Cancel" button click
+                    dialog.dismiss()
+                }
+
+                val alertDialog = builder.create()
+                alertDialog.show()
+
+            }
         }
 
         override fun getItemCount(): Int = clientesList.size
+
     }
 
 

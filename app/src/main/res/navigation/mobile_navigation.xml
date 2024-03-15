@@ -29,10 +29,20 @@
         android:name="com.example.rocacotizacion.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
+
     <fragment
         android:id="@+id/nav_clientes"
         android:name="com.example.rocacotizacion.ui.Clientes.ClientesFragment"
         android:label="ListadoClientes"
-        tools:layout="@layout/fragment_clientes"
-        />
+        tools:layout="@layout/fragment_clientes">
+        <action
+            android:id="@+id/action_clientes_to_facturacion"
+            app:destination="@id/nav_facturacion" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_facturacion"
+        android:name="com.example.rocacotizacion.ui.Facturacion.FacturacionFragment"
+        android:label="Facturacion"
+        tools:layout="@layout/fragment_facturacion" />
 </navigation>
