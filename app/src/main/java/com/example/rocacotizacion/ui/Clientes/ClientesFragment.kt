@@ -135,7 +135,7 @@ class ClientesFragment : Fragment() {
                 builder.setPositiveButton("Contado") { dialog, _ ->
                     Toast.makeText(context, "Pedido Contado para : ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
                     val intent = Intent(context, FacturacionActivity::class.java)
-                    intent.putExtra("tipoPago", "Contado")
+                    intent.putExtra("tipoPago", "CTADO")
                     intent.putExtra("clienteNombre", cliente.nombrecliente)
                     context.startActivity(intent)
                     dialog.dismiss()
@@ -144,7 +144,7 @@ class ClientesFragment : Fragment() {
                 builder.setNegativeButton("Credito") { dialog, _ ->
                     Toast.makeText(context, "Pedido Credito para : ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
                     val intent = Intent(context, FacturacionActivity::class.java)
-                    intent.putExtra("tipoPago", "Credito")
+                    intent.putExtra("tipoPago", "CRED")
                     intent.putExtra("clienteNombre", cliente.nombrecliente)
                     context.startActivity(intent)
                     dialog.dismiss()

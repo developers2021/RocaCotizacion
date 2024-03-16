@@ -13,8 +13,22 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="Creacion Pedido" />
+        app:title="Lista de Productos" />
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs_facturacion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:tabMode="fixed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:tabGravity="fill" />
 
-    <!-- Add other UI elements here -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewpager_facturacion"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_facturacion"
+        app:layout_constraintBottom_toTopOf="@id/tabs_facturacion" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
