@@ -1,30 +1,30 @@
-package com.example.rocacotizacion.ui.Facturacion
+package com.example.rocacotizacion.ui.ListaProducto
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import com.example.rocacotizacion.R
+import com.example.rocacotizacion.ui.ListaProducto.ListaProductoFragment
 
-class FacturacionActivity : AppCompatActivity() {
+class ListaProductoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_facturacion)
+        setContentView(R.layout.activity_listaproductos)
 
-        // Retrieve the extras from the intent
+        // Get the data from intent or other sources
         val tipoPago = intent.getStringExtra("tipoPago")
         val clienteNombre = intent.getStringExtra("clienteNombre")
 
-        // Create a new instance of FacturacionFragment with arguments
-        val fragment = FacturacionFragment().apply {
+        // Create a new instance of ListaProductoFragment with arguments
+        val fragment = ListaProductoFragment().apply {
             arguments = Bundle().apply {
                 putString("tipoPago", tipoPago)
                 putString("clienteNombre", clienteNombre)
             }
         }
 
-        // Replace the container with the FacturacionFragment with arguments
+        // Add the fragment to the activity
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
+            .replace(R.id.fragment_container_listaproductos, fragment)
             .commit()
     }
 }

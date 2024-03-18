@@ -30,9 +30,11 @@ class FacturacionFragment : Fragment() {
 
         viewPager = view.findViewById(R.id.viewpager_facturacion)
         tabs = view.findViewById(R.id.tabs_facturacion)
-
+        // Retrieve the arguments passed from FacturacionActivity
+        val tipoPago = arguments?.getString("tipoPago")
+        val clienteNombre = arguments?.getString("clienteNombre")
         // Initialize the ViewPager2 adapter
-        val pagerAdapter = FacturacionPagerAdapter(this)
+        val pagerAdapter = FacturacionPagerAdapter(this, tipoPago, clienteNombre)
         viewPager.adapter = pagerAdapter
 
         // Attach the TabLayout and ViewPager2 together
@@ -45,13 +47,22 @@ class FacturacionFragment : Fragment() {
         }.attach()
     }
 
-    class FacturacionPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+    class FacturacionPagerAdapter(
+        fragment: Fragment,
+        private val tipoPago: String?,
+        private val clienteNombre: String?
+    ) : FragmentStateAdapter(fragment) {
         override fun getItemCount(): Int = 2
 
         override fun createFragment(position: Int): Fragment {
+            // Pass the arguments to the respective fragments
+            val bundle = Bundle().apply {
+                putString("tipoPago", tipoPago)
+                putString("clienteNombre", clienteNombre)
+            }
             return when (position) {
-                0 -> DetalleFragment()
-                1 -> ResumenFragment()
+                0 -> DetalleFragment().apply { arguments = bundle }
+                1 -> ResumenFragment().apply { arguments = bundle }
                 else -> throw IllegalStateException("Unexpected position $position")
             }
         }
