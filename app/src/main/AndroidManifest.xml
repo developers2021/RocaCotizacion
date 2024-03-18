@@ -33,5 +33,8 @@
         <activity android:name=".ui.ListaProducto.ListaProductoActivity"
             android:theme="@style/Theme.RocaCotizacion.NoActionBar"
             />
+        <activity android:name=".ui.QuantityProd.QuantityProdActivity"
+            android:theme="@style/Theme.RocaCotizacion.NoActionBar"
+            />
     </application>
 </manifest>

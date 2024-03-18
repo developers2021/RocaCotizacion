@@ -1,5 +1,6 @@
 package com.example.rocacotizacion.ui.ListaProducto
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.DTO.ProductoConPrecio
 import com.example.rocacotizacion.R
+import com.example.rocacotizacion.ui.QuantityProd.QuantityProdActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,28 +23,25 @@ import kotlinx.coroutines.withContext
 
 class ListaProductoFragment :Fragment() {
     private lateinit var productosAdapter: ProductosAdapter
-
+    val codigoTipoVenta :String?=""
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_listaproductos, container, false)
-        // Retrieve the arguments from the Bundle
-        val tipoPago = activity?.intent?.getStringExtra("tipoPago")
         //val clienteNombre = activity?.intent?.getStringExtra("clienteNombre")
-
+        val codigoTipoVenta = activity?.intent?.getStringExtra("tipoPago") // Set this to the desired codigotipoventa value
 
         // Initialize the adapter with an empty list
-        productosAdapter = ProductosAdapter(emptyList()) { producto ->
+        productosAdapter = ProductosAdapter(emptyList(), { producto ->
             // Handle the click event here
             Toast.makeText(context, "Clicked on: ${producto.producto}", Toast.LENGTH_SHORT).show()
-        }
+        }, codigoTipoVenta)
         // Set up the RecyclerView
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewlistaproductos)
          recyclerView.layoutManager = LinearLayoutManager(context)
          recyclerView.adapter = productosAdapter
-
-        val codigoTipoVenta = tipoPago // Set this to the desired codigotipoventa value
+        // Retrieve the arguments from the Bundle
 
        codigoTipoVenta?.let { nonNullCodigoTipoVenta ->
            CoroutineScope(Dispatchers.IO).launch {
@@ -60,12 +59,14 @@ class ListaProductoFragment :Fragment() {
 
     class ProductosAdapter(
         private var productos: List<ProductoConPrecio>,
-        private val onProductoClickListener: (ProductoConPrecio) -> Unit
+        private val onProductoClickListener: (ProductoConPrecio) -> Unit,
+        private val tipoPago: String?
     ) : RecyclerView.Adapter<ProductosAdapter.ViewHolder>() {
 
          class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
              val tvProductoNombre: TextView = view.findViewById(R.id.tvProductoNombre)
              val tvProductoPrecio: TextView = view.findViewById(R.id.tvProductoPrecio)
+             var idproducto:Int=0
          }
 
          override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -77,8 +78,15 @@ class ListaProductoFragment :Fragment() {
              val producto = productos[position]
              holder.tvProductoNombre.text = producto.producto
              holder.tvProductoPrecio.text = "L. ${producto.precio}"
+             holder.idproducto=producto.idproducto
+
              holder.itemView.setOnClickListener {
-                 onProductoClickListener(producto)
+                 val context = holder.itemView.context
+                 val intent = Intent(context, QuantityProdActivity::class.java)
+                 intent.putExtra("idproducto", producto.idproducto.toString())
+                 intent.putExtra("tipoPago",tipoPago)
+                 //i got the value of the intents until this point
+                 context.startActivity(intent)
              }
          }
 
