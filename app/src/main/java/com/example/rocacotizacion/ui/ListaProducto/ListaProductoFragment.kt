@@ -33,8 +33,10 @@ class ListaProductoFragment :Fragment() {
 
 
         // Initialize the adapter with an empty list
-         productosAdapter = ProductosAdapter(emptyList())
-
+        productosAdapter = ProductosAdapter(emptyList()) { producto ->
+            // Handle the click event here
+            Toast.makeText(context, "Clicked on: ${producto.producto}", Toast.LENGTH_SHORT).show()
+        }
         // Set up the RecyclerView
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewlistaproductos)
          recyclerView.layoutManager = LinearLayoutManager(context)
@@ -56,8 +58,10 @@ class ListaProductoFragment :Fragment() {
         return view
     }
 
-     class ProductosAdapter(private var productos: List<ProductoConPrecio>) :
-         RecyclerView.Adapter<ProductosAdapter.ViewHolder>() {
+    class ProductosAdapter(
+        private var productos: List<ProductoConPrecio>,
+        private val onProductoClickListener: (ProductoConPrecio) -> Unit
+    ) : RecyclerView.Adapter<ProductosAdapter.ViewHolder>() {
 
          class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
              val tvProductoNombre: TextView = view.findViewById(R.id.tvProductoNombre)
@@ -73,6 +77,9 @@ class ListaProductoFragment :Fragment() {
              val producto = productos[position]
              holder.tvProductoNombre.text = producto.producto
              holder.tvProductoPrecio.text = "L. ${producto.precio}"
+             holder.itemView.setOnClickListener {
+                 onProductoClickListener(producto)
+             }
          }
 
          override fun getItemCount(): Int = productos.size
