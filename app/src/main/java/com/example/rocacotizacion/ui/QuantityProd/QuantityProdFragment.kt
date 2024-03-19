@@ -1,6 +1,7 @@
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.rocacotizacion.DAO.DatabaseApplication
+import com.example.rocacotizacion.DTO.SharedDataModel
+import com.example.rocacotizacion.DataModel.DetalleItem
 import com.example.rocacotizacion.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,9 +35,19 @@ class QuantityProdFragment : Fragment() {
         editTextNumber = view.findViewById(R.id.editTextNumber)
         val buttonIncrement: Button = view.findViewById(R.id.buttonIncrement)
         val buttonDecrement: Button = view.findViewById(R.id.buttonDecrement)
+        val btnAgregar: Button = view.findViewById(R.id.btnAgregar)
         tvPrice = view.findViewById(R.id.tvValueRight1)
         tvSubtotal = view.findViewById(R.id.tvValueRight3)
+        btnAgregar.setOnClickListener {
+            val quantity = editTextNumber.text.toString().toIntOrNull() ?: 0
+            val price = tvPrice.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
+            val subtotal = tvSubtotal.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
 
+            val detalleItem = DetalleItem(quantity, price, subtotal)
+            SharedDataModel.detalleItems.add(detalleItem)
+            Log.d("QuantityProdFragment", "List updated: ${SharedDataModel.detalleItems}")
+
+        }
         buttonIncrement.setOnClickListener {
             incrementQuantity()
         }
