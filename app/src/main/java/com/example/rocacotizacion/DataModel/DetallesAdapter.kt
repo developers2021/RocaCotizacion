@@ -1,25 +1,40 @@
 package com.example.rocacotizacion.DataModel
 
-// DetallesAdapter.kt
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rocacotizacion.R
 
-class DetallesAdapter(var detalles: List<DetalleItem>) : RecyclerView.Adapter<DetallesAdapter.ViewHolder>() {
+class DetallesAdapter(
+    var detalles: List<DetalleItem>,
+    private val itemCloseClickListener: OnItemCloseClickListener
+) : RecyclerView.Adapter<DetallesAdapter.ViewHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    interface OnItemCloseClickListener {
+        fun onItemCloseClick(position: Int)
+    }
+
+    class ViewHolder(view: View, private val itemCloseClickListener: OnItemCloseClickListener) : RecyclerView.ViewHolder(view) {
         val textViewQuantity: TextView = view.findViewById(R.id.textViewQuantity)
         val textViewPrice: TextView = view.findViewById(R.id.textViewPrice)
         val textViewSubtotal: TextView = view.findViewById(R.id.textViewSubtotal)
+        private val buttonClose: Button = view.findViewById(R.id.buttonClose)
+
+        init {
+            buttonClose.setOnClickListener {
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    itemCloseClickListener.onItemCloseClick(adapterPosition)
+                }
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.detalle_item, parent, false)
-        return ViewHolder(view)
+        return ViewHolder(view, itemCloseClickListener)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -32,9 +47,7 @@ class DetallesAdapter(var detalles: List<DetalleItem>) : RecyclerView.Adapter<De
     override fun getItemCount(): Int = detalles.size
 
     fun updateDetalles(newDetalles: List<DetalleItem>) {
-        Log.d("DetallesAdapter", "Updating adapter with items: $newDetalles")
         detalles = newDetalles
         notifyDataSetChanged()
     }
-
 }

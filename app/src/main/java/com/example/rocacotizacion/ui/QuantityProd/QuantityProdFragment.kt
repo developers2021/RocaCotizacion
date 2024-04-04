@@ -22,6 +22,8 @@ class QuantityProdFragment : Fragment() {
     private lateinit var editTextNumber: EditText
     private lateinit var tvPrice: TextView
     private lateinit var tvSubtotal: TextView
+    private lateinit var tvnombreproducto: TextView
+    private lateinit var tvcodigoproducto: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,15 +40,18 @@ class QuantityProdFragment : Fragment() {
         val btnAgregar: Button = view.findViewById(R.id.btnAgregar)
         tvPrice = view.findViewById(R.id.tvValueRight1)
         tvSubtotal = view.findViewById(R.id.tvValueRight3)
+        tvnombreproducto = view.findViewById(R.id.tvLargeText)
+        tvcodigoproducto = view.findViewById(R.id.tvSmallText)
         btnAgregar.setOnClickListener {
             val quantity = editTextNumber.text.toString().toIntOrNull() ?: 0
             val price = tvPrice.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
             val subtotal = tvSubtotal.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
-
-            val detalleItem = DetalleItem(quantity, price, subtotal)
+            val nombreproducto = tvnombreproducto.text.toString()
+            val codigoproducto = tvcodigoproducto.text.toString()
+            val detalleItem = DetalleItem(quantity, price, subtotal,nombreproducto,codigoproducto)
             SharedDataModel.detalleItems.add(detalleItem)
             Log.d("QuantityProdFragment", "List updated: ${SharedDataModel.detalleItems}")
-
+            requireActivity().onBackPressed()
         }
         buttonIncrement.setOnClickListener {
             incrementQuantity()
@@ -84,7 +89,7 @@ class QuantityProdFragment : Fragment() {
                 val productDetails = db.ProductosDAO().getProductoConPrecio(idproducto, codigotipoventa)
                 withContext(Dispatchers.Main) {
                     view?.findViewById<TextView>(R.id.tvLargeText)?.text = productDetails.producto
-                    view?.findViewById<TextView>(R.id.tvSmallText)?.text = "Código Producto ${productDetails.codigoproducto}"
+                    view?.findViewById<TextView>(R.id.tvSmallText)?.text = "${productDetails.codigoproducto}"
                     tvPrice.text = "L. ${productDetails.precio.toString()}"
                     view?.findViewById<TextView>(R.id.tvValueRight2)?.text = "${productDetails.porcentajeimpuesto} %"
                     calculateSubtotal()  // Call to update the subtotal

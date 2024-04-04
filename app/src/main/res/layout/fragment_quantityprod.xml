@@ -24,7 +24,17 @@
             android:textSize="20sp" />
 
     </androidx.appcompat.widget.Toolbar>
-
+    <TextView
+        android:id="@+id/labelnomproducto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Producto:"
+        android:textSize="15sp"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_Quantityprod"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <TextView
         android:id="@+id/tvLargeText"
         android:layout_width="wrap_content"
@@ -33,10 +43,19 @@
         android:text="nombreproducto"
         android:textSize="15sp"
         android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_Quantityprod"
+        app:layout_constraintTop_toBottomOf="@id/labelnomproducto"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
+    <TextView
+        android:id="@+id/labelcodigo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Codigo Producto:"
+        android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@id/tvLargeText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <TextView
         android:id="@+id/tvSmallText"
         android:layout_width="wrap_content"
@@ -44,7 +63,7 @@
         android:layout_marginTop="8dp"
         android:text="Codigo Producto"
         android:textSize="15sp"
-        app:layout_constraintTop_toBottomOf="@id/tvLargeText"
+        app:layout_constraintTop_toBottomOf="@id/labelcodigo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
     <LinearLayout
