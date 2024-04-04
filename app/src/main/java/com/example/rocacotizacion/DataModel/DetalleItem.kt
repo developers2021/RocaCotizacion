@@ -1,9 +1,9 @@
 package com.example.rocacotizacion.DataModel
 
 data class DetalleItem(
-    val quantity: Int,
-    val price: Double,
-    val subtotal: Double,
-    val nombreproducto: String,
-    val codigoproducto:String
+    var quantity: Int,
+    var price: Double,
+    var subtotal: Double,
+    var nombreproducto: String,
+    var codigoproducto:String
 )

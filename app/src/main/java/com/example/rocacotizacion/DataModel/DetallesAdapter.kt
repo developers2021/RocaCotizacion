@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.rocacotizacion.DTO.SharedDataModel
 import com.example.rocacotizacion.R
 
 class DetallesAdapter(
@@ -22,11 +23,35 @@ class DetallesAdapter(
         val textViewPrice: TextView = view.findViewById(R.id.textViewPrice)
         val textViewSubtotal: TextView = view.findViewById(R.id.textViewSubtotal)
         private val buttonClose: Button = view.findViewById(R.id.buttonClose)
+        private val buttonDecrement: Button = view.findViewById(R.id.buttonDecrement)
+        private val buttonIncrement: Button = view.findViewById(R.id.buttonIncrement)
 
         init {
             buttonClose.setOnClickListener {
                 if (adapterPosition != RecyclerView.NO_POSITION) {
                     itemCloseClickListener.onItemCloseClick(adapterPosition)
+                }
+            }
+
+            buttonDecrement.setOnClickListener {
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    val item = SharedDataModel.detalleItems[adapterPosition]
+                    if (item.quantity > 1) {
+                        item.quantity -= 1
+                        item.subtotal = item.quantity * item.price
+                        textViewQuantity.text = item.quantity.toString()
+                        textViewSubtotal.text = String.format("L. %.2f", item.subtotal)
+                    }
+                }
+            }
+
+            buttonIncrement.setOnClickListener {
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    val item = SharedDataModel.detalleItems[adapterPosition]
+                    item.quantity += 1
+                    item.subtotal = item.quantity * item.price
+                    textViewQuantity.text = item.quantity.toString()
+                    textViewSubtotal.text = String.format("L. %.2f", item.subtotal)
                 }
             }
         }
