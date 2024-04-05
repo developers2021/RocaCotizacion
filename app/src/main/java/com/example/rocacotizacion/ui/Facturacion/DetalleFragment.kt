@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rocacotizacion.DTO.SharedDataModel
@@ -24,10 +25,14 @@ class DetalleFragment : Fragment(), DetallesAdapter.OnItemCloseClickListener {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_detalles, container, false)
 
-        detallesAdapter = DetallesAdapter(SharedDataModel.detalleItems, this)
+        detallesAdapter = DetallesAdapter(SharedDataModel.detalleItems.value ?: emptyList(), this)
         recyclerView = view.findViewById(R.id.recyclerViewDetalles)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = detallesAdapter
+
+        SharedDataModel.detalleItems.observe(viewLifecycleOwner, Observer { items ->
+            detallesAdapter.updateDetalles(items)
+        })
 
         val fab: FloatingActionButton = view.findViewById(R.id.fab_add)
         fab.setOnClickListener {
@@ -40,13 +45,10 @@ class DetalleFragment : Fragment(), DetallesAdapter.OnItemCloseClickListener {
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
-        detallesAdapter.updateDetalles(SharedDataModel.detalleItems)
-    }
-
     override fun onItemCloseClick(position: Int) {
-        SharedDataModel.detalleItems.removeAt(position)
-        detallesAdapter.notifyItemRemoved(position)
+        SharedDataModel.detalleItems.value?.let { items ->
+            items.removeAt(position)
+            SharedDataModel.detalleItems.postValue(items)
+        }
     }
 }

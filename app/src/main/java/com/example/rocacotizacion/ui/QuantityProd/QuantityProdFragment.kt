@@ -48,9 +48,14 @@ class QuantityProdFragment : Fragment() {
             val subtotal = tvSubtotal.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
             val nombreproducto = tvnombreproducto.text.toString()
             val codigoproducto = tvcodigoproducto.text.toString()
-            val detalleItem = DetalleItem(quantity, price, subtotal,nombreproducto,codigoproducto)
-            SharedDataModel.detalleItems.add(detalleItem)
-            Log.d("QuantityProdFragment", "List updated: ${SharedDataModel.detalleItems}")
+            val detalleItem = DetalleItem(quantity, price, subtotal, nombreproducto, codigoproducto)
+
+            SharedDataModel.detalleItems.value?.let { items ->
+                val updatedItems = ArrayList(items)
+                updatedItems.add(detalleItem)
+                SharedDataModel.detalleItems.postValue(updatedItems)
+            }
+            Log.d("QuantityProdFragment", "List updated: ${SharedDataModel.detalleItems.value}")
             requireActivity().onBackPressed()
         }
         buttonIncrement.setOnClickListener {

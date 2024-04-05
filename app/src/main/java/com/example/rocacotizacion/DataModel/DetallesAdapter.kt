@@ -22,6 +22,7 @@ class DetallesAdapter(
         val textViewQuantity: TextView = view.findViewById(R.id.textViewQuantity)
         val textViewPrice: TextView = view.findViewById(R.id.textViewPrice)
         val textViewSubtotal: TextView = view.findViewById(R.id.textViewSubtotal)
+        val textViewNombreProd:TextView=view.findViewById(R.id.textViewNomProd)
         private val buttonClose: Button = view.findViewById(R.id.buttonClose)
         private val buttonDecrement: Button = view.findViewById(R.id.buttonDecrement)
         private val buttonIncrement: Button = view.findViewById(R.id.buttonIncrement)
@@ -35,23 +36,25 @@ class DetallesAdapter(
 
             buttonDecrement.setOnClickListener {
                 if (adapterPosition != RecyclerView.NO_POSITION) {
-                    val item = SharedDataModel.detalleItems[adapterPosition]
-                    if (item.quantity > 1) {
-                        item.quantity -= 1
-                        item.subtotal = item.quantity * item.price
-                        textViewQuantity.text = item.quantity.toString()
-                        textViewSubtotal.text = String.format("L. %.2f", item.subtotal)
+                    SharedDataModel.detalleItems.value?.let { items ->
+                        val item = items[adapterPosition]
+                        if (item.quantity > 1) {
+                            item.quantity -= 1
+                            item.subtotal = item.quantity * item.price
+                            SharedDataModel.detalleItems.postValue(items)
+                        }
                     }
                 }
             }
 
             buttonIncrement.setOnClickListener {
                 if (adapterPosition != RecyclerView.NO_POSITION) {
-                    val item = SharedDataModel.detalleItems[adapterPosition]
-                    item.quantity += 1
-                    item.subtotal = item.quantity * item.price
-                    textViewQuantity.text = item.quantity.toString()
-                    textViewSubtotal.text = String.format("L. %.2f", item.subtotal)
+                    SharedDataModel.detalleItems.value?.let { items ->
+                        val item = items[adapterPosition]
+                        item.quantity += 1
+                        item.subtotal = item.quantity * item.price
+                        SharedDataModel.detalleItems.postValue(items)
+                    }
                 }
             }
         }
@@ -67,6 +70,7 @@ class DetallesAdapter(
         holder.textViewQuantity.text = detalleItem.quantity.toString()
         holder.textViewPrice.text = String.format("L. %.2f", detalleItem.price)
         holder.textViewSubtotal.text = String.format("L. %.2f", detalleItem.subtotal)
+        holder.textViewNombreProd.text=detalleItem.nombreproducto
     }
 
     override fun getItemCount(): Int = detalles.size
