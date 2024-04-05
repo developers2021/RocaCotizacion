@@ -17,14 +17,31 @@ class ResumenFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_resumen, container, false)
-        val textViewResumen: TextView = view.findViewById(R.id.textViewResumen)
+        val textViewProducto: TextView = view.findViewById(R.id.textViewProducto)
+        val textViewPrecio: TextView = view.findViewById(R.id.textViewPrecio)
+        val textViewsubtotal: TextView = view.findViewById(R.id.textViewsubtotal)
+        val sumsubtotal: TextView = view.findViewById(R.id.sumsubtotal)
+        val sumtotal:TextView=view.findViewById(R.id.sumtotal)
+
+        var textViewtipopago:TextView=view.findViewById(R.id.tipopago)
+
+        textViewtipopago.text= activity?.intent?.getStringExtra("tipoPago")
+            ?.let { stringtipopago(it) }
 
         // Observe the detalleItems LiveData
         SharedDataModel.detalleItems.observe(viewLifecycleOwner, Observer { items ->
-            val resumenText = SharedDataModel.getResumenText()
-            textViewResumen.text = resumenText
+            textViewProducto.text = SharedDataModel.getproducto()
+            textViewPrecio.text = SharedDataModel.getprice()
+            textViewsubtotal.text = SharedDataModel.getsubtotal()
+            sumsubtotal.text=SharedDataModel.getTotalPrice()
+            sumtotal.text=SharedDataModel.getTotalPrice()
         })
-
         return view
+    }
+    fun stringtipopago(tipopago: String):String{
+        if (tipopago=="CRED")
+            return "Credito"
+        else
+            return "Contado"
     }
 }

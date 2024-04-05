@@ -8,6 +8,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rocacotizacion.DTO.SharedDataModel
 import com.example.rocacotizacion.R
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 
 class DetallesAdapter(
     var detalles: List<DetalleItem>,
@@ -66,10 +69,16 @@ class DetallesAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val symbols = DecimalFormatSymbols(Locale("es", "HN")).apply {
+            currencySymbol = "L." 
+            decimalSeparator = '.'
+            groupingSeparator = ','
+        }
+        val customFormat = DecimalFormat("¤#,##0.00", symbols)
         val detalleItem = detalles[position]
         holder.textViewQuantity.text = detalleItem.quantity.toString()
-        holder.textViewPrice.text = String.format("L. %.2f", detalleItem.price)
-        holder.textViewSubtotal.text = String.format("L. %.2f", detalleItem.subtotal)
+        holder.textViewPrice.text = customFormat.format(detalleItem.price)
+        holder.textViewSubtotal.text = customFormat.format(detalleItem.subtotal)
         holder.textViewNombreProd.text=detalleItem.nombreproducto
     }
 
