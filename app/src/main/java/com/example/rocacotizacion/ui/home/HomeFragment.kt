@@ -65,6 +65,11 @@ class HomeFragment : Fragment() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
+                R.id.nav_gallery -> {
+                    findNavController().navigate(R.id.nav_midia)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
                 // Add more menu item clicks here
                 else -> false
             }

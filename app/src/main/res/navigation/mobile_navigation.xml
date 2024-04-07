@@ -45,4 +45,9 @@
         android:name="com.example.rocacotizacion.ui.Facturacion.FacturacionFragment"
         android:label="Facturacion"
         tools:layout="@layout/fragment_facturacion" />
+    <fragment
+        android:id="@+id/nav_midia"
+        android:name="com.example.rocacotizacion.ui.MiDia.MiDiaFragment"
+        android:label="MiDia"
+        tools:layout="@layout/fragment_midia" />
 </navigation>
