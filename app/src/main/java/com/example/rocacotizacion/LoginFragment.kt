@@ -191,6 +191,8 @@ class LoginFragment : Fragment() {
             db.GrupoDAO().deleteAll()
             db.PreciosNivelTipoVentaDAO().deleteAll()
             db.NivelPrecioPredeterminadoDAO().deleteAll()
+            db.PedidoDtlDAO().deleteAll()
+            db.PedidoHdrDAO().deleteAll()
             // Use the DAO's insert method directly
             db.AgenteDAO().insert(agente)
             db.ClientesDAO().insertAll(clientesList)

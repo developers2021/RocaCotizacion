@@ -11,12 +11,22 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.rocacotizacion.DAO.DatabaseApplication
+import com.example.rocacotizacion.DataModel.PedidoSummary
 import com.example.rocacotizacion.R
 import com.example.rocacotizacion.ui.home.HomeFragment
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MiDiaFragment:Fragment() {
+    private lateinit var viewModel: PedidoViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -25,6 +35,27 @@ class MiDiaFragment:Fragment() {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Set up the ActionBarDrawerToggle
+        super.onViewCreated(view, savedInstanceState)
+        // Initialize the ViewModel
+        viewModel = ViewModelProvider(this).get(PedidoViewModel::class.java)
+
+        // Set up the RecyclerView
+        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewPedidos)
+        val adapter = PedidoSummaryAdapter(listOf())
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(context)
+
+        // Observe changes in the pedidoHdrList and update the RecyclerView
+        viewModel.pedidoHdrList.observe(viewLifecycleOwner) { pedidoHdrList ->
+            val pedidoSummaryList = mutableListOf<PedidoSummary>()
+            pedidoHdrList.forEach { hdr ->
+                viewModel.getDetalleTotal(hdr.id).observe(viewLifecycleOwner) { detalleTotal ->
+                    val pedidoSummary = PedidoSummary(hdr.id, hdr.tipopago, hdr.total)
+                    pedidoSummaryList.add(pedidoSummary)
+                    adapter.updateItems(pedidoSummaryList)
+                }
+            }
+        }
         val drawerLayout: DrawerLayout = view.findViewById(R.id.drawer_layout_midia)
         val toolbar: Toolbar = view.findViewById(R.id.toolbar_midia)
         val toggle = ActionBarDrawerToggle(

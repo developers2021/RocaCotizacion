@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "pedido_dtl")
 data class PedidoDtl(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "idhdr") val idhdr: Int,
+    @ColumnInfo(name = "idhdr") var idhdr: Int,
     @ColumnInfo(name = "codigoproducto") val codigoproducto: String,
     @ColumnInfo(name = "cantidad") val cantidad: Int,
     @ColumnInfo(name = "precio") val precio: Double,

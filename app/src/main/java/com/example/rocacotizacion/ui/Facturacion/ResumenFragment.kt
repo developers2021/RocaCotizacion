@@ -19,6 +19,7 @@ import com.example.rocacotizacion.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ResumenFragment : Fragment() {
     private lateinit var resumenAdapter: ResumenAdapter
@@ -85,12 +86,15 @@ class ResumenFragment : Fragment() {
                         descuento = 0.0 // Calculate any discount if applicable
                     )
                     DatabaseApplication.getDatabase(requireContext()).PedidoDtlDAO().insertPedidoDtl(pedidoDtl)
-                    requireActivity().onBackPressed()
-
                 }
 
                 // Clear the SharedDataModel.detalleItems list
                 SharedDataModel.detalleItems.postValue(mutableListOf())
+
+                // Go back to the previous fragment on the main thread
+                withContext(Dispatchers.Main) {
+                    requireActivity().onBackPressed()
+                }
             }
         }
     }
