@@ -17,11 +17,18 @@ class PedidoViewModel(application: Application) : AndroidViewModel(application) 
 
     val pedidoHdrList: LiveData<List<PedidoHdr>> = pedidoHdrDAO.getAllPedidoHdr()
 
+    fun getPedidoHdrById(pedidoId: Int): LiveData<PedidoHdr> {
+        return pedidoHdrDAO.getPedidoHdrById(pedidoId)
+    }
+
+    fun getDetailsByPedidoId(pedidoId: Int): LiveData<List<PedidoDtl>> {
+        return pedidoDtlDAO.getDetailsByPedidoId(pedidoId)
+    }
+
     fun getDetalleTotal(idhdr: Int): LiveData<Double> {
         return pedidoDtlDAO.getSumCantidadPrecioByHdrId(idhdr)
     }
 
-    // Function to insert a new record (similar to your saveOrder function)
     fun insertPedido(pedidoHdr: PedidoHdr, pedidoDtlList: List<PedidoDtl>) {
         viewModelScope.launch(Dispatchers.IO) {
             val hdrId = pedidoHdrDAO.insertPedidoHdr(pedidoHdr)

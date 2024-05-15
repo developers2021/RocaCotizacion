@@ -50,4 +50,13 @@
         android:name="com.example.rocacotizacion.ui.MiDia.MiDiaFragment"
         android:label="MiDia"
         tools:layout="@layout/fragment_midia" />
+
+    <fragment
+        android:id="@+id/nav_detallePedido"
+        android:name="com.example.rocacotizacion.ui.DetallePedido.DetallePedidoFragment"
+        android:label="Detalle Pedido Fragment" >
+        <argument
+            android:name="pedidoId"
+            app:argType="integer" />
+    </fragment>
 </navigation>
