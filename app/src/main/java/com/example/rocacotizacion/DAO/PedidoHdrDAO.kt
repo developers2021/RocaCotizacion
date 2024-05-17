@@ -18,4 +18,11 @@ interface PedidoHdrDAO {
 
     @Query("DELETE FROM pedido_hdr where id=:id")
     fun deletehdrid(id:Int)
+    @Query("SELECT COUNT(*) FROM pedido_hdr")
+    fun countAll(): Int
+
+    @Query("SELECT * FROM pedido_hdr where sinc=false")
+    fun getAllPedidoHdrS(): List<PedidoHdr>
+    @Query("UPDATE pedido_hdr SET sinc = :sinc WHERE id IN (:ids)")
+    fun updateSincForIds(ids: List<Int>, sinc: Boolean)
 }

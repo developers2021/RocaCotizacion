@@ -30,5 +30,7 @@ interface PedidoDtlDAO {
     fun getDetailedProductsByPedidoId(idhdr: Int, codigoTipoVenta: String): LiveData<List<ProductoDetalleDTO>>
     @Query("SELECT * FROM pedido_dtl WHERE idhdr = :idhdr")
     fun getAllDetailsByHeaderId(idhdr: Int): List<PedidoDtl>
+    @Query("SELECT COUNT(*) FROM pedido_dtl")
+    fun countAll(): Int
 
 }

@@ -22,6 +22,15 @@ class PedidoSummaryAdapter(private var items: MutableList<PedidoSummary>, privat
         holder.tvPedidoId.text = "Pedido ID: ${item.id}"
         holder.tvTipopago.text = "Tipo de pago: ${item.tipopago}"
         holder.tvTotal.text = "Total: ${String.format("%.2f", item.total)}"
+        holder.tvCodigocliente.text = "Codigo Cliente: ${item.Codigocliente}"
+        if(item.sinc){
+            holder.tvSinc.text="Estado: Sincronizado"
+        }
+        else{
+            holder.tvSinc.text="Estado: No Sincronizado"
+        }
+
+
     }
 
     override fun getItemCount(): Int = items.size
@@ -33,6 +42,8 @@ class PedidoSummaryAdapter(private var items: MutableList<PedidoSummary>, privat
         val tvPedidoId: TextView = itemView.findViewById(R.id.tvPedidoId)
         val tvTipopago: TextView = itemView.findViewById(R.id.tvTipopago)
         val tvTotal: TextView = itemView.findViewById(R.id.tvTotal)
+        val tvSinc: TextView = itemView.findViewById(R.id.tvSinc)
+        val tvCodigocliente: TextView = itemView.findViewById(R.id.tvCodigocliente)
     }
 
     fun updateItems(newItems: List<PedidoSummary>) {

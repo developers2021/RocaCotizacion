@@ -10,5 +10,7 @@ data class PedidoHdr(
     @ColumnInfo(name = "tipopago") val tipopago: String,
     @ColumnInfo(name = "subtotal") val subtotal: Double,
     @ColumnInfo(name = "descuento") val descuento: Double,
-    @ColumnInfo(name = "total") val total: Double
+    @ColumnInfo(name = "total") val total: Double,
+    @ColumnInfo(name="sinc") val sinc:Boolean,
+    @ColumnInfo(name="clientecodigo") val clientecodigo:String
 )

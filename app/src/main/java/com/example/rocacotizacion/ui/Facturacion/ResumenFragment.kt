@@ -66,13 +66,14 @@ class ResumenFragment : Fragment() {
     private fun saveOrder() {
         CoroutineScope(Dispatchers.IO).launch {
             val tipoPago = activity?.intent?.getStringExtra("tipoPago") ?: "Contado"
+            val clientecodigo =  activity?.intent?.getStringExtra("clientecodigo")?:"000"
             val detalleItems = SharedDataModel.detalleItems.value ?: listOf()
 
             val subtotal = detalleItems.sumOf { it.subtotal }
             val descuento = 0.0 // Calculate any discount if applicable
             val total = subtotal - descuento
 
-            val pedidoHdr = PedidoHdr(tipopago = tipoPago, subtotal = subtotal, descuento = descuento, total = total)
+            val pedidoHdr = PedidoHdr(tipopago = tipoPago, subtotal = subtotal, descuento = descuento, total = total, sinc = false, clientecodigo =clientecodigo )
             val hdrId = DatabaseApplication.getDatabase(requireContext()).PedidoHdrDAO().insertPedidoHdr(pedidoHdr)
 
             if (hdrId > 0) {

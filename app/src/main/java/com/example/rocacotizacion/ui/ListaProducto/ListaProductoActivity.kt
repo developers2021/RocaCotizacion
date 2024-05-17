@@ -13,12 +13,13 @@ class ListaProductoActivity : AppCompatActivity() {
         // Get the data from intent or other sources
         val tipoPago = intent.getStringExtra("tipoPago")
         val clienteNombre = intent.getStringExtra("clienteNombre")
-
+        val clientecodigo = intent.getStringExtra("clientecodigo")
         // Create a new instance of ListaProductoFragment with arguments
         val fragment = ListaProductoFragment().apply {
             arguments = Bundle().apply {
                 putString("tipoPago", tipoPago)
                 putString("clienteNombre", clienteNombre)
+                putString("clientecodigo", clientecodigo)
             }
         }
 

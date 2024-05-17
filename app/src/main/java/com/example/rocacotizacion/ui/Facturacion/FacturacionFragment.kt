@@ -33,8 +33,9 @@ class FacturacionFragment : Fragment() {
         // Retrieve the arguments passed from FacturacionActivity
         val tipoPago = arguments?.getString("tipoPago")
         val clienteNombre = arguments?.getString("clienteNombre")
+        val clientecodigo = arguments?.getString("clientecodigo")
         // Initialize the ViewPager2 adapter
-        val pagerAdapter = FacturacionPagerAdapter(this, tipoPago, clienteNombre)
+        val pagerAdapter = FacturacionPagerAdapter(this, tipoPago, clienteNombre,clientecodigo)
         viewPager.adapter = pagerAdapter
 
         // Attach the TabLayout and ViewPager2 together
@@ -50,7 +51,8 @@ class FacturacionFragment : Fragment() {
     class FacturacionPagerAdapter(
         fragment: Fragment,
         private val tipoPago: String?,
-        private val clienteNombre: String?
+        private val clienteNombre: String?,
+        private val clientecodigo:String?
     ) : FragmentStateAdapter(fragment) {
         override fun getItemCount(): Int = 2
 
@@ -59,6 +61,7 @@ class FacturacionFragment : Fragment() {
             val bundle = Bundle().apply {
                 putString("tipoPago", tipoPago)
                 putString("clienteNombre", clienteNombre)
+                putString("clientecodigo", clientecodigo)
             }
             return when (position) {
                 0 -> DetalleFragment().apply { arguments = bundle }

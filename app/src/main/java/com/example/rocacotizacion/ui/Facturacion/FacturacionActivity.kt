@@ -13,12 +13,14 @@ class FacturacionActivity : AppCompatActivity() {
         // Retrieve the extras from the intent
         val tipoPago = intent.getStringExtra("tipoPago")
         val clienteNombre = intent.getStringExtra("clienteNombre")
+        val clientecodigo = intent.getStringExtra("clientecodigo")
 
         // Create a new instance of FacturacionFragment with arguments
         val fragment = FacturacionFragment().apply {
             arguments = Bundle().apply {
                 putString("tipoPago", tipoPago)
                 putString("clienteNombre", clienteNombre)
+                putString("clientecodigo", clientecodigo)
             }
         }
 

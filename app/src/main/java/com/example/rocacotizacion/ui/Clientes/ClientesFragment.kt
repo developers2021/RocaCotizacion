@@ -142,6 +142,7 @@ class ClientesFragment : Fragment() {
                     val intent = Intent(context, FacturacionActivity::class.java)
                     intent.putExtra("tipoPago", "CTADO")
                     intent.putExtra("clienteNombre", cliente.nombrecliente)
+                    intent.putExtra("clientecodigo", cliente.Codigocliente)
                     context.startActivity(intent)
                     dialog.dismiss()
                 }
@@ -151,6 +152,8 @@ class ClientesFragment : Fragment() {
                     val intent = Intent(context, FacturacionActivity::class.java)
                     intent.putExtra("tipoPago", "CRED")
                     intent.putExtra("clienteNombre", cliente.nombrecliente)
+                    intent.putExtra("clientecodigo", cliente.Codigocliente)
+
                     context.startActivity(intent)
                     dialog.dismiss()
                 }
