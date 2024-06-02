@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.rocacotizacion.DAO.Agente
 import com.example.rocacotizacion.DAO.Clientes
@@ -45,9 +46,35 @@ class LoginFragment : Fragment() {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
+    private fun navigateToHome() {
+        findNavController().navigate(
+            R.id.nav_home,
+            null,
+            NavOptions.Builder()
+                .setPopUpTo(R.id.nav_login, true) // Clears everything up to the login fragment
+                .build()
+        )
+    }
+    private fun isLoggedIn(): Boolean {
+        val sharedPreferences = requireActivity().getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean("IsLoggedIn", false)
+    }
+    private fun saveLoginState(isLoggedIn: Boolean) {
+        val sharedPreferences = requireActivity().getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putBoolean("IsLoggedIn", isLoggedIn)
+            apply()
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        // Check if the user is already logged in
+        if (isLoggedIn()) {
+            val sharedPreferences = requireActivity().getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+            Toast.makeText(context, "Bienvenido de nuevo ${sharedPreferences.getString("LoggedInUsername", "")}", Toast.LENGTH_LONG).show()
+            navigateToHome()
+            return  // Skip setting up login UI
+        }
         val loginButton: Button = view.findViewById(R.id.login_button)
         val progressDialog = Dialog(requireContext()).apply {
             setContentView(R.layout.dialog_progress)
@@ -239,6 +266,8 @@ class LoginFragment : Fragment() {
                                 // Update your UI based on 'result' and 'message'
                                 if (result) {
                                     // Login success
+                                    saveLoginState(true)
+
                                     val sharedPreferences = activity?.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
                                     sharedPreferences?.edit()?.putString("LoggedInUsername", username)?.apply()
                                     if (responseBodyString != null) {
@@ -246,9 +275,17 @@ class LoginFragment : Fragment() {
                                             InsertDataDB(responseBodyString, it1)
                                         }
                                         Toast.makeText(context, "Bienvenido $username", Toast.LENGTH_LONG).show()
-                                        findNavController().navigate(R.id.nav_home)
+                                        findNavController().navigate(
+                                            R.id.nav_home,
+                                            null,
+                                            NavOptions.Builder()
+                                                .setPopUpTo(R.id.nav_login, true) // Clears everything up to the login fragment
+                                                .build()
+                                        )
                                     }
                                 } else {
+                                    saveLoginState(false)
+
                                     // Login failed, show the message to the user
                                     Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                                 }

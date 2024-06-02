@@ -19,6 +19,7 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.rocacotizacion.Adapter.ConditionHandler
 import com.example.rocacotizacion.DAO.Agente
 import com.example.rocacotizacion.DAO.AppDatabase
 import com.example.rocacotizacion.DAO.Clientes
@@ -73,6 +74,10 @@ class ClientesFragment : Fragment() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
+                R.id.nav_slideshow -> {
+                    ConditionHandler.showConfirmationDialog(requireContext())
+                    true
+                }
                 // Add more menu item clicks here
                 else -> false
             }
@@ -98,7 +103,6 @@ class ClientesFragment : Fragment() {
 
         }
     }
-
     class GetClienteAsyncTask(
         private val context: Context,
         private val callback: (List<Clientes>) -> Unit

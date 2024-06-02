@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.rocacotizacion.Adapter.ConditionHandler
 import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.DAO.PedidoHdr
 import com.example.rocacotizacion.DataModel.PedidoDtlS
@@ -319,8 +320,13 @@ class MiDiaFragment : Fragment() {
                     true
                 }
                 R.id.nav_gallery -> {
-                    findNavController().navigate(R.id.nav_gallery)
+                    findNavController().navigate(R.id.nav_midia)
                     drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
+                R.id.nav_slideshow -> {
+                    //evaluando si puede cerrar sesion
+                    ConditionHandler.showConfirmationDialog(requireContext())
                     true
                 }
                 else -> false
@@ -337,6 +343,8 @@ class MiDiaFragment : Fragment() {
             }.execute()
         }
     }
+
+
     fun isOnline(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = connectivityManager.activeNetworkInfo

@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
@@ -19,6 +20,9 @@ import com.example.rocacotizacion.DAO.AppDatabase
 import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.R
 import com.google.android.material.navigation.NavigationView
+import androidx.appcompat.app.AlertDialog
+import com.example.rocacotizacion.Adapter.ConditionHandler
+
 
 class HomeFragment : Fragment() {
 
@@ -70,6 +74,10 @@ class HomeFragment : Fragment() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
+                R.id.nav_slideshow -> {
+                    ConditionHandler.showConfirmationDialog(requireContext())
+                    true
+                }
                 // Add more menu item clicks here
                 else -> false
             }
@@ -93,7 +101,6 @@ class HomeFragment : Fragment() {
             }.execute()
         }
     }
-
     class GetAgenteAsyncTask(
         private val context: Context,
         private val username: String,
