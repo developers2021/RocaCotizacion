@@ -3,7 +3,9 @@ package com.example.rocacotizacion.DAO
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
-@Database(entities = [Agente::class,Clientes::class,Productos::class,Grupos::class,PreciosNivelTipoVenta::class,NivelPrecioPredeterminado::class, PedidoHdr::class, PedidoDtl::class], version = 1)
+@Database(entities = [Agente::class,Clientes::class,Productos::class,Grupos::class,
+    PreciosNivelTipoVenta::class,NivelPrecioPredeterminado::class, PedidoHdr::class, PedidoDtl::class,
+    invdescuentoportipoventa::class,invdescuentoporescala::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun AgenteDAO(): AgenteDAO
     abstract fun ClientesDAO():ClientesDAO
@@ -13,4 +15,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun NivelPrecioPredeterminadoDAO():NivelPrecioPredeterminadoDAO
     abstract fun PedidoHdrDAO(): PedidoHdrDAO
     abstract fun PedidoDtlDAO(): PedidoDtlDAO
+    abstract fun invdescuentoportipoventaDAO(): invdescuentoportipoventaDAO
+    abstract fun invdescuentoporescalaDAO(): invdescuentoporescalaDAO
 }

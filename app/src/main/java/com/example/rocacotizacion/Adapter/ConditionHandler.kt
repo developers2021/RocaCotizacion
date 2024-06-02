@@ -22,9 +22,7 @@ object ConditionHandler {
     }
     fun deletedbLogOut(context: Context){
         CoroutineScope(Dispatchers.IO).launch {
-            // Ensure you get an instance of your Room database and then get the DAO instance
             val db = DatabaseApplication.getDatabase(context)
-            // Clear the tables before inserting new data
             db.AgenteDAO().deleteAll()
             db.ClientesDAO().deleteAll()
             db.ProductosDAO().deleteAll()
@@ -33,6 +31,8 @@ object ConditionHandler {
             db.NivelPrecioPredeterminadoDAO().deleteAll()
             db.PedidoDtlDAO().deleteAll()
             db.PedidoHdrDAO().deleteAll()
+            db.invdescuentoportipoventaDAO().deleteAll()
+            db.invdescuentoporescalaDAO().deleteAll()
         }
     }
     fun clearAllSharedPreferences(context: Context) {

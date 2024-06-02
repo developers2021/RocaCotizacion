@@ -22,6 +22,8 @@ import com.example.rocacotizacion.DAO.Grupos
 import com.example.rocacotizacion.DAO.NivelPrecioPredeterminado
 import com.example.rocacotizacion.DAO.PreciosNivelTipoVenta
 import com.example.rocacotizacion.DAO.Productos
+import com.example.rocacotizacion.DAO.invdescuentoporescala
+import com.example.rocacotizacion.DAO.invdescuentoportipoventa
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -207,6 +209,40 @@ class LoginFragment : Fragment() {
             NivelPrecioPredeterminadoList.add(producto)
         }
 
+        val invdescuentoportipoventaJsonArray = jsonObject.getJSONArray("descuentosPorTipoVenta")
+        val invdescuentoportipoventaList = mutableListOf<invdescuentoportipoventa>()
+
+        for (i in 0 until invdescuentoportipoventaJsonArray.length()) {
+            val clienteJsonObject = invdescuentoportipoventaJsonArray.getJSONObject(i)
+            val list = invdescuentoportipoventa(
+                idtipoventa = clienteJsonObject.getInt("idtipoventa"),
+                idpromocion = clienteJsonObject.getInt("idpromocion"),
+                promocion = clienteJsonObject.optString("promocion"),
+                codigotipopromocion = clienteJsonObject.optString("codigotipopromocion"),
+                tipopromocion = clienteJsonObject.optString("tipopromocion"),
+                idproducto = clienteJsonObject.getInt("idproducto"),
+                monto = clienteJsonObject.getDouble("monto"),
+            )
+            invdescuentoportipoventaList.add(list)
+        }
+
+        val invdescuentoporescalaJsonArray = jsonObject.getJSONArray("descuentosPorEscala")
+        val invdescuentoporescalaList = mutableListOf<invdescuentoporescala>()
+
+        for (i in 0 until invdescuentoporescalaJsonArray.length()) {
+            val clienteJsonObject = invdescuentoporescalaJsonArray.getJSONObject(i)
+            val list = invdescuentoporescala(
+                idpromocion = clienteJsonObject.getInt("idpromocion"),
+                promocion = clienteJsonObject.optString("promocion"),
+                codigotipopromocion = clienteJsonObject.optString("codigotipopromocion"),
+                tipopromocion = clienteJsonObject.optString("tipopromocion"),
+                idproducto = clienteJsonObject.getInt("idproducto"),
+                monto = clienteJsonObject.getDouble("monto"),
+                rangoinicial = clienteJsonObject.getInt("rangoinicial"),
+                rangofinal = clienteJsonObject.getInt("rangofinal")
+            )
+            invdescuentoporescalaList.add(list)
+        }
         // Now insert the data into the database
         CoroutineScope(Dispatchers.IO).launch {
             // Ensure you get an instance of your Room database and then get the DAO instance
@@ -220,6 +256,8 @@ class LoginFragment : Fragment() {
             db.NivelPrecioPredeterminadoDAO().deleteAll()
             db.PedidoDtlDAO().deleteAll()
             db.PedidoHdrDAO().deleteAll()
+            db.invdescuentoportipoventaDAO().deleteAll()
+            db.invdescuentoporescalaDAO().deleteAll()
             // Use the DAO's insert method directly
             db.AgenteDAO().insert(agente)
             db.ClientesDAO().insertAll(clientesList)
@@ -227,6 +265,8 @@ class LoginFragment : Fragment() {
             db.GrupoDAO().insertAll(GruposList)
             db.PreciosNivelTipoVentaDAO().insertAll(PreciosNivelTipoVentaList)
             db.NivelPrecioPredeterminadoDAO().insertAll(NivelPrecioPredeterminadoList)
+            db.invdescuentoportipoventaDAO().insertAll(invdescuentoportipoventaList)
+            db.invdescuentoporescalaDAO().insertAll(invdescuentoporescalaList)
         }
     }
     private fun sendLoginRequest(username: String, password: String, onComplete: () -> Unit) {
