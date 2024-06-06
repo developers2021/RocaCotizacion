@@ -31,7 +31,7 @@
         android:weightSum="1">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewResumen"
+            android:id="@+id/recyclerViewResumen1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"/>
@@ -133,6 +133,27 @@
         android:layout_height="2dp"
         android:background="@color/verde_roca"
         android:layout_marginVertical="8dp"/>
+    <!-- Switches for additional settings -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp">
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchOption1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Descuento por Escala"
+            android:padding="8dp"/>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchOption2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Descuento por Tipo de Pago"
+            android:padding="8dp"/>
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -146,6 +167,8 @@
             android:text="Guardar Pedido"
             />
 
+
     </LinearLayout>
+
 
 </LinearLayout>

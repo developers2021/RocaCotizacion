@@ -222,6 +222,7 @@ class LoginFragment : Fragment() {
                 tipopromocion = clienteJsonObject.optString("tipopromocion"),
                 idproducto = clienteJsonObject.getInt("idproducto"),
                 monto = clienteJsonObject.getDouble("monto"),
+                codigoproducto=clienteJsonObject.optString("codigoproducto")
             )
             invdescuentoportipoventaList.add(list)
         }
@@ -239,7 +240,9 @@ class LoginFragment : Fragment() {
                 idproducto = clienteJsonObject.getInt("idproducto"),
                 monto = clienteJsonObject.getDouble("monto"),
                 rangoinicial = clienteJsonObject.getInt("rangoinicial"),
-                rangofinal = clienteJsonObject.getInt("rangofinal")
+                rangofinal = clienteJsonObject.getInt("rangofinal"),
+                codigoproducto=clienteJsonObject.optString("codigoproducto")
+
             )
             invdescuentoporescalaList.add(list)
         }

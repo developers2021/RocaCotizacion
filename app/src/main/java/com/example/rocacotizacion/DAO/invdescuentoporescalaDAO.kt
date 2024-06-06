@@ -12,4 +12,7 @@ interface invdescuentoporescalaDAO {
 
     @Query("DELETE FROM invdescuentoporescala")
     fun deleteAll()
+
+    @Query("SELECT * FROM invdescuentoporescala WHERE codigoproducto = :codigoproducto LIMIT 1")
+    fun getDescuentoPorEscala(codigoproducto: String): List<invdescuentoporescala>
 }

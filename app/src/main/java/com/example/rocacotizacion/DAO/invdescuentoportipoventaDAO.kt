@@ -12,4 +12,6 @@ interface invdescuentoportipoventaDAO {
 
     @Query("DELETE FROM invdescuentoportipoventa")
     fun deleteAll()
+    @Query("SELECT * FROM invdescuentoportipoventa WHERE codigoproducto = :codigoproducto LIMIT 1")
+    fun getDescuentoPorTipoVenta(codigoproducto: String): invdescuentoportipoventa?
 }

@@ -31,7 +31,7 @@ class QuantityProdFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_quantityprod, container, false)
 
-        val tipoPago = activity?.intent?.getStringExtra("tipoPago")
+        val tipoPago = activity?.intent?.getStringExtra("tipoPago")?:""
         val idproducto = activity?.intent?.getStringExtra("idproducto")
 
         editTextNumber = view.findViewById(R.id.editTextNumber)
@@ -48,15 +48,59 @@ class QuantityProdFragment : Fragment() {
             val subtotal = tvSubtotal.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
             val nombreproducto = tvnombreproducto.text.toString()
             val codigoproducto = tvcodigoproducto.text.toString()
-            val detalleItem = DetalleItem(quantity, price, subtotal, nombreproducto, codigoproducto)
 
-            SharedDataModel.detalleItems.value?.let { items ->
-                val updatedItems = ArrayList(items)
-                updatedItems.add(detalleItem)
-                SharedDataModel.detalleItems.postValue(updatedItems)
+            CoroutineScope(Dispatchers.IO).launch {
+                val firstItem = SharedDataModel.detalleItems.value?.firstOrNull()
+                var porcentajeEscala = 0.0
+                var porcentajeTipoPago = 0.0
+                var porcentajeTotal = 0.0
+                var descuento = 0.0
+
+                firstItem?.let {
+                    if (it.checkedDescuentoEscala) {
+                        val escalaDiscounts = DatabaseApplication.getDatabase(requireContext()).
+                            invdescuentoporescalaDAO().
+                            getDescuentoPorEscala(codigoproducto)
+                        val escalaDiscount = escalaDiscounts.firstOrNull {
+                            quantity >= it.rangoinicial && quantity <= it.rangofinal
+                        }
+                        porcentajeEscala = escalaDiscount?.monto ?: 0.0
+                    }
+
+                    if (it.checkedDescuentoTipoPago) {
+                        val tipoPagoDiscount = DatabaseApplication.getDatabase(requireContext()).
+                            invdescuentoportipoventaDAO().
+                            getDescuentoPorTipoVenta(tipoPago)
+                        porcentajeTipoPago = tipoPagoDiscount?.monto ?: 0.0
+                    }
+
+                    porcentajeTotal = porcentajeEscala + porcentajeTipoPago
+                    descuento = subtotal * (porcentajeTotal / 100)
+                }
+
+                val detalleItem = DetalleItem(
+                    quantity = quantity,
+                    price = price,
+                    subtotal = subtotal - descuento,
+                    nombreproducto = nombreproducto,
+                    codigoproducto = codigoproducto,
+                    checkedDescuentoEscala = firstItem?.checkedDescuentoEscala ?: false,
+                    checkedDescuentoTipoPago = firstItem?.checkedDescuentoTipoPago ?: false,
+                    descuento = descuento,
+                    porcentajeEscala = porcentajeEscala,
+                    porcentajeTipoPago = porcentajeTipoPago,
+                    porcentajeTotal = porcentajeTotal
+                )
+
+                withContext(Dispatchers.Main) {
+                    SharedDataModel.detalleItems.value?.let { items ->
+                        val updatedItems = ArrayList(items)
+                        updatedItems.add(detalleItem)
+                        SharedDataModel.detalleItems.postValue(updatedItems)
+                    }
+                    requireActivity().onBackPressed()
+                }
             }
-            Log.d("QuantityProdFragment", "List updated: ${SharedDataModel.detalleItems.value}")
-            requireActivity().onBackPressed()
         }
         buttonIncrement.setOnClickListener {
             incrementQuantity()

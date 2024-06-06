@@ -1,3 +1,5 @@
+
+
 package com.example.rocacotizacion.ui.Facturacion
 
 import android.content.Intent
@@ -51,4 +53,4 @@ class DetalleFragment : Fragment(), DetallesAdapter.OnItemCloseClickListener {
             SharedDataModel.detalleItems.postValue(items)
         }
     }
-}
+} 

@@ -13,5 +13,7 @@ data class invdescuentoportipoventa(
     @ColumnInfo(name = "codigotipopromocion") val codigotipopromocion: String,
     @ColumnInfo(name = "tipopromocion") val tipopromocion: String,
     @ColumnInfo(name = "idproducto") val idproducto: Int,
-    @ColumnInfo(name = "monto") val monto: Double
+    @ColumnInfo(name = "monto") val monto: Double,
+    @ColumnInfo(name = "codigoproducto") val codigoproducto: String
+
 )

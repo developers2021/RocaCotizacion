@@ -1,10 +1,12 @@
 package com.example.rocacotizacion.ui.Facturacion
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.rocacotizacion.DTO.SharedDataModel
 import com.example.rocacotizacion.DataModel.DetalleItem
 import com.example.rocacotizacion.R
 
@@ -22,11 +24,12 @@ class ResumenAdapter(private var items: List<DetalleItem>) : RecyclerView.Adapte
 
     override fun onBindViewHolder(holder: ResumenViewHolder, position: Int) {
         val item = items[position]
+        Log.d("DetalleItems", SharedDataModel.detalleItems.value.toString())
+
         holder.textViewProduct.text = if (item.nombreproducto.length > 25) "${item.nombreproducto.take(25)}..." else item.nombreproducto
         holder.textViewPrice.text = "${item.quantity} X L.${item.price}"
-        holder.textViewSubtotal.text = "L.${item.subtotal}"
+        holder.textViewSubtotal.text = String.format("%.2f", item.subtotal)
     }
-
     override fun getItemCount(): Int {
         return items.size
     }

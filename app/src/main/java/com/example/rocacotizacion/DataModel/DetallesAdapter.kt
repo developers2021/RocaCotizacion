@@ -1,13 +1,22 @@
+
 package com.example.rocacotizacion.DataModel
 
+import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.DTO.SharedDataModel
 import com.example.rocacotizacion.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -39,28 +48,64 @@ class DetallesAdapter(
 
             buttonDecrement.setOnClickListener {
                 if (adapterPosition != RecyclerView.NO_POSITION) {
-                    SharedDataModel.detalleItems.value?.let { items ->
-                        val item = items[adapterPosition]
-                        if (item.quantity > 1) {
-                            item.quantity -= 1
-                            item.subtotal = item.quantity * item.price
-                            SharedDataModel.detalleItems.postValue(items)
-                        }
-                    }
+                    updateQuantity(adapterPosition, decrement = true)
                 }
             }
-
             buttonIncrement.setOnClickListener {
                 if (adapterPosition != RecyclerView.NO_POSITION) {
-                    SharedDataModel.detalleItems.value?.let { items ->
-                        val item = items[adapterPosition]
-                        item.quantity += 1
-                        item.subtotal = item.quantity * item.price
-                        SharedDataModel.detalleItems.postValue(items)
-                    }
+                    updateQuantity(adapterPosition, decrement = false)
                 }
             }
         }
+        // A method to fetch and recalculate discounts based on the new quantity
+        private fun recalculateDiscounts(item: DetalleItem, isEscalaEnabled: Boolean) {
+            CoroutineScope(Dispatchers.IO).launch {
+                // Conditionally apply escala discount if the corresponding switch is on
+                if (isEscalaEnabled) {
+                    val escalaDiscounts = DatabaseApplication.getDatabase(itemView.context)
+                        .invdescuentoporescalaDAO()
+                        .getDescuentoPorEscala(item.codigoproducto)
+                    val escalaDiscount = escalaDiscounts.firstOrNull {
+                        // Check if the quantity falls within the range
+                        item.quantity >= it.rangoinicial && item.quantity <= it.rangofinal
+                    }
+                    item.porcentajeEscala=escalaDiscount?.monto ?: 0.00
+                    item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago
+                    item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
+                    item.subtotal=(item.price*item.quantity)-item.descuento
+                } else {
+                    item.descuento=(item.price*item.quantity)*(item.porcentajeTipoPago/100)
+                }
+                SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+
+
+                withContext(Dispatchers.Main) {
+                    // Update subtotal after recalculating discounts
+                    item.subtotal = item.quantity * item.price -(item.quantity * item.price *( item.porcentajeTotal/100))
+
+                    // Post the updated list to LiveData to trigger observers
+                    SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+                }
+            }
+        }
+        private fun updateQuantity(position: Int, decrement: Boolean) {
+            SharedDataModel.detalleItems.value?.let { items ->
+                val item = items[position]
+                if (decrement && item.quantity > 1) {
+                    item.quantity -= 1
+                } else if (!decrement) {
+                    item.quantity += 1
+                }
+                recalculateDiscounts(item, item.checkedDescuentoEscala)
+
+                // Recalculate subtotal after discounts are applied
+               // item.subtotal = item.quantity * item.price - item.descuentoEscala - item.descuentoTipoPago
+
+                // Post the updated list to LiveData to trigger observers
+                SharedDataModel.detalleItems.postValue(items)
+            }
+        }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -70,7 +115,7 @@ class DetallesAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val symbols = DecimalFormatSymbols(Locale("es", "HN")).apply {
-            currencySymbol = "L." 
+            currencySymbol = "L."
             decimalSeparator = '.'
             groupingSeparator = ','
         }

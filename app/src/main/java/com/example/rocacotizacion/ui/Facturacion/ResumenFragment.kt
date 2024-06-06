@@ -1,12 +1,16 @@
+
 package com.example.rocacotizacion.ui.Facturacion
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +27,98 @@ import kotlinx.coroutines.withContext
 
 class ResumenFragment : Fragment() {
     private lateinit var resumenAdapter: ResumenAdapter
+    private var isEscalaDiscountEnabled: Boolean = false
+
+    private fun applyEscalaDiscounts() {
+        CoroutineScope(Dispatchers.IO).launch {
+            SharedDataModel.detalleItems.value?.forEach { item ->
+                val escalaDiscounts = DatabaseApplication.getDatabase(requireContext())
+                    .invdescuentoporescalaDAO()
+                    .getDescuentoPorEscala(item.codigoproducto)
+                val escalaDiscount = escalaDiscounts.firstOrNull {
+                    item.quantity >= it.rangoinicial && item.quantity <= it.rangofinal
+                }
+               item.porcentajeEscala= escalaDiscount?.monto ?: (0.0 / 100)
+               item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago
+               item.descuento=item.subtotal*(item.porcentajeTotal/100)
+               item.subtotal=(item.price*item.quantity)-item.descuento
+               item.checkedDescuentoEscala=true
+            }
+            SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+            withContext(Dispatchers.Main) {
+                updateTotals()
+            }
+        }
+    }
+    private fun applyTipoVentaDiscounts() {
+        CoroutineScope(Dispatchers.IO).launch {
+            SharedDataModel.detalleItems.value?.forEach { item ->
+                val discountData = DatabaseApplication.getDatabase(requireContext())
+                    .invdescuentoportipoventaDAO()
+                    .getDescuentoPorTipoVenta(item.codigoproducto)
+                item.porcentajeTipoPago= discountData?.monto ?: (0.0 / 100)
+                item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago
+                item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
+                item.subtotal=(item.price*item.quantity)-item.descuento
+                item.checkedDescuentoTipoPago=true
+            }
+            SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+            withContext(Dispatchers.Main) {
+                updateTotals()
+            }
+        }
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val switchEscala = view.findViewById<SwitchCompat>(R.id.switchOption1)
+        val switchTipoPago = view.findViewById<SwitchCompat>(R.id.switchOption2)
+
+        switchEscala.setOnCheckedChangeListener { _, isChecked ->
+            isEscalaDiscountEnabled = isChecked
+            if (isChecked) {
+                applyEscalaDiscounts()
+            } else {
+                removeEscalaDiscounts()
+                updateTotals()
+            }
+        }
+
+        switchTipoPago.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                applyTipoVentaDiscounts()
+            } else {
+                SharedDataModel.detalleItems.value?.forEach {
+                    it.porcentajeTotal=it.porcentajeEscala
+                    it.porcentajeTipoPago = 0.0
+                    it.descuento=it.price*it.quantity*(it.porcentajeEscala/100)
+                    it.subtotal=(it.price*it.quantity)-it.descuento
+                    it.checkedDescuentoTipoPago=false
+                }
+                SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+                updateTotals()
+            }
+        }
+    }
+    private fun removeEscalaDiscounts() {
+        SharedDataModel.detalleItems.value?.forEach {
+            it.porcentajeTotal=it.porcentajeTipoPago
+            it.porcentajeEscala = 0.0
+            it.descuento=it.price*it.quantity*(it.porcentajeTotal/100)
+            it.subtotal=it.price*it.quantity-it.descuento
+            it.checkedDescuentoEscala=false
+            it.checkedDescuentoTipoPago=false
+        }
+        SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+    }
+    private fun updateTotals() {
+        val items = SharedDataModel.detalleItems.value ?: return
+        val total = items.sumOf { it.subtotal }
+        view?.findViewById<TextView>(R.id.sumtotal)?.text = "L.${String.format("%.2f", total)}"
+        view?.findViewById<TextView>(R.id.sumsubtotal)?.text = "L.${String.format("%.2f", total)}"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,7 +126,7 @@ class ResumenFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_resumen, container, false)
 
-        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewResumen)
+        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewResumen1)
         resumenAdapter = ResumenAdapter(listOf())
         recyclerView.adapter = resumenAdapter
         recyclerView.layoutManager = LinearLayoutManager(context)
@@ -47,7 +143,7 @@ class ResumenFragment : Fragment() {
             view.findViewById<TextView>(R.id.sumtotal).text = "L.$roundedTotal"
         })
         //accion del boton guardar btnsavepedido
-         val btnsavepedido: Button = view.findViewById(R.id.btnsavepedido)
+        val btnsavepedido: Button = view.findViewById(R.id.btnsavepedido)
         btnsavepedido.setOnClickListener {
             if (SharedDataModel.detalleItems.value.isNullOrEmpty()) {
                 Toast.makeText(context, "No hay items en el pedido", Toast.LENGTH_SHORT).show()
