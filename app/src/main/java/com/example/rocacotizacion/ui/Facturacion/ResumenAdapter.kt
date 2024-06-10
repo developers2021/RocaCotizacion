@@ -24,8 +24,6 @@ class ResumenAdapter(private var items: List<DetalleItem>) : RecyclerView.Adapte
 
     override fun onBindViewHolder(holder: ResumenViewHolder, position: Int) {
         val item = items[position]
-        Log.d("DetalleItems", SharedDataModel.detalleItems.value.toString())
-
         holder.textViewProduct.text = if (item.nombreproducto.length > 25) "${item.nombreproducto.take(25)}..." else item.nombreproducto
         holder.textViewPrice.text = "${item.quantity} X L.${item.price}"
         holder.textViewSubtotal.text = String.format("%.2f", item.subtotal)

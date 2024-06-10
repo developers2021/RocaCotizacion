@@ -20,17 +20,19 @@
         android:id="@+id/cantidad"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="0.4"
         android:text="Cantidad"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        tools:text="Cantidad"/>
+        tools:text="Cantidad"
+        android:textAlignment="textEnd"/>
 
     <TextView
         android:id="@+id/precio"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="0.4"
         android:text="Precio"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textAlignment="textEnd"
         tools:text="Precio"/>
 </LinearLayout>

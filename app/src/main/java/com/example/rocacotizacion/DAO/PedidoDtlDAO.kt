@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.rocacotizacion.DTO.ProductoDetalleDTO
+import com.example.rocacotizacion.ui.PrintClass.ProductDetail
 
 @Dao
 interface PedidoDtlDAO {
@@ -32,5 +33,13 @@ interface PedidoDtlDAO {
     fun getAllDetailsByHeaderId(idhdr: Int): List<PedidoDtl>
     @Query("SELECT COUNT(*) FROM pedido_dtl")
     fun countAll(): Int
+
+    @Query("""
+        SELECT d.nombre as prod,d.cantidad as und,d.precio,d.precio*d.cantidad as monto
+        FROM pedido_dtl d
+        INNER JOIN Productos p ON d.codigoproducto = p.codigoproducto
+        INNER JOIN PreciosNivelTipoVenta pn ON p.idproducto = pn.idproducto
+        WHERE d.idhdr = :idhdr """)
+    fun getDetallePrint(idhdr: Int): List<ProductDetail>
 
 }

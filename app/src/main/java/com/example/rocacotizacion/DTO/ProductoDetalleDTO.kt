@@ -11,5 +11,6 @@ data class ProductoDetalleDTO(
     val idimpuesto: Int,
     val porcentajeimpuesto: Double,
     val precio: Double?,
-    val descuento: Double?
+    val descuento: Double?,
+    val total: Double?
 )

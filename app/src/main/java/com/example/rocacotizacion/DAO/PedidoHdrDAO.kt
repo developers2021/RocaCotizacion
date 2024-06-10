@@ -15,7 +15,8 @@ interface PedidoHdrDAO {
     fun deleteAll()
     @Query("SELECT * FROM pedido_hdr WHERE id = :id")
     fun getPedidoHdrById(id: Int): LiveData<PedidoHdr>
-
+    @Query("SELECT * FROM pedido_hdr WHERE id = :id")
+    fun getPedidoPrinteById(id: Int): PedidoHdr
     @Query("DELETE FROM pedido_hdr where id=:id")
     fun deletehdrid(id:Int)
     @Query("SELECT COUNT(*) FROM pedido_hdr")

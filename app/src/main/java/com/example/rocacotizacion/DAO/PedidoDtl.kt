@@ -12,5 +12,6 @@ data class PedidoDtl(
     @ColumnInfo(name = "codigoproducto") val codigoproducto: String,
     @ColumnInfo(name = "cantidad") val cantidad: Int,
     @ColumnInfo(name = "precio") val precio: Double,
-    @ColumnInfo(name = "descuento") val descuento: Double
+    @ColumnInfo(name = "descuento") val descuento: Double,
+    @ColumnInfo(name = "nombre") val nombre: String
 )

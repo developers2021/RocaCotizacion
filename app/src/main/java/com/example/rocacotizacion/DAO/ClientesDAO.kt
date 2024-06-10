@@ -17,4 +17,6 @@ interface ClientesDAO {
 
     @Query("DELETE FROM clientes")
      fun deleteAll()
+    @Query("SELECT * FROM Clientes WHERE Codigocliente = :codcliente")
+    fun getClientById(codcliente: String): Clientes
 }

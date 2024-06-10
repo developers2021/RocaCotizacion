@@ -22,36 +22,90 @@
             app:title="Resumen del Pedido"
             />
 
-        <TextView
-            android:id="@+id/textViewTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toStartOf="@+id/button_delete"
-            app:layout_constraintStart_toStartOf="parent"
+        <LinearLayout
             app:layout_constraintTop_toBottomOf="@id/toolbar_detallepedido"
-            android:text=""
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textAlignment="center"
-            android:layout_marginTop="16dp"/>
-
-        <ImageButton
-            android:id="@+id/button_delete"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
+            android:id="@+id/linear1"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_trash"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/textViewTitle"
-            app:layout_constraintBottom_toBottomOf="@id/textViewTitle"
-            android:contentDescription="Delete" />
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:gravity="end|center_vertical"> <!-- This line aligns children to the end and center vertically -->
+            <ImageButton
+                android:id="@+id/button_print"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_print_icon"
+                android:contentDescription="Print"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="4dp"
+                />
+            <ImageButton
+                android:id="@+id/button_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_trash"
+                android:contentDescription="Delete"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+            />
+        </LinearLayout>
+
+
 
         <LinearLayout
-            app:layout_constraintTop_toBottomOf="@id/textViewTitle"
+            app:layout_constraintTop_toBottomOf="@id/linear1"
+            android:layout_width="match_parent"
+            android:id="@+id/title_layout"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/codigoProducto"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Producto"
+                android:textStyle="bold"
+
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                tools:text="Producto"/>
+
+            <TextView
+                android:id="@+id/cantidad"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.4"
+                android:text="Cantidad"
+                android:textStyle="bold"
+
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                tools:text="Cantidad"
+                android:textAlignment="textEnd"/>
+
+            <TextView
+                android:id="@+id/precio"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.4"
+                android:text="Precio"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textAlignment="textEnd"
+                tools:text="Precio"/>
+
+        </LinearLayout>
+        <LinearLayout
+            app:layout_constraintTop_toBottomOf="@id/title_layout"
             android:layout_width="match_parent"
             android:id="@+id/ll1"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:weightSum="1">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -66,6 +120,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:weightSum="1">
 
             <TextView
@@ -73,6 +129,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.7"
                 android:text="Subtotal"
+                android:textStyle="bold"
                 android:gravity="start"/>
 
             <TextView
@@ -90,6 +147,36 @@
             app:layout_constraintTop_toBottomOf="@id/ll2"
             android:id="@+id/ll3"
             android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:text="Descuento"
+                android:textStyle="bold"
+
+                android:gravity="start"/>
+
+            <TextView
+                android:id="@+id/sumdescuento"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="20.00"
+                android:gravity="end"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/ll3"
+            android:id="@+id/ll4"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:weightSum="1">
 
             <TextView
@@ -97,6 +184,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.7"
                 android:text="Total"
+                android:textStyle="bold"
+
                 android:gravity="start"/>
 
             <TextView
@@ -114,7 +203,9 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:weightSum="1"
-            app:layout_constraintTop_toBottomOf="@id/ll3"
+            app:layout_constraintTop_toBottomOf="@id/ll4"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_marginTop="16dp">
             <TextView
                 android:layout_width="0dp"
@@ -122,6 +213,7 @@
                 android:layout_weight="0.7"
                 android:text="Tipo Venta"
                 android:textStyle="bold"
+
                 android:gravity="start"/>
 
             <TextView

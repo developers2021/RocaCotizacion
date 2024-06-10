@@ -16,5 +16,5 @@ interface AgenteDAO {
      fun deleteAll()
 
     @Query("SELECT * FROM AgnAgente")
-    fun getAgente(): Agente?
+    fun getAgente(): Agente
 }

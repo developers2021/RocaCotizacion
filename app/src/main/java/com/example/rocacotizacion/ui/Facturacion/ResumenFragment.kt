@@ -151,6 +151,7 @@ class ResumenFragment : Fragment() {
                 saveOrder()
             }
         }
+
         return view
     }
     fun stringtipopago(tipopago: String):String{
@@ -166,10 +167,9 @@ class ResumenFragment : Fragment() {
             val detalleItems = SharedDataModel.detalleItems.value ?: listOf()
 
             val subtotal = detalleItems.sumOf { it.subtotal }
-            val descuento = 0.0 // Calculate any discount if applicable
-            val total = subtotal - descuento
+            val descuento =detalleItems.sumOf { it.descuento } // Calculate any discount if applicable
 
-            val pedidoHdr = PedidoHdr(tipopago = tipoPago, subtotal = subtotal, descuento = descuento, total = total, sinc = false, clientecodigo =clientecodigo )
+            val pedidoHdr = PedidoHdr(tipopago = tipoPago, subtotal = subtotal, descuento = descuento, total = subtotal, sinc = false, clientecodigo =clientecodigo )
             val hdrId = DatabaseApplication.getDatabase(requireContext()).PedidoHdrDAO().insertPedidoHdr(pedidoHdr)
 
             if (hdrId > 0) {
@@ -180,7 +180,8 @@ class ResumenFragment : Fragment() {
                         codigoproducto = item.codigoproducto,
                         cantidad = item.quantity,
                         precio = item.price,
-                        descuento = 0.0 // Calculate any discount if applicable
+                        descuento = item.descuento,
+                        nombre = item.nombreproducto,
                     )
                     DatabaseApplication.getDatabase(requireContext()).PedidoDtlDAO().insertPedidoDtl(pedidoDtl)
                 }

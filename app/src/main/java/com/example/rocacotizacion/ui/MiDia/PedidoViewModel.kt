@@ -4,11 +4,18 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import com.example.rocacotizacion.DAO.Agente
+import com.example.rocacotizacion.DAO.Clientes
 import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.DAO.PedidoDtl
 import com.example.rocacotizacion.DAO.PedidoHdr
+import com.example.rocacotizacion.DataModel.PedidoPrintModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
+import android.content.Context
+
 
 class PedidoViewModel(application: Application) : AndroidViewModel(application) {
     private val database = DatabaseApplication.getDatabase(application)
@@ -25,19 +32,6 @@ class PedidoViewModel(application: Application) : AndroidViewModel(application) 
         return pedidoDtlDAO.getDetailsByPedidoId(pedidoId)
     }
 
-    fun getDetalleTotal(idhdr: Int): LiveData<Double> {
-        return pedidoDtlDAO.getSumCantidadPrecioByHdrId(idhdr)
-    }
 
-    fun insertPedido(pedidoHdr: PedidoHdr, pedidoDtlList: List<PedidoDtl>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val hdrId = pedidoHdrDAO.insertPedidoHdr(pedidoHdr)
-            if (hdrId > 0) {
-                pedidoDtlList.forEach { detalle ->
-                    detalle.idhdr = hdrId.toInt()
-                    pedidoDtlDAO.insertPedidoDtl(detalle)
-                }
-            }
-        }
-    }
+
 }
