@@ -31,11 +31,6 @@ class DetalleFragment : Fragment(), DetallesAdapter.OnItemCloseClickListener {
         recyclerView = view.findViewById(R.id.recyclerViewDetalles)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = detallesAdapter
-
-        SharedDataModel.detalleItems.observe(viewLifecycleOwner, Observer { items ->
-            detallesAdapter.updateDetalles(items)
-        })
-
         val fab: FloatingActionButton = view.findViewById(R.id.fab_add)
         fab.setOnClickListener {
             val intent = Intent(context, ListaProductoActivity::class.java)
@@ -43,6 +38,17 @@ class DetalleFragment : Fragment(), DetallesAdapter.OnItemCloseClickListener {
             intent.putExtra("tipoPago", tipoPago)
             startActivity(intent)
         }
+        SharedDataModel.detalleItems.observe(viewLifecycleOwner, Observer { items ->
+            detallesAdapter.updateDetalles(items)
+            if (items.isNotEmpty()) {
+                if (items.first().isEnabled){
+                    fab.visibility = View.VISIBLE
+                }else{
+                    fab.visibility = View.GONE
+                }
+            }
+        })
+
 
         return view
     }

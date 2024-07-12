@@ -24,6 +24,7 @@ import com.example.rocacotizacion.DAO.Agente
 import com.example.rocacotizacion.DAO.AppDatabase
 import com.example.rocacotizacion.DAO.Clientes
 import com.example.rocacotizacion.DAO.DatabaseApplication
+import com.example.rocacotizacion.DTO.SharedDataModel
 import com.example.rocacotizacion.R
 import com.example.rocacotizacion.ui.Facturacion.FacturacionActivity
 import com.example.rocacotizacion.ui.home.HomeFragment
@@ -140,6 +141,7 @@ class ClientesFragment : Fragment() {
                 val builder = AlertDialog.Builder(context)
                 builder.setTitle("Tipo de Pago")
                 builder.setMessage("Escoja el tipo de pago para la creacion del pedido")
+                SharedDataModel.detalleItems.postValue(mutableListOf())
 
                 builder.setPositiveButton("Contado") { dialog, _ ->
                     Toast.makeText(context, "Pedido Contado para : ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()

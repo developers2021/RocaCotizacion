@@ -1,7 +1,9 @@
 
 package com.example.rocacotizacion.ui.Facturacion
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +13,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,11 +22,27 @@ import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.DAO.PedidoDtl
 import com.example.rocacotizacion.DAO.PedidoHdr
 import com.example.rocacotizacion.DTO.SharedDataModel
+import com.example.rocacotizacion.DataModel.PedidoPrintModel
 import com.example.rocacotizacion.R
+import com.example.rocacotizacion.ui.PrintClass.HtmlTemplates
+import com.example.rocacotizacion.ui.PrintClass.generateTableRows
+import com.example.rocacotizacion.ui.PrintUtility.NumeroLetras
+import com.itextpdf.text.Document
+import com.itextpdf.text.pdf.PdfWriter
+import com.itextpdf.tool.xml.XMLWorkerHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.math.RoundingMode
+import java.nio.charset.StandardCharsets
+import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class ResumenFragment : Fragment() {
     private lateinit var resumenAdapter: ResumenAdapter
@@ -186,17 +205,133 @@ class ResumenFragment : Fragment() {
                     DatabaseApplication.getDatabase(requireContext()).PedidoDtlDAO().insertPedidoDtl(pedidoDtl)
                 }
 
-                // Clear the SharedDataModel.detalleItems list
-                SharedDataModel.detalleItems.postValue(mutableListOf())
 
-                // Go back to the previous fragment on the main thread
+
+                // Post the action to the Main thread to handle UI
                 withContext(Dispatchers.Main) {
-                    requireActivity().onBackPressed()
+                    showDialogAfterSave(hdrId.toInt())
                 }
             }
         }
     }
+    private fun showDialogAfterSave(pedidoId: Int) {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setTitle("Impresión de Pedido")
+        dialogBuilder.setMessage("¿Desea imprimir el pedido?")
+
+        // Create the dialog once here and manage its dismissal manually.
+        val dialog = dialogBuilder.create()
+
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Sí") { _, _ ->
+            printpedido(pedidoId)
+            dialog.dismiss()
+            view?.findViewById<Button>(R.id.btnsavepedido)?.let { btnsavepedido ->
+                btnsavepedido.text = "Imprimir Pedido"
+                    btnsavepedido.setOnClickListener {
+                        printpedido(pedidoId)
+                    }
+                }
+            view?.findViewById<Button>(R.id.switchOption1)?.let { switchOption1 ->
+                switchOption1.isEnabled = false
+            }
+            view?.findViewById<Button>(R.id.switchOption2)?.let { switchOption2 ->
+                switchOption2.isEnabled = false
+            }
+            //define en false cuando ya fue guardado el pedido
+            SharedDataModel.detalleItems.value?.forEach { it.isEnabled = false }
+            SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+        }
+
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancelar") { _, _ ->
+            // Dismiss the dialog and go back to the previous fragment.
+            dialog.dismiss()
+            requireActivity().onBackPressed()
+            // Clear the SharedDataModel.detalleItems list
+            SharedDataModel.detalleItems.postValue(mutableListOf())
 
 
+        }
 
+        dialog.setCancelable(false)  // Prevents cancelling the dialog by tapping outside or pressing back.
+        dialog.show()
+    }
+
+
+    fun convertHtmlToPdf(htmlContent: String): ByteArrayOutputStream {
+        val outputStream = ByteArrayOutputStream()
+        val document = Document()
+        try {
+            val pdfWriter = PdfWriter.getInstance(document, outputStream)
+            document.open()
+            XMLWorkerHelper.getInstance().parseXHtml(pdfWriter, document,
+                ByteArrayInputStream(htmlContent.toByteArray(StandardCharsets.UTF_8))
+            )
+        } finally {
+            document.close()
+        }
+        Log.d("PDF Creation", "PDF byte length: ${outputStream.size()}")
+        return outputStream
+    }
+    fun savePdfToFile(context: Context, pdfStream: ByteArrayOutputStream, fileName: String) {
+        val file = File(context.getExternalFilesDir(null), fileName)
+        try {
+            FileOutputStream(file).use { fileOutputStream ->
+                pdfStream.writeTo(fileOutputStream)
+                Log.d("PDF Creation", "PDF saved to ${file.absolutePath}")
+            }
+        } catch (e: Exception) {
+            Log.e("PDF Creation", "Error saving PDF", e)
+        }
+    }
+    fun openPdfWithExternalViewer(context: Context, file: File) {
+        val contentUri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(contentUri, "application/pdf")
+            flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(intent)
+    }
+    fun printpedido(pedidoId: Int) {
+        val fechaEmision = SimpleDateFormat("dd/MM/yyyy").format(Date())
+        var pedidoinfo: PedidoPrintModel
+        CoroutineScope(Dispatchers.IO).launch {
+            val db = context?.let { DatabaseApplication.getDatabase(it) }
+            db?.let {
+                val pedido= db.PedidoHdrDAO().getPedidoPrinteById(pedidoId)
+                val cliente=db.ClientesDAO().getClientById(pedido.clientecodigo)
+                val agente=db.AgenteDAO().getAgente()
+                pedidoinfo= PedidoPrintModel(
+                    pedidoId=pedido.id,
+                    fechaEmision = Date().toString(),
+                    tipoventa = pedido.tipopago,
+                    clientenombre = cliente.nombrecliente?:"",
+                    codigocliente = cliente.Codigocliente?:"",
+                    rtncliente = cliente.Rtncliente?:"",
+                    rutanombre = agente.rutadesc,
+                    vendedornombre = agente.descripcionCorta?:""
+                )
+                val df = DecimalFormat("#.##")
+                df.roundingMode = RoundingMode.FLOOR
+                val details =db.PedidoDtlDAO().getDetallePrint(pedidoId)
+                val total=Math.round(pedido.subtotal*100.00)/100.00
+                val subtotal=Math.round((pedido.subtotal+pedido.descuento)*100.00)/100.00
+
+                val tableRows = generateTableRows(details)
+                val numeroletras= NumeroLetras.Convertir(total.toString(),"Lempira","Lempiras"," ","centavos","con",true)
+                val htmlContent = pedidoinfo?.let { ped ->
+                    HtmlTemplates.getHtmlForPdf(pedidoId.toString(), fechaEmision,
+                        ped.tipoventa,ped.clientenombre,ped.codigocliente,ped.rtncliente,ped.rutanombre,ped.vendedornombre ,
+                        tableRows,subtotal,pedido.descuento,total,numeroletras)
+                }
+                val pdfStream = htmlContent?.let { it1 -> convertHtmlToPdf(it1) }
+                val fileName = "Pedido_#$pedidoId.pdf"
+                if (pdfStream != null) {
+                    savePdfToFile(requireContext(), pdfStream, fileName)
+                }
+                val file = File(requireContext().getExternalFilesDir(null), fileName)
+                openPdfWithExternalViewer(requireContext(), file)
+            }
+        }
+    }
 }

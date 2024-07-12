@@ -35,8 +35,8 @@ class QuantityProdFragment : Fragment() {
         val idproducto = activity?.intent?.getStringExtra("idproducto")
 
         editTextNumber = view.findViewById(R.id.editTextNumber)
-        val buttonIncrement: Button = view.findViewById(R.id.buttonIncrement)
-        val buttonDecrement: Button = view.findViewById(R.id.buttonDecrement)
+        val buttonIncrement: Button = view.findViewById(R.id.buttonIncrement2)
+        val buttonDecrement: Button = view.findViewById(R.id.buttonDecrement2)
         val btnAgregar: Button = view.findViewById(R.id.btnAgregar)
         tvPrice = view.findViewById(R.id.tvValueRight1)
         tvSubtotal = view.findViewById(R.id.tvValueRight3)

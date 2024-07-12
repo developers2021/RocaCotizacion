@@ -77,7 +77,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <Button
-            android:id="@+id/buttonDecrement"
+            android:id="@+id/buttonDecrement2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="-"
@@ -96,7 +96,7 @@
             android:gravity="center_horizontal" />
 
         <Button
-            android:id="@+id/buttonIncrement"
+            android:id="@+id/buttonIncrement2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="+"

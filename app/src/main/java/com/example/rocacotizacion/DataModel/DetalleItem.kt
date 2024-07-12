@@ -11,5 +11,6 @@ data class DetalleItem(
     var checkedDescuentoTipoPago: Boolean = false,
     var porcentajeEscala: Double = 0.0,
     var porcentajeTipoPago: Double = 0.0,
-    var porcentajeTotal: Double = 0.0
+    var porcentajeTotal: Double = 0.0,
+    var isEnabled: Boolean = true,
 )

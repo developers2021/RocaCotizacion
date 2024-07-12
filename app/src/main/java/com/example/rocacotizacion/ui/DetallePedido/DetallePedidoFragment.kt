@@ -16,15 +16,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.rocacotizacion.DAO.Clientes
 import com.example.rocacotizacion.DAO.DatabaseApplication
-import com.example.rocacotizacion.DAO.PedidoHdr
 import com.example.rocacotizacion.DataModel.PedidoPrintModel
 import com.example.rocacotizacion.R
 import com.example.rocacotizacion.ui.MiDia.PedidoViewModel
-import com.example.rocacotizacion.ui.NumeroLetras.NumeroLetras
+import com.example.rocacotizacion.ui.PrintUtility.NumeroLetras
 import com.example.rocacotizacion.ui.PrintClass.HtmlTemplates
-import com.example.rocacotizacion.ui.PrintClass.ProductDetail
 import com.example.rocacotizacion.ui.PrintClass.generateTableRows
 import com.itextpdf.text.Document
 import com.itextpdf.text.pdf.PdfWriter
@@ -145,25 +142,21 @@ class DetallePedidoFragment : Fragment() {
                         rutanombre = agente.rutadesc,
                         vendedornombre = agente.descripcionCorta?:""
                     )
-
-
-                    val details =db.PedidoDtlDAO().getDetallePrint(pedidoId)
-                    val total=pedido.total
-
-                    val tableRows = generateTableRows(details)
                     val df = DecimalFormat("#.##")
                     df.roundingMode = RoundingMode.FLOOR
-                    val numeroletras= NumeroLetras.Convertir(df.format(total).toString(),"Lempira","Lempiras"," ","centavos","con",true)
-                    val subtotal=pedido.subtotal+pedido.descuento
-                    val decuento=pedido.descuento
+                    val details =db.PedidoDtlDAO().getDetallePrint(pedidoId)
+                    val total=Math.round(pedido.subtotal*100.00)/100.00
+                    val subtotal=Math.round((pedido.subtotal+pedido.descuento)*100.00)/100.00
+
+                    val tableRows = generateTableRows(details)
+                    val numeroletras= NumeroLetras.Convertir(total.toString(),"Lempira","Lempiras"," ","centavos","con",true)
                     val htmlContent = pedidoinfo?.let { ped ->
                         HtmlTemplates.getHtmlForPdf(pedidoId.toString(), fechaEmision,
                             ped.tipoventa,ped.clientenombre,ped.codigocliente,ped.rtncliente,ped.rutanombre,ped.vendedornombre ,
-                            tableRows,subtotal,decuento,total,numeroletras)
+                            tableRows,subtotal,pedido.descuento,total,numeroletras)
                     }
-
                     val pdfStream = htmlContent?.let { it1 -> convertHtmlToPdf(it1) }
-                    val fileName = "Pedido_$$pedidoId.pdf"
+                    val fileName = "Pedido_#$pedidoId.pdf"
                     if (pdfStream != null) {
                         savePdfToFile(requireContext(), pdfStream, fileName)
                     }

@@ -35,9 +35,9 @@ class DetallesAdapter(
         val textViewPrice: TextView = view.findViewById(R.id.textViewPrice)
         val textViewSubtotal: TextView = view.findViewById(R.id.textViewSubtotal)
         val textViewNombreProd:TextView=view.findViewById(R.id.textViewNomProd)
-        private val buttonClose: Button = view.findViewById(R.id.buttonClose)
-        private val buttonDecrement: Button = view.findViewById(R.id.buttonDecrement)
-        private val buttonIncrement: Button = view.findViewById(R.id.buttonIncrement)
+        val buttonClose: Button = view.findViewById(R.id.buttonClose)
+        val buttonDecrement: Button = view.findViewById(R.id.buttonDecrement)
+        val buttonIncrement: Button = view.findViewById(R.id.buttonIncrement)
 
         init {
             buttonClose.setOnClickListener {
@@ -125,6 +125,10 @@ class DetallesAdapter(
         holder.textViewPrice.text = customFormat.format(detalleItem.price)
         holder.textViewSubtotal.text = customFormat.format(detalleItem.subtotal)
         holder.textViewNombreProd.text=detalleItem.nombreproducto
+        //evalua si el pedido aun no fue guardado en la base de datos, para habilitar o deshabilitar los botones, si es nulo se habilita todos los botones
+        holder.buttonIncrement.isEnabled = detalleItem.isEnabled?:true
+        holder.buttonDecrement.isEnabled = detalleItem.isEnabled?:true
+        holder.buttonClose.isEnabled = detalleItem.isEnabled?:true
     }
 
     override fun getItemCount(): Int = detalles.size
