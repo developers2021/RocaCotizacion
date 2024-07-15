@@ -9,8 +9,11 @@ data class DetalleItem(
     var descuento: Double = 0.0,
     var checkedDescuentoEscala: Boolean = false,
     var checkedDescuentoTipoPago: Boolean = false,
+    var checkedDescuentoRuta: Boolean = false,
+    var descuentoTotal: Double = 0.0,
     var porcentajeEscala: Double = 0.0,
     var porcentajeTipoPago: Double = 0.0,
+    var porcentajeRuta: Double = 0.0,
     var porcentajeTotal: Double = 0.0,
     var isEnabled: Boolean = true,
 )

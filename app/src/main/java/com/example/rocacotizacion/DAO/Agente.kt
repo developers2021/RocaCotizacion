@@ -25,5 +25,6 @@ data class Agente(
     @ColumnInfo(name="nombodega") val nombodega: String?,
     @ColumnInfo (name ="rutadesc") val rutadesc : String,
     @ColumnInfo (name ="tipoagente") val tipoagente : String,
-    @ColumnInfo (name ="idbodega") val idbodega : String
+    @ColumnInfo (name ="idbodega") val idbodega : String,
+    @ColumnInfo (name ="idruta") val idruta : Int
     )

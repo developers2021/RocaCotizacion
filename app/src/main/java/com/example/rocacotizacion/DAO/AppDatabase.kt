@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 @Database(entities = [Agente::class,Clientes::class,Productos::class,Grupos::class,
     PreciosNivelTipoVenta::class,NivelPrecioPredeterminado::class, PedidoHdr::class, PedidoDtl::class,
-    invdescuentoportipoventa::class,invdescuentoporescala::class], version = 2)
+    invdescuentoportipoventa::class,invdescuentoporescala::class,invdescuentoporruta::class], version = 5)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun AgenteDAO(): AgenteDAO
     abstract fun ClientesDAO():ClientesDAO
@@ -17,4 +17,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun PedidoDtlDAO(): PedidoDtlDAO
     abstract fun invdescuentoportipoventaDAO(): invdescuentoportipoventaDAO
     abstract fun invdescuentoporescalaDAO(): invdescuentoporescalaDAO
+    abstract fun invdescuentoporrutaDAO(): invdescuentoporrutaDAO
 }

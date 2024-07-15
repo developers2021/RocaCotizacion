@@ -33,6 +33,7 @@ object ConditionHandler {
             db.PedidoHdrDAO().deleteAll()
             db.invdescuentoportipoventaDAO().deleteAll()
             db.invdescuentoporescalaDAO().deleteAll()
+            db.invdescuentoporrutaDAO().deleteAll()
         }
     }
     fun clearAllSharedPreferences(context: Context) {

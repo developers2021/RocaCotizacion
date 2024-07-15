@@ -57,10 +57,10 @@ class ResumenFragment : Fragment() {
                 val escalaDiscount = escalaDiscounts.firstOrNull {
                     item.quantity >= it.rangoinicial && item.quantity <= it.rangofinal
                 }
-               item.porcentajeEscala= escalaDiscount?.monto ?: (0.0 / 100)
-               item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago
-               item.descuento=item.subtotal*(item.porcentajeTotal/100)
-               item.subtotal=(item.price*item.quantity)-item.descuento
+                item.porcentajeEscala= escalaDiscount?.monto ?: (0.0 / 100)
+                item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago+item.porcentajeRuta
+                item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
+                item.subtotal=(item.price*item.quantity)-item.descuento
                item.checkedDescuentoEscala=true
             }
             SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
@@ -75,10 +75,11 @@ class ResumenFragment : Fragment() {
                 val discountData = DatabaseApplication.getDatabase(requireContext())
                     .invdescuentoportipoventaDAO()
                     .getDescuentoPorTipoVenta(item.codigoproducto)
-                item.porcentajeTipoPago= discountData?.monto ?: (0.0 / 100)
-                item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago
-                item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
-                item.subtotal=(item.price*item.quantity)-item.descuento
+                    item.porcentajeTipoPago= discountData?.monto ?: (0.0 / 100)
+                    item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago+item.porcentajeRuta
+                    item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
+                    item.subtotal=(item.price*item.quantity)-item.descuento
+
                 item.checkedDescuentoTipoPago=true
             }
             SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
@@ -88,12 +89,35 @@ class ResumenFragment : Fragment() {
         }
     }
 
+    private fun applyRutaDiscounts() {
+        CoroutineScope(Dispatchers.IO).launch {
+            SharedDataModel.detalleItems.value?.forEach { item ->
+                val idruta = DatabaseApplication.getDatabase(requireContext())
+                    .AgenteDAO()
+                    .getAgente()
+                val discountData = DatabaseApplication.getDatabase(requireContext())
+                    .invdescuentoporrutaDAO()
+                    .getDescuentoPorRuta(idruta.idruta)
+                    item.porcentajeRuta= discountData?.monto ?: (0.0 / 100)
+                    item.porcentajeTotal=item.porcentajeEscala+item.porcentajeRuta+item.porcentajeTipoPago
+                    item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
+                    item.subtotal=(item.price*item.quantity)-item.descuento
+                    item.checkedDescuentoRuta=true
+        }
+            SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+            withContext(Dispatchers.Main) {
+                updateTotals()
+            }
+    }
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val switchEscala = view.findViewById<SwitchCompat>(R.id.switchOption1)
         val switchTipoPago = view.findViewById<SwitchCompat>(R.id.switchOption2)
+        val switchRuta = view.findViewById<SwitchCompat>(R.id.switchOption3)
 
         switchEscala.setOnCheckedChangeListener { _, isChecked ->
             isEscalaDiscountEnabled = isChecked
@@ -110,11 +134,27 @@ class ResumenFragment : Fragment() {
                 applyTipoVentaDiscounts()
             } else {
                 SharedDataModel.detalleItems.value?.forEach {
-                    it.porcentajeTotal=it.porcentajeEscala
+                    it.porcentajeTotal=it.porcentajeEscala+it.porcentajeRuta
                     it.porcentajeTipoPago = 0.0
-                    it.descuento=it.price*it.quantity*(it.porcentajeEscala/100)
+                    it.descuento=it.price*it.quantity*(it.porcentajeEscala/100)*(it.porcentajeRuta/100)
                     it.subtotal=(it.price*it.quantity)-it.descuento
                     it.checkedDescuentoTipoPago=false
+                }
+                SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+                updateTotals()
+            }
+        }
+        switchRuta.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                applyRutaDiscounts()
+            }
+            else {
+                SharedDataModel.detalleItems.value?.forEach {
+                    it.porcentajeTotal=it.porcentajeEscala+it.porcentajeTipoPago
+                    it.porcentajeRuta = 0.0
+                    it.descuento=it.price*it.quantity*(it.porcentajeEscala/100)*(it.porcentajeTipoPago/100)
+                    it.subtotal=(it.price*it.quantity)-it.descuento
+                    it.checkedDescuentoRuta=false
                 }
                 SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
                 updateTotals()
@@ -123,12 +163,12 @@ class ResumenFragment : Fragment() {
     }
     private fun removeEscalaDiscounts() {
         SharedDataModel.detalleItems.value?.forEach {
-            it.porcentajeTotal=it.porcentajeTipoPago
+            it.porcentajeTotal=it.porcentajeTipoPago+it.porcentajeRuta
             it.porcentajeEscala = 0.0
             it.descuento=it.price*it.quantity*(it.porcentajeTotal/100)
             it.subtotal=it.price*it.quantity-it.descuento
             it.checkedDescuentoEscala=false
-            it.checkedDescuentoTipoPago=false
+            //it.checkedDescuentoTipoPago=false
         }
         SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
     }
@@ -236,6 +276,9 @@ class ResumenFragment : Fragment() {
             }
             view?.findViewById<Button>(R.id.switchOption2)?.let { switchOption2 ->
                 switchOption2.isEnabled = false
+            }
+            view?.findViewById<Button>(R.id.switchOption3)?.let { switchOption3 ->
+                switchOption3.isEnabled = false
             }
             //define en false cuando ya fue guardado el pedido
             SharedDataModel.detalleItems.value?.forEach { it.isEnabled = false }

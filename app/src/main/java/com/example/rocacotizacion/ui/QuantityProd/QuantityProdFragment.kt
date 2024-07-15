@@ -86,6 +86,7 @@ class QuantityProdFragment : Fragment() {
                     codigoproducto = codigoproducto,
                     checkedDescuentoEscala = firstItem?.checkedDescuentoEscala ?: false,
                     checkedDescuentoTipoPago = firstItem?.checkedDescuentoTipoPago ?: false,
+                    checkedDescuentoRuta = firstItem?.checkedDescuentoRuta ?: false,
                     descuento = descuento,
                     porcentajeEscala = porcentajeEscala,
                     porcentajeTipoPago = porcentajeTipoPago,
