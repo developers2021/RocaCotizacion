@@ -3,14 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:padding="6dp"
+    android:layout_marginTop="4dp"
     android:background="@drawable/item_producto_selector">
     >
 
     <TextView
         android:id="@+id/tvProductoNombre"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:text="Producto"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -19,7 +22,7 @@
     <TextView
         android:id="@+id/tvProductoPrecio"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:text="$0.00"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

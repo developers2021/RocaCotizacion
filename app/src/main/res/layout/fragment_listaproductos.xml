@@ -13,11 +13,19 @@
         android:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent"
         app:title="Productos" />
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchViewProductos"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_ListaProductos"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewlistaproductos"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_ListaProductos"
+        android:layout_marginBottom="30dp"
+        app:layout_constraintTop_toBottomOf="@id/searchViewProductos"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

@@ -20,16 +20,11 @@
             android:elevation="4dp"
             app:layout_constraintTop_toTopOf="parent"
             app:title="Listado de Clientes" />
-
-        <TextView
-            android:id="@+id/tvClientes"
-            android:layout_width="wrap_content"
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchViewClientes"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="CLIENTES"
-            android:textAlignment="center"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar_clientes"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_clientes"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -37,10 +32,14 @@
             android:id="@+id/recyclerViewClientes"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/tvClientes"
+            android:layout_marginBottom="30dp"
+            app:layout_constraintTop_toBottomOf="@id/searchViewClientes"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

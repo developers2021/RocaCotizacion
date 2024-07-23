@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -39,6 +40,9 @@ class ClientesFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_clientes, container, false)
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val searchView: SearchView = view.findViewById(R.id.searchViewClientes)
+        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewClientes)
         // Set up the ActionBarDrawerToggle
         val drawerLayout: DrawerLayout = view.findViewById(R.id.drawer_layout_clientes)
         val toolbar: Toolbar = view.findViewById(R.id.toolbar_clientes)
@@ -51,7 +55,23 @@ class ClientesFragment : Fragment() {
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+        // Initialize your adapter and RecyclerView
+        val adapter = ClientesAdapter(listOf()) { cliente ->
+            // Handle click
+        }
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = adapter
+        // Setup search view to filter clients as you type
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
 
+            override fun onQueryTextChange(newText: String?): Boolean {
+                adapter.filter(newText ?: "")
+                return true
+            }
+        })
         //Set up of the username and description  in the title for the ActionBarDrawer
         val sharedPreferences = activity?.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
         val loggedInUsername = sharedPreferences?.getString("LoggedInUsername", null)
@@ -95,11 +115,8 @@ class ClientesFragment : Fragment() {
             }.execute()
 
             GetClienteAsyncTask(requireContext()) { clientesList ->
-                val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewClientes)
-                recyclerView.layoutManager = LinearLayoutManager(context)
-                recyclerView.adapter = ClientesAdapter(clientesList) { cliente ->
-                    // The lambda here is where the AlertDialog will be shown when a row is tapped
-                }
+                adapter.clientesListFull = clientesList
+                adapter.filter("")  // Refresh adapter
             }.execute()
 
         }
@@ -120,9 +137,10 @@ class ClientesFragment : Fragment() {
         }
     }
     class ClientesAdapter(
-        private val clientesList: List<Clientes>,
+        var clientesListFull: List<Clientes>,
         private val onItemClick: (Clientes) -> Unit
     ) : RecyclerView.Adapter<ClientesAdapter.ViewHolder>() {
+        var clientesList: List<Clientes> = clientesListFull
 
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val textView: TextView = view.findViewById(R.id.textViewCliente)
@@ -175,7 +193,20 @@ class ClientesFragment : Fragment() {
 
 
         override fun getItemCount(): Int = clientesList.size
-
+        fun filter(query: String) {
+            clientesList = if (query.isEmpty()) {
+                clientesListFull
+            } else {
+                val filteredList = mutableListOf<Clientes>()
+                for (cliente in clientesListFull) {
+                    if (cliente.nombrecliente?.toLowerCase()?.contains(query.toLowerCase()) == true) {
+                        filteredList.add(cliente)
+                    }
+                }
+                filteredList
+            }
+            notifyDataSetChanged()
+        }
     }
 
 
