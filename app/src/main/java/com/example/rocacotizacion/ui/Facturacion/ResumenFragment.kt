@@ -179,6 +179,8 @@ class ResumenFragment : Fragment() {
             it.porcentajeEscala = 0.0
             it.descuento=it.price*it.quantity*(it.porcentajeTotal/100)
             it.subtotal=it.price*it.quantity-it.descuento
+            it.valorimpuesto=it.subtotal*(it.porcentajeImpuesto/100)
+            it.total=it.subtotal+it.valorimpuesto
             it.checkedDescuentoEscala=false
             //it.checkedDescuentoTipoPago=false
         }
