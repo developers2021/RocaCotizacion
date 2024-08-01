@@ -1,180 +1,223 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:fillViewport="true">
 
-    <!-- Title TextView -->
-    <TextView
-        android:id="@+id/textViewTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Resumen del Pedido"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:layout_marginTop="16dp"/>
-    <!-- Divider -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/verde_roca"
-        android:layout_marginVertical="8dp"/>
-
-    <!-- Dynamic content goes here -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="15dp"
-        android:weightSum="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewResumen1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"/>
-    </LinearLayout>
-    <!-- Divider -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/verde_roca"
-        android:layout_marginVertical="8dp"/>
-
-    <!-- Dynamic content goes here -->
-
-    <!-- Example Line Item -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="1">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:text="Subtotal"
-            android:gravity="start"/>
-
-        <TextView
-            android:id="@+id/sumsubtotal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:text="20.00"
-            android:gravity="end"/>
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="1">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:text="Total"
-            android:gravity="start"/>
-
-        <TextView
-            android:id="@+id/sumtotal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:text="20.00"
-            android:gravity="end"/>
-
-    </LinearLayout>
-
-
-    <!-- Divider -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/verde_roca"
-        android:layout_marginVertical="4dp"/>
-
-    <!-- Repeat Line Items -->
-
-    <!-- Summary Total -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="1"
-        android:layout_marginTop="16dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:text="Tipo Venta"
-            android:textStyle="bold"
-            android:gravity="start"/>
-
-        <TextView
-            android:id="@+id/tipopago"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:text="Contado"
-            android:textStyle="bold"
-            android:gravity="end"/>
-    </LinearLayout>
-
-    <!-- Footer Divider -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/verde_roca"
-        android:layout_marginVertical="8dp"/>
-    <!-- Switches for additional settings -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp">
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switchOption1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Descuento por Escala"
-            android:padding="8dp"/>
+        android:padding="16dp">
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switchOption2"
+        <!-- Title TextView -->
+        <TextView
+            android:id="@+id/textViewTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Descuento por Tipo de Pago"
-            android:padding="8dp"/>
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switchOption3"
+            android:gravity="center"
+            android:text="Resumen del Pedido"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:layout_marginTop="16dp"/>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/verde_roca"
+            android:layout_marginVertical="8dp"/>
+
+        <!-- Dynamic content goes here -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Descuento por Ruta"
-            android:padding="8dp"/>
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
+            android:weightSum="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewResumen1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"/>
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/verde_roca"
+            android:layout_marginVertical="8dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:text="Subtotal"
+                android:gravity="start"/>
+            <TextView
+                android:id="@+id/sumsubtotal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="20.00"
+                android:gravity="end"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:text="Descuento"
+                android:gravity="start"/>
+            <TextView
+                android:id="@+id/sumdescuento"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="20.00"
+                android:gravity="end"/>
+        </LinearLayout>
+        <!-- Subtotal and Total Line Items -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:text="Impuesto"
+                android:gravity="start"/>
+            <TextView
+                android:id="@+id/sumimpuesto"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="20.00"
+                android:gravity="end"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:text="Total"
+                android:gravity="start"/>
+            <TextView
+                android:id="@+id/sumtotal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="20.00"
+                android:gravity="end"/>
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/verde_roca"
+            android:layout_marginVertical="4dp"/>
+
+        <!-- Tipo Venta -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            android:layout_marginTop="16dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:text="Tipo Venta"
+                android:textStyle="bold"
+                android:gravity="start"/>
+            <TextView
+                android:id="@+id/tipopago"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:text="Contado"
+                android:textStyle="bold"
+                android:gravity="end"/>
+        </LinearLayout>
+
+        <!-- Footer Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/verde_roca"
+            android:layout_marginVertical="8dp"/>
+
+        <!-- Switches for additional settings -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchOption1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Descuento por Escala"
+                android:padding="8dp"/>
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchOption2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Descuento por Tipo de Pago"
+                android:padding="8dp"/>
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchOption3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Descuento por Ruta"
+                android:padding="8dp"/>
+        </LinearLayout>
+
+        <!-- Save Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            android:layout_marginTop="16dp">
+            <Button
+                android:id="@+id/btnsavepedido"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Guardar Pedido"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            android:layout_marginTop="16dp">
+            <Button
+                android:id="@+id/btnprint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Log"/>
+        </LinearLayout>
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="1"
-        android:layout_marginTop="16dp">
-        <Button
-            android:id="@+id/btnsavepedido"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Guardar Pedido"
-            />
-
-
-    </LinearLayout>
-
-
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>

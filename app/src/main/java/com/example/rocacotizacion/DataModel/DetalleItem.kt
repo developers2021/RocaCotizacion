@@ -16,4 +16,7 @@ data class DetalleItem(
     var porcentajeRuta: Double = 0.0,
     var porcentajeTotal: Double = 0.0,
     var isEnabled: Boolean = true,
+    val porcentajeImpuesto: Double = 0.0,
+    var valorimpuesto: Double = 0.0,
+    var total: Double = 0.0
 )

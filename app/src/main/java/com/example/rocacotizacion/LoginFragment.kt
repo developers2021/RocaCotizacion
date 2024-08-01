@@ -224,7 +224,8 @@ class LoginFragment : Fragment() {
                 tipopromocion = clienteJsonObject.optString("tipopromocion"),
                 idproducto = clienteJsonObject.getInt("idproducto"),
                 monto = clienteJsonObject.getDouble("monto"),
-                codigoproducto=clienteJsonObject.optString("codigoproducto")
+                codigoproducto=clienteJsonObject.optString("codigoproducto"),
+                codigotipoventa = clienteJsonObject.optString("codigotipoventa")
             )
             invdescuentoportipoventaList.add(list)
         }

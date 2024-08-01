@@ -24,6 +24,7 @@ class QuantityProdFragment : Fragment() {
     private lateinit var tvSubtotal: TextView
     private lateinit var tvnombreproducto: TextView
     private lateinit var tvcodigoproducto: TextView
+    private lateinit var tvimpuesto: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,23 +39,30 @@ class QuantityProdFragment : Fragment() {
         val buttonIncrement: Button = view.findViewById(R.id.buttonIncrement2)
         val buttonDecrement: Button = view.findViewById(R.id.buttonDecrement2)
         val btnAgregar: Button = view.findViewById(R.id.btnAgregar)
+        val btnCancelar: Button = view.findViewById(R.id.btnCancel)
         tvPrice = view.findViewById(R.id.tvValueRight1)
         tvSubtotal = view.findViewById(R.id.tvValueRight3)
         tvnombreproducto = view.findViewById(R.id.tvLargeText)
         tvcodigoproducto = view.findViewById(R.id.tvSmallText)
+        tvimpuesto = view.findViewById(R.id.tvValueRight2)
         btnAgregar.setOnClickListener {
             val quantity = editTextNumber.text.toString().toIntOrNull() ?: 0
             val price = tvPrice.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
-            val subtotal = tvSubtotal.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
+            var subtotal = tvSubtotal.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
+            val impuesto= tvimpuesto.text.toString().toDoubleOrNull() ?: 0.0
             val nombreproducto = tvnombreproducto.text.toString()
             val codigoproducto = tvcodigoproducto.text.toString()
+            var valorimpuesto =subtotal*(impuesto/100)
+            var total =subtotal+valorimpuesto
 
             CoroutineScope(Dispatchers.IO).launch {
                 val firstItem = SharedDataModel.detalleItems.value?.firstOrNull()
                 var porcentajeEscala = 0.0
                 var porcentajeTipoPago = 0.0
+                var porcentajeRuta = 0.0
                 var porcentajeTotal = 0.0
                 var descuento = 0.0
+
 
                 firstItem?.let {
                     if (it.checkedDescuentoEscala) {
@@ -66,22 +74,32 @@ class QuantityProdFragment : Fragment() {
                         }
                         porcentajeEscala = escalaDiscount?.monto ?: 0.0
                     }
+                    var tipopago= activity?.intent?.getStringExtra("tipoPago")?:""
 
                     if (it.checkedDescuentoTipoPago) {
                         val tipoPagoDiscount = DatabaseApplication.getDatabase(requireContext()).
                             invdescuentoportipoventaDAO().
-                            getDescuentoPorTipoVenta(tipoPago)
+                            getDescuentoPorTipoVenta(codigoproducto,tipopago)
                         porcentajeTipoPago = tipoPagoDiscount?.monto ?: 0.0
                     }
+                    if (it.checkedDescuentoRuta) {
+                        val rutaDiscount = DatabaseApplication.getDatabase(requireContext()).
+                            invdescuentoporrutaDAO().
+                            getDescuentoPorRutafirst()
+                        porcentajeRuta = rutaDiscount?.monto ?: 0.0
+                    }
 
-                    porcentajeTotal = porcentajeEscala + porcentajeTipoPago
+                    porcentajeTotal = porcentajeEscala + porcentajeTipoPago+ porcentajeRuta
                     descuento = subtotal * (porcentajeTotal / 100)
+                    subtotal -= descuento
+                    valorimpuesto = (subtotal * (impuesto / 100))
+                    total = subtotal + valorimpuesto
                 }
 
                 val detalleItem = DetalleItem(
                     quantity = quantity,
                     price = price,
-                    subtotal = subtotal - descuento,
+                    subtotal = subtotal,
                     nombreproducto = nombreproducto,
                     codigoproducto = codigoproducto,
                     checkedDescuentoEscala = firstItem?.checkedDescuentoEscala ?: false,
@@ -90,7 +108,11 @@ class QuantityProdFragment : Fragment() {
                     descuento = descuento,
                     porcentajeEscala = porcentajeEscala,
                     porcentajeTipoPago = porcentajeTipoPago,
-                    porcentajeTotal = porcentajeTotal
+                    porcentajeRuta = porcentajeRuta,
+                    porcentajeTotal = porcentajeTotal,
+                    porcentajeImpuesto = impuesto,
+                    valorimpuesto = valorimpuesto,
+                    total = total
                 )
 
                 withContext(Dispatchers.Main) {
@@ -109,6 +131,9 @@ class QuantityProdFragment : Fragment() {
 
         buttonDecrement.setOnClickListener {
             decrementQuantity()
+        }
+        btnCancelar.setOnClickListener {
+            requireActivity().onBackPressed()
         }
 
         editTextNumber.addTextChangedListener(object : TextWatcher {
@@ -141,7 +166,7 @@ class QuantityProdFragment : Fragment() {
                     view?.findViewById<TextView>(R.id.tvLargeText)?.text = productDetails.producto
                     view?.findViewById<TextView>(R.id.tvSmallText)?.text = "${productDetails.codigoproducto}"
                     tvPrice.text = "L. ${productDetails.precio.toString()}"
-                    view?.findViewById<TextView>(R.id.tvValueRight2)?.text = "${productDetails.porcentajeimpuesto} %"
+                    view?.findViewById<TextView>(R.id.tvValueRight2)?.text = "${productDetails.porcentajeimpuesto} "
                     calculateSubtotal()  // Call to update the subtotal
                 }
             } catch (e: Exception) {

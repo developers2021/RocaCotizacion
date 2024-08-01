@@ -14,4 +14,7 @@ interface invdescuentoporrutaDAO {
     fun deleteAll()
     @Query("SELECT * FROM invdescuentoporruta WHERE idruta   = :idruta LIMIT 1")
     fun getDescuentoPorRuta(idruta: Int): invdescuentoporruta?
+
+    @Query("SELECT * FROM invdescuentoporruta LIMIT 1")
+    fun getDescuentoPorRutafirst(): invdescuentoporruta?
 }

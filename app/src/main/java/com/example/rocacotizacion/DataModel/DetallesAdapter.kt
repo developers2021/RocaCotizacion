@@ -34,6 +34,7 @@ class DetallesAdapter(
         val textViewQuantity: TextView = view.findViewById(R.id.textViewQuantity)
         val textViewPrice: TextView = view.findViewById(R.id.textViewPrice)
         val textViewSubtotal: TextView = view.findViewById(R.id.textViewSubtotal)
+        val textViewImpuesto: TextView = view.findViewById(R.id.textViewImpuesto)
         val textViewNombreProd:TextView=view.findViewById(R.id.textViewNomProd)
         val buttonClose: Button = view.findViewById(R.id.buttonClose)
         val buttonDecrement: Button = view.findViewById(R.id.buttonDecrement)
@@ -70,19 +71,23 @@ class DetallesAdapter(
                         item.quantity >= it.rangoinicial && item.quantity <= it.rangofinal
                     }
                     item.porcentajeEscala=escalaDiscount?.monto ?: 0.00
-                    item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago
+                    item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago+item.porcentajeRuta
                     item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
                     item.subtotal=(item.price*item.quantity)-item.descuento
+                    item.valorimpuesto=item.subtotal*(item.porcentajeImpuesto/100)
+                    item.total=item.subtotal+item.valorimpuesto
                 } else {
-                    item.descuento=(item.price*item.quantity)*(item.porcentajeTipoPago/100)
+                    item.descuento=(item.price*item.quantity)*((item.porcentajeTipoPago/100)+(item.porcentajeRuta/100))
                 }
                 SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
 
 
                 withContext(Dispatchers.Main) {
                     // Update subtotal after recalculating discounts
+                    //             impuesto es despues del descuento
                     item.subtotal = item.quantity * item.price -(item.quantity * item.price *( item.porcentajeTotal/100))
-
+                    item.valorimpuesto=((item.price*item.quantity)-(item.price*item.quantity*(item.porcentajeTotal/100)))*(item.porcentajeImpuesto/100)
+                    item.total=(item.quantity * item.price -(item.quantity * item.price *( item.porcentajeTotal/100)))+(((item.price*item.quantity)-(item.price*item.quantity*(item.porcentajeTotal/100)))*(item.porcentajeImpuesto/100))
                     // Post the updated list to LiveData to trigger observers
                     SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
                 }
@@ -124,6 +129,7 @@ class DetallesAdapter(
         holder.textViewQuantity.text = detalleItem.quantity.toString()
         holder.textViewPrice.text = customFormat.format(detalleItem.price)
         holder.textViewSubtotal.text = customFormat.format(detalleItem.subtotal)
+        holder.textViewImpuesto.text = customFormat.format(detalleItem.valorimpuesto)
         holder.textViewNombreProd.text=detalleItem.nombreproducto
         //evalua si el pedido aun no fue guardado en la base de datos, para habilitar o deshabilitar los botones, si es nulo se habilita todos los botones
         holder.buttonIncrement.isEnabled = detalleItem.isEnabled?:true

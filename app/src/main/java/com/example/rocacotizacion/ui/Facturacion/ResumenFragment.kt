@@ -61,6 +61,8 @@ class ResumenFragment : Fragment() {
                 item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago+item.porcentajeRuta
                 item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
                 item.subtotal=(item.price*item.quantity)-item.descuento
+                item.valorimpuesto=item.subtotal*(item.porcentajeImpuesto/100)
+                item.total=item.subtotal+item.valorimpuesto
                item.checkedDescuentoEscala=true
             }
             SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
@@ -71,16 +73,20 @@ class ResumenFragment : Fragment() {
     }
     private fun applyTipoVentaDiscounts() {
         CoroutineScope(Dispatchers.IO).launch {
+            var tipopago= activity?.intent?.getStringExtra("tipoPago")
             SharedDataModel.detalleItems.value?.forEach { item ->
-                val discountData = DatabaseApplication.getDatabase(requireContext())
-                    .invdescuentoportipoventaDAO()
-                    .getDescuentoPorTipoVenta(item.codigoproducto)
+                     val discountData = tipopago?.let {
+                     DatabaseApplication.getDatabase(requireContext())
+                           .invdescuentoportipoventaDAO()
+                           .getDescuentoPorTipoVenta(item.codigoproducto, it)
+                    }
                     item.porcentajeTipoPago= discountData?.monto ?: (0.0 / 100)
                     item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago+item.porcentajeRuta
                     item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
                     item.subtotal=(item.price*item.quantity)-item.descuento
-
-                item.checkedDescuentoTipoPago=true
+                    item.valorimpuesto=item.subtotal*(item.porcentajeImpuesto/100)
+                    item.total=item.subtotal+item.valorimpuesto
+                    item.checkedDescuentoTipoPago=true
             }
             SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
             withContext(Dispatchers.Main) {
@@ -102,6 +108,8 @@ class ResumenFragment : Fragment() {
                     item.porcentajeTotal=item.porcentajeEscala+item.porcentajeRuta+item.porcentajeTipoPago
                     item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
                     item.subtotal=(item.price*item.quantity)-item.descuento
+                    item.valorimpuesto=item.subtotal*(item.porcentajeImpuesto/100)
+                    item.total=item.subtotal+item.valorimpuesto
                     item.checkedDescuentoRuta=true
         }
             SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
@@ -136,8 +144,10 @@ class ResumenFragment : Fragment() {
                 SharedDataModel.detalleItems.value?.forEach {
                     it.porcentajeTotal=it.porcentajeEscala+it.porcentajeRuta
                     it.porcentajeTipoPago = 0.0
-                    it.descuento=it.price*it.quantity*(it.porcentajeEscala/100)*(it.porcentajeRuta/100)
+                    it.descuento=it.price*it.quantity *((it.porcentajeEscala/100)+(it.porcentajeRuta/100))
                     it.subtotal=(it.price*it.quantity)-it.descuento
+                    it.valorimpuesto=it.subtotal*(it.porcentajeImpuesto/100)
+                    it.total=it.subtotal+it.valorimpuesto
                     it.checkedDescuentoTipoPago=false
                 }
                 SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
@@ -152,8 +162,10 @@ class ResumenFragment : Fragment() {
                 SharedDataModel.detalleItems.value?.forEach {
                     it.porcentajeTotal=it.porcentajeEscala+it.porcentajeTipoPago
                     it.porcentajeRuta = 0.0
-                    it.descuento=it.price*it.quantity*(it.porcentajeEscala/100)*(it.porcentajeTipoPago/100)
+                    it.descuento=it.price*it.quantity*((it.porcentajeEscala/100)+(it.porcentajeTipoPago/100))
                     it.subtotal=(it.price*it.quantity)-it.descuento
+                    it.valorimpuesto=it.subtotal*(it.porcentajeImpuesto/100)
+                    it.total=it.subtotal+it.valorimpuesto
                     it.checkedDescuentoRuta=false
                 }
                 SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
@@ -174,9 +186,14 @@ class ResumenFragment : Fragment() {
     }
     private fun updateTotals() {
         val items = SharedDataModel.detalleItems.value ?: return
-        val total = items.sumOf { it.subtotal }
+        val total = items.sumOf { it.total }
+        val impuesto=items.sumOf { it.valorimpuesto }
+        val subtotal=items.sumOf { it.subtotal }
+        val descuento=items.sumOf { it.descuento }
         view?.findViewById<TextView>(R.id.sumtotal)?.text = "L.${String.format("%.2f", total)}"
-        view?.findViewById<TextView>(R.id.sumsubtotal)?.text = "L.${String.format("%.2f", total)}"
+        view?.findViewById<TextView>(R.id.sumsubtotal)?.text = "L.${String.format("%.2f", subtotal)}"
+        view?.findViewById<TextView>(R.id.sumimpuesto)?.text = "L.${String.format("%.2f", impuesto)}"
+        view?.findViewById<TextView>(R.id.sumdescuento)?.text = "L.${String.format("%.2f", descuento)}"
     }
 
     override fun onCreateView(
@@ -196,13 +213,22 @@ class ResumenFragment : Fragment() {
         SharedDataModel.detalleItems.observe(viewLifecycleOwner, Observer { items ->
             resumenAdapter.updateItems(items)
             // Update subtotal and total
-            val total = items.sumOf { it.subtotal }
+            val impuesto = String.format("%.2f", items.sumOf { it.valorimpuesto })
+            val total = items.sumOf { it.total }
+            val subtotal = String.format("%.2f", items.sumOf { it.subtotal })
             val roundedTotal = String.format("%.2f", total)
-            view.findViewById<TextView>(R.id.sumsubtotal).text = "L.$roundedTotal"
+            val sumdescuento = String.format("%.2f", items.sumOf { it.descuento })
+            view.findViewById<TextView>(R.id.sumsubtotal).text = "L.$subtotal"
             view.findViewById<TextView>(R.id.sumtotal).text = "L.$roundedTotal"
+            view.findViewById<TextView>(R.id.sumimpuesto).text = "L.$impuesto"
+            view.findViewById<TextView>(R.id.sumdescuento).text = "L.$sumdescuento"
         })
         //accion del boton guardar btnsavepedido
         val btnsavepedido: Button = view.findViewById(R.id.btnsavepedido)
+        val btnprint: Button = view.findViewById(R.id.btnprint)
+        btnprint.setOnClickListener {
+            Log.d("Log de detalle: ",SharedDataModel.detalleItems.value.toString())
+        }
         btnsavepedido.setOnClickListener {
             if (SharedDataModel.detalleItems.value.isNullOrEmpty()) {
                 Toast.makeText(context, "No hay items en el pedido", Toast.LENGTH_SHORT).show()
