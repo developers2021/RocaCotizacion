@@ -9,8 +9,8 @@ import java.util.Locale
 object HtmlTemplates {
     fun getHtmlForPdf(pedidoId: String, fechaEmision: String, tipoventa: String, clientenombre: String,
                       codigocliente: String, rtncliente: String, rutanombre: String, vendedornombre: String,
-                      tableRows: String,subtotal: Double,totaldescuento:Double,total:Double,numeroletras:String): String {
-        val symbols = DecimalFormatSymbols(Locale.US) // Ensure the locale is set to US for comma separators
+                      tableRows: String,subtotal: Double,totaldescuento:Double,total:Double,numeroletras:String,impuesto:Double): String {
+        val symbols = DecimalFormatSymbols(Locale.US)
         symbols.setGroupingSeparator(',')
         symbols.setDecimalSeparator('.')
         val df = DecimalFormat("#,##0.00", symbols)
@@ -88,6 +88,7 @@ object HtmlTemplates {
         </table>
                 <p class="right-aligned">Subtotal: ${df.format(subtotal)}</p>
                 <p class="right-aligned">Total Descuento: ${df.format(totaldescuento)}</p>
+                <p class="right-aligned">Total Impuesto: ${df.format(impuesto)}</p>
                 <p class="right-aligned">Total: ${df.format(total)}</p>
                 <br/ >
                 <p class="centered">*${numeroletras}*</p>

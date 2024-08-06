@@ -13,6 +13,7 @@ data class PedidoHdrS(
     val tipoPago: String,
     val subtotal: Double,
     val clientecodigo:String,
+    val impuesto: Double? = null,
     val descuento: Double? = null,
     val total: Double,
     val isSincronizado: Boolean,
@@ -25,5 +26,6 @@ data class PedidoDtlS(
     val codigoProducto: String,
     val cantidad: Int,
     val precio: Double,
-    val descuento: Double? = null
+    val descuento: Double? = null,
+    val impuesto: Double? = null
 )

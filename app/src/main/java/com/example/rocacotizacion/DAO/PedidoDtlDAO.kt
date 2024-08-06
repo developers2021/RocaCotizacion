@@ -35,7 +35,7 @@ interface PedidoDtlDAO {
     fun countAll(): Int
 
     @Query("""
-        SELECT d.nombre as prod,d.cantidad as und,d.precio,d.precio*d.cantidad as monto
+        SELECT d.nombre as prod,d.cantidad as und,d.precio,d.precio*d.cantidad as monto,d.descuento,d.impuesto 
         FROM pedido_dtl d
         INNER JOIN Productos p ON d.codigoproducto = p.codigoproducto
         INNER JOIN PreciosNivelTipoVenta pn ON p.idproducto = pn.idproducto

@@ -227,10 +227,6 @@ class ResumenFragment : Fragment() {
         })
         //accion del boton guardar btnsavepedido
         val btnsavepedido: Button = view.findViewById(R.id.btnsavepedido)
-        val btnprint: Button = view.findViewById(R.id.btnprint)
-        btnprint.setOnClickListener {
-            Log.d("Log de detalle: ",SharedDataModel.detalleItems.value.toString())
-        }
         btnsavepedido.setOnClickListener {
             if (SharedDataModel.detalleItems.value.isNullOrEmpty()) {
                 Toast.makeText(context, "No hay items en el pedido", Toast.LENGTH_SHORT).show()
@@ -254,9 +250,11 @@ class ResumenFragment : Fragment() {
             val detalleItems = SharedDataModel.detalleItems.value ?: listOf()
 
             val subtotal = detalleItems.sumOf { it.subtotal }
-            val descuento =detalleItems.sumOf { it.descuento } // Calculate any discount if applicable
+            val descuento =detalleItems.sumOf { it.descuento }
+            val impuesto=detalleItems.sumOf { it.valorimpuesto }
+            val total=detalleItems.sumOf { it.total }
 
-            val pedidoHdr = PedidoHdr(tipopago = tipoPago, subtotal = subtotal, descuento = descuento, total = subtotal, sinc = false, clientecodigo =clientecodigo )
+            val pedidoHdr = PedidoHdr(tipopago = tipoPago, subtotal = subtotal, descuento = descuento, total = total, sinc = false, clientecodigo =clientecodigo,impuesto=impuesto )
             val hdrId = DatabaseApplication.getDatabase(requireContext()).PedidoHdrDAO().insertPedidoHdr(pedidoHdr)
 
             if (hdrId > 0) {
@@ -269,6 +267,7 @@ class ResumenFragment : Fragment() {
                         precio = item.price,
                         descuento = item.descuento,
                         nombre = item.nombreproducto,
+                        impuesto=item.valorimpuesto
                     )
                     DatabaseApplication.getDatabase(requireContext()).PedidoDtlDAO().insertPedidoDtl(pedidoDtl)
                 }
@@ -385,15 +384,16 @@ class ResumenFragment : Fragment() {
                 val df = DecimalFormat("#.##")
                 df.roundingMode = RoundingMode.FLOOR
                 val details =db.PedidoDtlDAO().getDetallePrint(pedidoId)
-                val total=Math.round(pedido.subtotal*100.00)/100.00
                 val subtotal=Math.round((pedido.subtotal+pedido.descuento)*100.00)/100.00
-
+                val descuento=Math.round(pedido.descuento*100.00)/100.00
+                val impuesto=Math.round(pedido.impuesto*100.00)/100.00
+                val total=Math.round((pedido.subtotal+pedido.impuesto)*100.00)/100.00
                 val tableRows = generateTableRows(details)
                 val numeroletras= NumeroLetras.Convertir(total.toString(),"Lempira","Lempiras"," ","centavos","con",true)
                 val htmlContent = pedidoinfo?.let { ped ->
                     HtmlTemplates.getHtmlForPdf(pedidoId.toString(), fechaEmision,
                         ped.tipoventa,ped.clientenombre,ped.codigocliente,ped.rtncliente,ped.rutanombre,ped.vendedornombre ,
-                        tableRows,subtotal,pedido.descuento,total,numeroletras)
+                        tableRows,subtotal,descuento,total,numeroletras,impuesto)
                 }
                 val pdfStream = htmlContent?.let { it1 -> convertHtmlToPdf(it1) }
                 val fileName = "Pedido_#$pedidoId.pdf"

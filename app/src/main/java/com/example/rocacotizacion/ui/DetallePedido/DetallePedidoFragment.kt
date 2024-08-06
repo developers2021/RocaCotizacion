@@ -105,8 +105,9 @@ class DetallePedidoFragment : Fragment() {
                 symbols.setGroupingSeparator(',')
                 symbols.setDecimalSeparator('.')
                 val df = DecimalFormat("#,##0.00", symbols)
-                view.findViewById<TextView>(R.id.sumsubtotal).text =  df.format(hdr.subtotal + hdr.descuento)
+                view.findViewById<TextView>(R.id.sumsubtotal).text =  df.format(hdr.subtotal )
                 view.findViewById<TextView>(R.id.sumtotal).text =  df.format(hdr.total)
+                view.findViewById<TextView>(R.id.sumimpuesto).text =  df.format(hdr.impuesto)
                 var tipopago=""
                 if (hdr.tipopago=="CTADO") {
                     tipopago="Contado"
@@ -145,15 +146,15 @@ class DetallePedidoFragment : Fragment() {
                     val df = DecimalFormat("#.##")
                     df.roundingMode = RoundingMode.FLOOR
                     val details =db.PedidoDtlDAO().getDetallePrint(pedidoId)
-                    val total=Math.round(pedido.subtotal*100.00)/100.00
                     val subtotal=Math.round((pedido.subtotal+pedido.descuento)*100.00)/100.00
-
+                    val impuesto=Math.round(pedido.impuesto*100.00)/100.00
+                    val total=Math.round((pedido.subtotal+pedido.impuesto)*100.00)/100.00
                     val tableRows = generateTableRows(details)
                     val numeroletras= NumeroLetras.Convertir(total.toString(),"Lempira","Lempiras"," ","centavos","con",true)
                     val htmlContent = pedidoinfo?.let { ped ->
                         HtmlTemplates.getHtmlForPdf(pedidoId.toString(), fechaEmision,
                             ped.tipoventa,ped.clientenombre,ped.codigocliente,ped.rtncliente,ped.rutanombre,ped.vendedornombre ,
-                            tableRows,subtotal,pedido.descuento,total,numeroletras)
+                            tableRows,subtotal,pedido.descuento,total,numeroletras,impuesto)
                     }
                     val pdfStream = htmlContent?.let { it1 -> convertHtmlToPdf(it1) }
                     val fileName = "Pedido_#$pedidoId.pdf"

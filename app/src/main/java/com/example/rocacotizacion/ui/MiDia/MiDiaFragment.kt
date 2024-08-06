@@ -126,6 +126,7 @@ class MiDiaFragment : Fragment() {
                             total = header.total,
                             clientecodigo = header.clientecodigo,
                             isSincronizado = header.sinc,
+                            impuesto = header.impuesto,
                             pedidoDtls = details.map { detail ->
                                 PedidoDtlS(
                                     id = detail.id,
@@ -133,7 +134,8 @@ class MiDiaFragment : Fragment() {
                                     codigoProducto = detail.codigoproducto,
                                     cantidad = detail.cantidad,
                                     precio = detail.precio,
-                                    descuento = detail.descuento
+                                    descuento = detail.descuento,
+                                    impuesto = detail.impuesto,
                                 )
                             }
                         )
