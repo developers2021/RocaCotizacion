@@ -185,6 +185,7 @@ class MiDiaFragment : Fragment() {
             pedidoHdrJson.put("total", pedidoHdr.total)
             pedidoHdrJson.put("clientecodigo", pedidoHdr.clientecodigo)
             pedidoHdrJson.put("isSincronizado", pedidoHdr.isSincronizado)
+            pedidoHdrJson.put("impuesto", pedidoHdr.impuesto)
 
             val pedidoDtlsArray = JSONArray()
             pedidoHdr.pedidoDtls.forEach { pedidoDtl ->
@@ -195,6 +196,7 @@ class MiDiaFragment : Fragment() {
                 pedidoDtlJson.put("cantidad", pedidoDtl.cantidad)
                 pedidoDtlJson.put("precio", pedidoDtl.precio)
                 pedidoDtlJson.put("descuento", pedidoDtl.descuento)
+                pedidoDtlJson.put("impuesto", pedidoDtl.impuesto)
                 pedidoDtlsArray.put(pedidoDtlJson)
             }
 

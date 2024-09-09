@@ -12,6 +12,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -118,8 +119,44 @@ class DetallePedidoFragment : Fragment() {
 
             }
         }
+        val deleteButton = view.findViewById<ImageButton>(R.id.button_delete)
 
+        viewModel.getSincByPedidoId(pedidoId).observe(viewLifecycleOwner) { isSynchronized ->
+            if (isSynchronized == true) {
+               deleteButton.isVisible=false
+            } else {
+                deleteButton.setOnClickListener {
+                    val builder = AlertDialog.Builder(context)
+                    builder.setTitle("Alerta")
+                    builder.setMessage("¿Está seguro que desea eliminar este pedido?")
+                    builder.setPositiveButton("Eliminar") { dialog, _ ->
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val db = context?.let { DatabaseApplication.getDatabase(it) }
+                            db?.let {
+                                it.PedidoHdrDAO().deletehdrid(pedidoId)
+                                it.PedidoDtlDAO().deletedtlid(pedidoId)
+                                // Re-fetch the list on IO thread
+                                val updatedDetails = it.PedidoDtlDAO().getAllDetailsByHeaderId(pedidoId)
+                                withContext(Dispatchers.Main) {
+                                    // Update the RecyclerView on the Main thread
+                                    adapter.updateDetails(updatedDetails)
+                                    Toast.makeText(context, "Pedido eliminado", Toast.LENGTH_SHORT).show()
+                                    parentFragmentManager.popBackStack() // Optionally go back
+                                }
+                            } ?: withContext(Dispatchers.Main) {
+                                Toast.makeText(context, "Database access error", Toast.LENGTH_SHORT).show()
+                            }
+                            dialog.dismiss()
+                        }
+                    }
+                    builder.setNeutralButton("Cancelar") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    builder.show()
+                }
+            }
 
+        }
 
         val buttonPrint = view.findViewById<ImageButton>(R.id.button_print)
         buttonPrint.setOnClickListener {
@@ -168,36 +205,7 @@ class DetallePedidoFragment : Fragment() {
             }
         }
 
-        val deleteButton = view.findViewById<ImageButton>(R.id.button_delete)
-        deleteButton.setOnClickListener {
-            val builder = AlertDialog.Builder(context)
-            builder.setTitle("Alerta")
-            builder.setMessage("¿Está seguro que desea eliminar este pedido?")
-            builder.setPositiveButton("Eliminar") { dialog, _ ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    val db = context?.let { DatabaseApplication.getDatabase(it) }
-                    db?.let {
-                        it.PedidoHdrDAO().deletehdrid(pedidoId)
-                        it.PedidoDtlDAO().deletedtlid(pedidoId)
-                        // Re-fetch the list on IO thread
-                        val updatedDetails = it.PedidoDtlDAO().getAllDetailsByHeaderId(pedidoId)
-                        withContext(Dispatchers.Main) {
-                            // Update the RecyclerView on the Main thread
-                            adapter.updateDetails(updatedDetails)
-                            Toast.makeText(context, "Pedido eliminado", Toast.LENGTH_SHORT).show()
-                            parentFragmentManager.popBackStack() // Optionally go back
-                        }
-                    } ?: withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Database access error", Toast.LENGTH_SHORT).show()
-                    }
-                    dialog.dismiss()
-                }
-            }
-            builder.setNeutralButton("Cancelar") { dialog, _ ->
-                dialog.dismiss()
-            }
-            builder.show()
-        }
+
 
     }
 

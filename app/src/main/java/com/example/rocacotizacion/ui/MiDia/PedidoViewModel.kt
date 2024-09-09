@@ -32,6 +32,9 @@ class PedidoViewModel(application: Application) : AndroidViewModel(application) 
         return pedidoDtlDAO.getDetailsByPedidoId(pedidoId)
     }
 
+    fun getSincByPedidoId(pedidoId: Int): LiveData<Boolean?> {
+        return pedidoHdrDAO.getSincByPedidoId(pedidoId)
+    }
 
 
 }

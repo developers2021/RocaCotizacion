@@ -26,4 +26,6 @@ interface PedidoHdrDAO {
     fun getAllPedidoHdrS(): List<PedidoHdr>
     @Query("UPDATE pedido_hdr SET sinc = :sinc WHERE id IN (:ids)")
     fun updateSincForIds(ids: List<Int>, sinc: Boolean)
+    @Query("SELECT sinc FROM pedido_hdr WHERE id = :pedidoId")
+    fun getSincByPedidoId(pedidoId: Int): LiveData<Boolean?>
 }
