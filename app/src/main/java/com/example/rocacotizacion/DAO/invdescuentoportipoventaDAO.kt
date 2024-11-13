@@ -12,6 +12,10 @@ interface invdescuentoportipoventaDAO {
 
     @Query("DELETE FROM invdescuentoportipoventa")
     fun deleteAll()
+
     @Query("SELECT * FROM invdescuentoportipoventa WHERE codigoproducto = :codigoproducto AND codigotipoventa = :codigotipoventa LIMIT 1")
-    fun getDescuentoPorTipoVenta(codigoproducto: String,codigotipoventa :String): invdescuentoportipoventa?
+    fun getDescuentoPorTipoVenta(codigoproducto: String, codigotipoventa: String): invdescuentoportipoventa?
+
+    @Query("SELECT * FROM invdescuentoportipoventa WHERE codigoproducto IN (:codigosProductos) AND codigotipoventa = :nonNullCodigoTipoVenta")
+    fun getDescuentosPorTipoVentaMultiple(codigosProductos: List<String>, nonNullCodigoTipoVenta: String): List<invdescuentoportipoventa>
 }

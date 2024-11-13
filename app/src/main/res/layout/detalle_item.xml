@@ -1,18 +1,20 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="5dp">
+    android:padding="8dp"
+    android:orientation="vertical"
+    android:background="@drawable/background_card">
 
-    <!-- Card Container -->
+    <!-- Contenedor Principal -->
     <LinearLayout
         android:id="@+id/cardContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="2"
-        android:background="@drawable/background_card">
+        android:weightSum="2">
 
-        <!-- Left Side for Text Info -->
+        <!-- Sección Izquierda (Información del Producto) -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -20,120 +22,175 @@
             android:orientation="vertical"
             android:padding="8dp">
 
-            <!-- Product Name -->
+            <!-- Nombre del Producto -->
             <TextView
                 android:id="@+id/textViewNomProd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nombre Producto"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:text="Nombre del Producto"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textStyle="bold" />
 
-            <!-- Price -->
-            <TextView
-                android:id="@+id/labelprecio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Precio:" />
-            <TextView
-                android:id="@+id/textViewPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="L 20.00" />
-
-            <!-- Subtotal Label -->
-            <TextView
-                android:id="@+id/textViewSubtotalLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Subtotal:" />
-
-            <!-- Subtotal Value -->
-            <TextView
-                android:id="@+id/textViewSubtotal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="L 40.00" />
-
-            <TextView
-                android:id="@+id/textViewImpuestoLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Impuesto:" />
-            <TextView
-                android:id="@+id/textViewImpuesto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="L 40.00" />
-
-        </LinearLayout>
-
-        <!-- Right Side for Quantity Controls -->
-        <!-- Right Side for Quantity Controls wrapped in a FrameLayout -->
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-
-            <!-- Content Layout -->
+            <!-- Precio -->
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="8dp">
-
-                <!-- Quantity Label -->
-
-                <Button
-                    android:id="@+id/buttonClose"
-                    android:layout_width="52dp"
-                    android:layout_height="36dp"
-                    android:layout_gravity="top|end"
-                    android:backgroundTint="@color/red"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:text="X" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/textViewQuantityLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cantidad"
-                     />
+                    android:text="Precio: "
+                    android:textStyle="bold" />
 
-                <!-- Quantity Controls -->
-                <LinearLayout
+                <TextView
+                    android:id="@+id/textViewPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/buttonDecrement"
-                        android:layout_width="60dp"
-                        android:layout_height="wrap_content"
-                        android:text="-" />
-
-                    <TextView
-                        android:id="@+id/textViewQuantity"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="1" />
-
-                    <Button
-                        android:id="@+id/buttonIncrement"
-                        android:layout_width="60dp"
-                        android:layout_height="wrap_content"
-                        android:text="+" />
-                </LinearLayout>
+                    android:text="L 0.00" />
             </LinearLayout>
 
-            <!-- Close Button (X) at the top-right corner -->
-        </FrameLayout>
+            <!-- Subtotal -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subtotal: "
+                    android:textStyle="bold" />
 
+                <TextView
+                    android:id="@+id/textViewSubtotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="L 0.00" />
+            </LinearLayout>
+
+            <!-- Descuento -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Descuento: "
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textViewDescuento"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="L 0.00" />
+            </LinearLayout>
+
+            <!-- Impuesto -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Impuesto: "
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textViewImpuesto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="L 0.00" />
+            </LinearLayout>
+
+            <!-- Total -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total: "
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textViewTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="L 0.00"
+                    android:textColor="@android:color/holo_green_dark" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Sección Derecha (Controles de Cantidad) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Botón Cerrar -->
+            <TextView
+                android:id="@+id/buttonClose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="X"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:layout_gravity="end" />
+
+            <!-- Cantidad Label -->
+            <TextView
+                android:id="@+id/textViewQuantityLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cantidad"
+                android:paddingBottom="8dp" />
+
+            <!-- Controles de Cantidad -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <!-- Botón Decremento -->
+                <Button
+                    android:id="@+id/buttonDecrement"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:text="-"
+                    android:textSize="24sp"
+                    android:gravity="center"
+                    android:background="@drawable/rounded_button" />
+
+                <!-- Cantidad -->
+                <TextView
+                    android:id="@+id/textViewQuantity"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textSize="18sp" />
+
+                <!-- Botón Incremento -->
+                <Button
+                    android:id="@+id/buttonIncrement"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:text="+"
+                    android:textSize="24sp"
+                    android:gravity="center"
+                    android:background="@drawable/rounded_button" />
+
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
-
-    <!-- Add background shape xml for card style if needed -->
-</RelativeLayout>
+</LinearLayout>

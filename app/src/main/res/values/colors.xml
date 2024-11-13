@@ -9,4 +9,10 @@
     <color name="white">#FFFFFFFF</color>
     <color name="verde_roca">#2CC250</color>
     <color name="red">#DF0011</color>
+    <!-- Colores Primarios -->
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryVariant">#3700B3</color>
+    <color name="colorSecondary">#03DAC6</color>
+    <color name="colorAccent">#03DAC6</color>
+    <color name="divider_color">#CCCCCC</color>
 </resources>

@@ -10,10 +10,20 @@
         android:id="@+id/toolbar_facturacion"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="#FFFFFF"
         android:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="" />
+        app:title=""
+        tools:layout_editor_absoluteX="0dp" />
+
+    <View
+        android:id="@+id/green_line"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+    android:background="#4CAF50"
+    app:layout_constraintTop_toBottomOf="@id/toolbar_facturacion" />
+
+    <!-- TabLayout for the bottom tabs -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs_facturacion"
         android:layout_width="match_parent"
@@ -23,12 +33,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:tabGravity="fill" />
 
+    <!-- ViewPager2 for the tab content -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewpager_facturacion"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_facturacion"
+        app:layout_constraintTop_toBottomOf="@id/green_line"
         app:layout_constraintBottom_toTopOf="@id/tabs_facturacion" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

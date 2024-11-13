@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -47,6 +48,8 @@ import java.io.IOException
 
 import org.json.JSONArray
 import org.json.JSONObject
+
+
 class MiDiaFragment : Fragment() {
     private lateinit var viewModel: PedidoViewModel
     private lateinit var adapter: PedidoSummaryAdapter
@@ -70,7 +73,7 @@ class MiDiaFragment : Fragment() {
         // Observing data changes from ViewModel
         viewModel.pedidoHdrList.observe(viewLifecycleOwner) { pedidoHdrList ->
             val pedidoSummaryList = pedidoHdrList.map { hdr ->
-                PedidoSummary(hdr.id, hdr.tipopago, hdr.total,hdr.sinc,hdr.clientecodigo)
+                PedidoSummary(hdr.id, hdr.tipopago, hdr.total, hdr.sinc, hdr.clientecodigo)
             }
             adapter.updateItems(pedidoSummaryList)
         }
@@ -78,10 +81,10 @@ class MiDiaFragment : Fragment() {
         // Additional UI setup such as Drawer and NavigationView
         setupDrawer(view)
 
-        //evento click para subir info
-        val subirbtn=view.findViewById<Button>(R.id.btnsubirinfo)
-        subirbtn.setOnClickListener {
-            AlertDialog.Builder(context).apply {
+        // Evento click para subir info
+        val subirBtn = view.findViewById<ImageButton>(R.id.btnsubirinfo) // Cambiado a ImageButton
+        subirBtn.setOnClickListener {
+            AlertDialog.Builder(requireContext()).apply { // Usar requireContext() en lugar de context
                 setTitle("Alerta")
                 setMessage("¿Está seguro que desea sincronizar los pedidos?")
                 setPositiveButton("Sincronizar") { dialog, _ ->
@@ -91,8 +94,8 @@ class MiDiaFragment : Fragment() {
                     }
                     dialog.dismiss()
                 }
-                setNeutralButton("Cancelar") { dialog, _ ->
-                    Toast.makeText(context, "Sincronización cancelada", Toast.LENGTH_SHORT).show()
+                setNegativeButton("Cancelar") { dialog, _ -> // Usar setNegativeButton en lugar de setNeutralButton
+                    Toast.makeText(requireContext(), "Sincronización cancelada", Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                 }
                 show()
@@ -100,13 +103,14 @@ class MiDiaFragment : Fragment() {
         }
 
     }
+
     private suspend fun checkAndSyncPedidos() {
         val db = context?.let { DatabaseApplication.getDatabase(it) }
         db?.let { database ->
-            val headers = database.PedidoHdrDAO().getAllPedidoHdrS() // Make sure this operation is safe to call from a coroutine
+            val headers = database.PedidoHdrDAO().getAllPedidoHdrS() // Asegúrate de que este método está bien implementado
             if (headers.isEmpty()) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "No hay nada que sincronizar", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "No hay nada que sincronizar", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 // Move database access to Dispatchers.IO
@@ -148,23 +152,23 @@ class MiDiaFragment : Fragment() {
                             idBodega = agente.idbodega,
                             pedidos = pedidos
                         )
-                        val jsonresult=createJson(sendPedido)
-                        Log.d("Obj sendPedido", "sendPedido: $jsonresult")
-                        sendPedido(jsonresult) {
+                        val jsonResult = createJson(sendPedido)
+                        Log.d("Obj sendPedido", "sendPedido: $jsonResult")
+                        sendPedido(jsonResult) {
                             // Code to execute after sendPedido completes
                             println("Pedido sending completed")
                         }
                         // Synchronize or perform additional actions with sendPedido
-                        Toast.makeText(context, "Sincronización de pedidos para agente: ${agente.username}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Sincronización de pedidos para agente: ${agente.username}", Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "No hay datos de agente disponibles.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "No hay datos de agente disponibles.", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         } ?: withContext(Dispatchers.Main) {
-            Toast.makeText(context, "Database access error", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Database access error", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -225,7 +229,10 @@ class MiDiaFragment : Fragment() {
                 override fun onFailure(call: Call, e: IOException) {
                     e.printStackTrace()
                     activity?.runOnUiThread {
-                        Toast.makeText(context, "Failed to send data: ${e.message}", Toast.LENGTH_SHORT).show()
+                        showDialog(
+                            title = "Error de Sincronización",
+                            message = "No se pudo enviar los datos. Por favor, intente nuevamente.\nDetalle del error: ${e.message}"
+                        )
                         onComplete()
                     }
                 }
@@ -237,22 +244,31 @@ class MiDiaFragment : Fragment() {
 
                             // Parsing the JSON response
                             val jsonResponse = JSONObject(responseBodyString)
-                            val resultObject = jsonResponse.getJSONObject("result")  // Get the 'result' object
-                            val success = resultObject.getBoolean("result")  // Get boolean from within the 'result' object
+                            val resultObject = jsonResponse.getJSONObject("result")
+                            val success = resultObject.getBoolean("result")
                             val message = resultObject.getString("message")
 
                             activity?.runOnUiThread {
                                 if (success) {
                                     updateSincStatus(ids) // Update the database if the synchronization is successful
-                                    Toast.makeText(context, "Data successfully synchronized", Toast.LENGTH_SHORT).show()
+                                    showDialog(
+                                        title = "Sincronización Exitosa",
+                                        message = "Los pedidos se han sincronizado correctamente."
+                                    )
                                 } else {
-                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                    showDialog(
+                                        title = "Error de Sincronización",
+                                        message = "No se pudieron sincronizar los pedidos.\nDetalle: $message"
+                                    )
                                 }
                                 onComplete()
                             }
                         } else {
                             activity?.runOnUiThread {
-                                Toast.makeText(context, "Server error: ${response.message}", Toast.LENGTH_SHORT).show()
+                                showDialog(
+                                    title = "Error del Servidor",
+                                    message = "Hubo un problema con el servidor. Por favor, intente más tarde.\nCódigo de error: ${response.code}"
+                                )
                                 onComplete()
                             }
                         }
@@ -260,8 +276,26 @@ class MiDiaFragment : Fragment() {
                 }
             })
         } else {
-            Toast.makeText(requireContext(), "No internet connection", Toast.LENGTH_SHORT).show()
-            onComplete()
+            activity?.runOnUiThread {
+                showDialog(
+                    title = "Sin Conexión",
+                    message = "No hay conexión a internet. Por favor, verifique su conexión y vuelva a intentarlo."
+                )
+                onComplete()
+            }
+        }
+    }
+
+    private fun showDialog(title: String, message: String) {
+        activity?.let {
+            AlertDialog.Builder(it).apply {
+                setTitle(title)
+                setMessage(message)
+                setPositiveButton("Aceptar") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                show()
+            }
         }
     }
 
@@ -285,7 +319,6 @@ class MiDiaFragment : Fragment() {
             }
         }
     }
-
 
     private fun setupRecyclerView(view: View) {
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewPedidos)
@@ -329,7 +362,7 @@ class MiDiaFragment : Fragment() {
                     true
                 }
                 R.id.nav_slideshow -> {
-                    //evaluando si puede cerrar sesion
+                    // Evaluando si puede cerrar sesión
                     ConditionHandler.showConfirmationDialog(requireContext())
                     true
                 }
@@ -338,8 +371,8 @@ class MiDiaFragment : Fragment() {
         }
         loggedInUsername?.let { username ->
             HomeFragment.GetAgenteAsyncTask(requireContext(), username) { agente ->
-                // This is your callback that gets executed on the main thread.
-                // Update your UI here with the agent details.
+                // Este es tu callback que se ejecuta en el hilo principal.
+                // Actualiza tu UI aquí con los detalles del agente.
                 if (agente != null) {
                     navigationView.findViewById<TextView>(R.id.MenuName).text = "${agente.descripcionLarga}"
                     navigationView.findViewById<TextView>(R.id.textView).text = "${agente.descripcionCorta}"

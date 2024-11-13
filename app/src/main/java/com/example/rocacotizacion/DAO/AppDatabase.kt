@@ -18,4 +18,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun invdescuentoportipoventaDAO(): invdescuentoportipoventaDAO
     abstract fun invdescuentoporescalaDAO(): invdescuentoporescalaDAO
     abstract fun invdescuentoporrutaDAO(): invdescuentoporrutaDAO
+
 }

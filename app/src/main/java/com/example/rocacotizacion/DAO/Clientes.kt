@@ -10,3 +10,5 @@ data class Clientes(
     @ColumnInfo(name = "nombrecliente") val nombrecliente: String?,
     @ColumnInfo(name = "Codigocliente") val Codigocliente: String?,
     @ColumnInfo(name = "Rtncliente") val Rtncliente: String? )
+
+

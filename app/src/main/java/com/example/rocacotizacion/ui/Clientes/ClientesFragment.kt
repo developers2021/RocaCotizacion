@@ -16,12 +16,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rocacotizacion.Adapter.ConditionHandler
-import com.example.rocacotizacion.DAO.Agente
 import com.example.rocacotizacion.DAO.AppDatabase
 import com.example.rocacotizacion.DAO.Clientes
 import com.example.rocacotizacion.DAO.DatabaseApplication
@@ -31,19 +29,22 @@ import com.example.rocacotizacion.ui.Facturacion.FacturacionActivity
 import com.example.rocacotizacion.ui.home.HomeFragment
 import com.google.android.material.navigation.NavigationView
 
-// ClientesFragment.kt
 class ClientesFragment : Fragment() {
+    private lateinit var adapter: ClientesAdapter
+    private lateinit var recyclerView: RecyclerView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_clientes, container, false)
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val searchView: SearchView = view.findViewById(R.id.searchViewClientes)
-        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewClientes)
-        // Set up the ActionBarDrawerToggle
+        recyclerView = view.findViewById(R.id.recyclerViewClientes)
+
         val drawerLayout: DrawerLayout = view.findViewById(R.id.drawer_layout_clientes)
         val toolbar: Toolbar = view.findViewById(R.id.toolbar_clientes)
         val toggle = ActionBarDrawerToggle(
@@ -55,12 +56,14 @@ class ClientesFragment : Fragment() {
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-        // Initialize your adapter and RecyclerView
-        val adapter = ClientesAdapter(listOf()) { cliente ->
-            // Handle click
+
+        // Initialize the adapter
+        adapter = ClientesAdapter(listOf()) { cliente ->
+            // Handle click if needed
         }
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
+
         // Setup search view to filter clients as you type
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -72,13 +75,13 @@ class ClientesFragment : Fragment() {
                 return true
             }
         })
-        //Set up of the username and description  in the title for the ActionBarDrawer
+
+        // Set up the username and description in the title for the ActionBarDrawer
         val sharedPreferences = activity?.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
         val loggedInUsername = sharedPreferences?.getString("LoggedInUsername", null)
         val navigationView: NavigationView = view.findViewById(R.id.nav_clientes)
-        // Setting up the NavigationItemSelectedListener
+
         navigationView.setNavigationItemSelectedListener { menuItem ->
-            // Handle menu item selected
             when (menuItem.itemId) {
                 R.id.nav_home -> {
                     findNavController().navigate(R.id.nav_home)
@@ -99,51 +102,50 @@ class ClientesFragment : Fragment() {
                     ConditionHandler.showConfirmationDialog(requireContext())
                     true
                 }
-                // Add more menu item clicks here
                 else -> false
             }
         }
 
         loggedInUsername?.let { username ->
             HomeFragment.GetAgenteAsyncTask(requireContext(), username) { agente ->
-                // This is your callback that gets executed on the main thread.
-                // Update your UI here with the agent details.
                 if (agente != null) {
-                    navigationView.findViewById<TextView>(R.id.MenuName).text = "${agente.descripcionLarga}"
-                    navigationView.findViewById<TextView>(R.id.textView).text = "${agente.descripcionCorta}"
+                    navigationView.findViewById<TextView>(R.id.MenuName).text = agente.descripcionLarga
+                    navigationView.findViewById<TextView>(R.id.textView).text = agente.descripcionCorta
                 }
             }.execute()
 
             GetClienteAsyncTask(requireContext()) { clientesList ->
-                adapter.clientesListFull = clientesList
-                adapter.filter("")  // Refresh adapter
+                adapter.setClientes(clientesList)
             }.execute()
-
         }
     }
+
     class GetClienteAsyncTask(
         private val context: Context,
         private val callback: (List<Clientes>) -> Unit
     ) : AsyncTask<Void, Void, List<Clientes>>() {
         private val db: AppDatabase = DatabaseApplication.getDatabase(context)
         override fun doInBackground(vararg params: Void?): List<Clientes> {
-            // Perform database operation in background
             return db.ClientesDAO().getSelectClientes()
         }
+
         override fun onPostExecute(result: List<Clientes>) {
             super.onPostExecute(result)
-            // Runs on the main thread, update your UI here
             callback(result)
         }
     }
+
+
     class ClientesAdapter(
-        var clientesListFull: List<Clientes>,
+        private var clientesListFull: List<Clientes>,
         private val onItemClick: (Clientes) -> Unit
     ) : RecyclerView.Adapter<ClientesAdapter.ViewHolder>() {
-        var clientesList: List<Clientes> = clientesListFull
+        private var clientesList: List<Clientes> = clientesListFull
 
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val textView: TextView = view.findViewById(R.id.textViewCliente)
+            val nombreTextView: TextView = view.findViewById(R.id.textViewCliente)
+            val codigoTextView: TextView = view.findViewById(R.id.textViewCodigo)
+            val saldoTextView: TextView = view.findViewById(R.id.textViewSaldo)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -153,16 +155,19 @@ class ClientesFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val cliente = clientesList[position]
-            holder.textView.text = cliente.nombrecliente
+            holder.nombreTextView.text = cliente.nombrecliente
+            holder.codigoTextView.text = "Código: ${cliente.Codigocliente}"
+            holder.saldoTextView.text = cliente.Rtncliente
+
             holder.itemView.setOnClickListener {
                 val context = holder.itemView.context
                 val builder = AlertDialog.Builder(context)
                 builder.setTitle("Tipo de Pago")
-                builder.setMessage("Escoja el tipo de pago para la creacion del pedido")
+                builder.setMessage("Escoja el tipo de pago para la creación del pedido")
                 SharedDataModel.detalleItems.postValue(mutableListOf())
 
                 builder.setPositiveButton("Contado") { dialog, _ ->
-                    Toast.makeText(context, "Pedido Contado para : ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Pedido Contado para: ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
                     val intent = Intent(context, FacturacionActivity::class.java)
                     intent.putExtra("tipoPago", "CTADO")
                     intent.putExtra("clienteNombre", cliente.nombrecliente)
@@ -172,12 +177,11 @@ class ClientesFragment : Fragment() {
                 }
 
                 builder.setNegativeButton("Credito") { dialog, _ ->
-                    Toast.makeText(context, "Pedido Credito para : ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Pedido Crédito para: ${cliente.nombrecliente}", Toast.LENGTH_SHORT).show()
                     val intent = Intent(context, FacturacionActivity::class.java)
                     intent.putExtra("tipoPago", "CRED")
                     intent.putExtra("clienteNombre", cliente.nombrecliente)
                     intent.putExtra("clientecodigo", cliente.Codigocliente)
-
                     context.startActivity(intent)
                     dialog.dismiss()
                 }
@@ -191,24 +195,24 @@ class ClientesFragment : Fragment() {
             }
         }
 
-
         override fun getItemCount(): Int = clientesList.size
+
         fun filter(query: String) {
             clientesList = if (query.isEmpty()) {
                 clientesListFull
             } else {
-                val filteredList = mutableListOf<Clientes>()
-                for (cliente in clientesListFull) {
-                    if (cliente.nombrecliente?.toLowerCase()?.contains(query.toLowerCase()) == true) {
-                        filteredList.add(cliente)
-                    }
+                val filteredList = clientesListFull.filter {
+                    it.nombrecliente?.contains(query, ignoreCase = true) == true
                 }
                 filteredList
             }
             notifyDataSetChanged()
         }
+
+        fun setClientes(clientes: List<Clientes>) {
+            this.clientesListFull = clientes
+            this.clientesList = clientes
+            notifyDataSetChanged()
+        }
     }
-
-
-
 }

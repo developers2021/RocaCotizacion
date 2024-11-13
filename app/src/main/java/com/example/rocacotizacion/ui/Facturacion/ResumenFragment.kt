@@ -1,4 +1,3 @@
-
 package com.example.rocacotizacion.ui.Facturacion
 
 import android.app.AlertDialog
@@ -45,8 +44,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 class ResumenFragment : Fragment() {
+
     private lateinit var resumenAdapter: ResumenAdapter
     private var isEscalaDiscountEnabled: Boolean = false
+
+    // Agregamos referencias a los botones como variables de clase
+    private lateinit var btnsavepedido: Button
+    private lateinit var btnExit: Button
 
     private fun applyEscalaDiscounts() {
         CoroutineScope(Dispatchers.IO).launch {
@@ -57,13 +61,13 @@ class ResumenFragment : Fragment() {
                 val escalaDiscount = escalaDiscounts.firstOrNull {
                     item.quantity >= it.rangoinicial && item.quantity <= it.rangofinal
                 }
-                item.porcentajeEscala= escalaDiscount?.monto ?: (0.0 / 100)
-                item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago+item.porcentajeRuta
-                item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
-                item.subtotal=(item.price*item.quantity)-item.descuento
-                item.valorimpuesto=item.subtotal*(item.porcentajeImpuesto/100)
-                item.total=item.subtotal+item.valorimpuesto
-               item.checkedDescuentoEscala=true
+                item.porcentajeEscala = escalaDiscount?.monto ?: 0.0
+                item.porcentajeTotal = item.porcentajeEscala + item.porcentajeTipoPago + item.porcentajeRuta
+                item.descuento = (item.price * item.quantity) * (item.porcentajeTotal / 100)
+                item.subtotal = (item.price * item.quantity) - item.descuento
+                item.valorimpuesto = item.subtotal * (item.porcentajeImpuesto / 100)
+                item.total = item.subtotal + item.valorimpuesto
+                item.checkedDescuentoEscala = true
             }
             SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
             withContext(Dispatchers.Main) {
@@ -71,22 +75,23 @@ class ResumenFragment : Fragment() {
             }
         }
     }
+
     private fun applyTipoVentaDiscounts() {
         CoroutineScope(Dispatchers.IO).launch {
-            var tipopago= activity?.intent?.getStringExtra("tipoPago")
+            val tipopago = activity?.intent?.getStringExtra("tipoPago")
             SharedDataModel.detalleItems.value?.forEach { item ->
-                     val discountData = tipopago?.let {
-                     DatabaseApplication.getDatabase(requireContext())
-                           .invdescuentoportipoventaDAO()
-                           .getDescuentoPorTipoVenta(item.codigoproducto, it)
-                    }
-                    item.porcentajeTipoPago= discountData?.monto ?: (0.0 / 100)
-                    item.porcentajeTotal=item.porcentajeEscala+item.porcentajeTipoPago+item.porcentajeRuta
-                    item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
-                    item.subtotal=(item.price*item.quantity)-item.descuento
-                    item.valorimpuesto=item.subtotal*(item.porcentajeImpuesto/100)
-                    item.total=item.subtotal+item.valorimpuesto
-                    item.checkedDescuentoTipoPago=true
+                val discountData = tipopago?.let {
+                    DatabaseApplication.getDatabase(requireContext())
+                        .invdescuentoportipoventaDAO()
+                        .getDescuentoPorTipoVenta(item.codigoproducto, it)
+                }
+                item.porcentajeTipoPago = discountData?.monto ?: 0.0
+                item.porcentajeTotal = item.porcentajeEscala + item.porcentajeTipoPago + item.porcentajeRuta
+                item.descuento = (item.price * item.quantity) * (item.porcentajeTotal / 100)
+                item.subtotal = (item.price * item.quantity) - item.descuento
+                item.valorimpuesto = item.subtotal * (item.porcentajeImpuesto / 100)
+                item.total = item.subtotal + item.valorimpuesto
+                item.checkedDescuentoTipoPago = true
             }
             SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
             withContext(Dispatchers.Main) {
@@ -104,21 +109,20 @@ class ResumenFragment : Fragment() {
                 val discountData = DatabaseApplication.getDatabase(requireContext())
                     .invdescuentoporrutaDAO()
                     .getDescuentoPorRuta(idruta.idruta)
-                    item.porcentajeRuta= discountData?.monto ?: (0.0 / 100)
-                    item.porcentajeTotal=item.porcentajeEscala+item.porcentajeRuta+item.porcentajeTipoPago
-                    item.descuento=(item.price*item.quantity)*(item.porcentajeTotal/100)
-                    item.subtotal=(item.price*item.quantity)-item.descuento
-                    item.valorimpuesto=item.subtotal*(item.porcentajeImpuesto/100)
-                    item.total=item.subtotal+item.valorimpuesto
-                    item.checkedDescuentoRuta=true
-        }
+                item.porcentajeRuta = discountData?.monto ?: 0.0
+                item.porcentajeTotal = item.porcentajeEscala + item.porcentajeRuta + item.porcentajeTipoPago
+                item.descuento = (item.price * item.quantity) * (item.porcentajeTotal / 100)
+                item.subtotal = (item.price * item.quantity) - item.descuento
+                item.valorimpuesto = item.subtotal * (item.porcentajeImpuesto / 100)
+                item.total = item.subtotal + item.valorimpuesto
+                item.checkedDescuentoRuta = true
+            }
             SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
             withContext(Dispatchers.Main) {
                 updateTotals()
             }
+        }
     }
-    }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -142,56 +146,57 @@ class ResumenFragment : Fragment() {
                 applyTipoVentaDiscounts()
             } else {
                 SharedDataModel.detalleItems.value?.forEach {
-                    it.porcentajeTotal=it.porcentajeEscala+it.porcentajeRuta
                     it.porcentajeTipoPago = 0.0
-                    it.descuento=it.price*it.quantity *((it.porcentajeEscala/100)+(it.porcentajeRuta/100))
-                    it.subtotal=(it.price*it.quantity)-it.descuento
-                    it.valorimpuesto=it.subtotal*(it.porcentajeImpuesto/100)
-                    it.total=it.subtotal+it.valorimpuesto
-                    it.checkedDescuentoTipoPago=false
+                    it.porcentajeTotal = it.porcentajeEscala + it.porcentajeRuta
+                    it.descuento = (it.price * it.quantity) * (it.porcentajeTotal / 100)
+                    it.subtotal = (it.price * it.quantity) - it.descuento
+                    it.valorimpuesto = it.subtotal * (it.porcentajeImpuesto / 100)
+                    it.total = it.subtotal + it.valorimpuesto
+                    it.checkedDescuentoTipoPago = false
                 }
                 SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
                 updateTotals()
             }
         }
+
         switchRuta.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 applyRutaDiscounts()
-            }
-            else {
+            } else {
                 SharedDataModel.detalleItems.value?.forEach {
-                    it.porcentajeTotal=it.porcentajeEscala+it.porcentajeTipoPago
                     it.porcentajeRuta = 0.0
-                    it.descuento=it.price*it.quantity*((it.porcentajeEscala/100)+(it.porcentajeTipoPago/100))
-                    it.subtotal=(it.price*it.quantity)-it.descuento
-                    it.valorimpuesto=it.subtotal*(it.porcentajeImpuesto/100)
-                    it.total=it.subtotal+it.valorimpuesto
-                    it.checkedDescuentoRuta=false
+                    it.porcentajeTotal = it.porcentajeEscala + it.porcentajeTipoPago
+                    it.descuento = (it.price * it.quantity) * (it.porcentajeTotal / 100)
+                    it.subtotal = (it.price * it.quantity) - it.descuento
+                    it.valorimpuesto = it.subtotal * (it.porcentajeImpuesto / 100)
+                    it.total = it.subtotal + it.valorimpuesto
+                    it.checkedDescuentoRuta = false
                 }
                 SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
                 updateTotals()
             }
         }
     }
+
     private fun removeEscalaDiscounts() {
         SharedDataModel.detalleItems.value?.forEach {
-            it.porcentajeTotal=it.porcentajeTipoPago+it.porcentajeRuta
             it.porcentajeEscala = 0.0
-            it.descuento=it.price*it.quantity*(it.porcentajeTotal/100)
-            it.subtotal=it.price*it.quantity-it.descuento
-            it.valorimpuesto=it.subtotal*(it.porcentajeImpuesto/100)
-            it.total=it.subtotal+it.valorimpuesto
-            it.checkedDescuentoEscala=false
-            //it.checkedDescuentoTipoPago=false
+            it.porcentajeTotal = it.porcentajeTipoPago + it.porcentajeRuta
+            it.descuento = (it.price * it.quantity) * (it.porcentajeTotal / 100)
+            it.subtotal = (it.price * it.quantity) - it.descuento
+            it.valorimpuesto = it.subtotal * (it.porcentajeImpuesto / 100)
+            it.total = it.subtotal + it.valorimpuesto
+            it.checkedDescuentoEscala = false
         }
         SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
     }
+
     private fun updateTotals() {
         val items = SharedDataModel.detalleItems.value ?: return
         val total = items.sumOf { it.total }
-        val impuesto=items.sumOf { it.valorimpuesto }
-        val subtotal=items.sumOf { it.subtotal }
-        val descuento=items.sumOf { it.descuento }
+        val impuesto = items.sumOf { it.valorimpuesto }
+        val subtotal = items.sumOf { it.subtotal }
+        val descuento = items.sumOf { it.descuento }
         view?.findViewById<TextView>(R.id.sumtotal)?.text = "L.${String.format("%.2f", total)}"
         view?.findViewById<TextView>(R.id.sumsubtotal)?.text = "L.${String.format("%.2f", subtotal)}"
         view?.findViewById<TextView>(R.id.sumimpuesto)?.text = "L.${String.format("%.2f", impuesto)}"
@@ -208,13 +213,15 @@ class ResumenFragment : Fragment() {
         resumenAdapter = ResumenAdapter(listOf())
         recyclerView.adapter = resumenAdapter
         recyclerView.layoutManager = LinearLayoutManager(context)
-        var textViewtipopago:TextView=view.findViewById(R.id.tipopago)
-        textViewtipopago.text= activity?.intent?.getStringExtra("tipoPago")
+
+        val textViewtipopago: TextView = view.findViewById(R.id.tipopago)
+        textViewtipopago.text = activity?.intent?.getStringExtra("tipoPago")
             ?.let { stringtipopago(it) }
-        // Observe the detalleItems LiveData
+
+        // Observamos los cambios en detalleItems
         SharedDataModel.detalleItems.observe(viewLifecycleOwner, Observer { items ->
             resumenAdapter.updateItems(items)
-            // Update subtotal and total
+            // Actualizamos los totales
             val impuesto = String.format("%.2f", items.sumOf { it.valorimpuesto })
             val total = items.sumOf { it.total }
             val subtotal = String.format("%.2f", items.sumOf { it.subtotal })
@@ -225,8 +232,19 @@ class ResumenFragment : Fragment() {
             view.findViewById<TextView>(R.id.sumimpuesto).text = "L.$impuesto"
             view.findViewById<TextView>(R.id.sumdescuento).text = "L.$sumdescuento"
         })
-        //accion del boton guardar btnsavepedido
-        val btnsavepedido: Button = view.findViewById(R.id.btnsavepedido)
+
+        // Inicializamos los botones
+        btnsavepedido = view.findViewById(R.id.btnsavepedido)
+        btnExit = view.findViewById(R.id.btnExit)
+        btnExit.isEnabled = false // Deshabilitado inicialmente
+
+        // Configuramos el listener del botón "Salir"
+        btnExit.setOnClickListener {
+            // Limpiamos los datos y volvemos atrás
+            SharedDataModel.detalleItems.postValue(mutableListOf())
+            requireActivity().onBackPressed()
+        }
+
         btnsavepedido.setOnClickListener {
             if (SharedDataModel.detalleItems.value.isNullOrEmpty()) {
                 Toast.makeText(context, "No hay items en el pedido", Toast.LENGTH_SHORT).show()
@@ -237,24 +255,31 @@ class ResumenFragment : Fragment() {
 
         return view
     }
-    fun stringtipopago(tipopago: String):String{
-        if (tipopago=="CRED")
-            return "Credito"
-        else
-            return "Contado"
+
+    fun stringtipopago(tipopago: String): String {
+        return if (tipopago == "CRED") "Credito" else "Contado"
     }
+
     private fun saveOrder() {
         CoroutineScope(Dispatchers.IO).launch {
             val tipoPago = activity?.intent?.getStringExtra("tipoPago") ?: "Contado"
-            val clientecodigo =  activity?.intent?.getStringExtra("clientecodigo")?:"000"
+            val clientecodigo = activity?.intent?.getStringExtra("clientecodigo") ?: "000"
             val detalleItems = SharedDataModel.detalleItems.value ?: listOf()
 
             val subtotal = detalleItems.sumOf { it.subtotal }
-            val descuento =detalleItems.sumOf { it.descuento }
-            val impuesto=detalleItems.sumOf { it.valorimpuesto }
-            val total=detalleItems.sumOf { it.total }
+            val descuento = detalleItems.sumOf { it.descuento }
+            val impuesto = detalleItems.sumOf { it.valorimpuesto }
+            val total = detalleItems.sumOf { it.total }
 
-            val pedidoHdr = PedidoHdr(tipopago = tipoPago, subtotal = subtotal, descuento = descuento, total = total, sinc = false, clientecodigo =clientecodigo,impuesto=impuesto )
+            val pedidoHdr = PedidoHdr(
+                tipopago = tipoPago,
+                subtotal = subtotal,
+                descuento = descuento,
+                total = total,
+                sinc = false,
+                clientecodigo = clientecodigo,
+                impuesto = impuesto
+            )
             val hdrId = DatabaseApplication.getDatabase(requireContext()).PedidoHdrDAO().insertPedidoHdr(pedidoHdr)
 
             if (hdrId > 0) {
@@ -267,65 +292,52 @@ class ResumenFragment : Fragment() {
                         precio = item.price,
                         descuento = item.descuento,
                         nombre = item.nombreproducto,
-                        impuesto=item.valorimpuesto
+                        impuesto = item.valorimpuesto
                     )
                     DatabaseApplication.getDatabase(requireContext()).PedidoDtlDAO().insertPedidoDtl(pedidoDtl)
                 }
 
-
-
                 // Post the action to the Main thread to handle UI
                 withContext(Dispatchers.Main) {
+                    btnsavepedido.isEnabled = false // Deshabilitamos el botón "Guardar Pedido"
+                    btnExit.isEnabled = true // Habilitamos el botón "Salir"
                     showDialogAfterSave(hdrId.toInt())
                 }
             }
         }
     }
+
     private fun showDialogAfterSave(pedidoId: Int) {
         val dialogBuilder = AlertDialog.Builder(requireContext())
         dialogBuilder.setTitle("Impresión de Pedido")
         dialogBuilder.setMessage("¿Desea imprimir el pedido?")
 
-        // Create the dialog once here and manage its dismissal manually.
         val dialog = dialogBuilder.create()
 
         dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Sí") { _, _ ->
             printpedido(pedidoId)
             dialog.dismiss()
-            view?.findViewById<Button>(R.id.btnsavepedido)?.let { btnsavepedido ->
-                btnsavepedido.text = "Imprimir Pedido"
-                    btnsavepedido.setOnClickListener {
-                        printpedido(pedidoId)
-                    }
-                }
-            view?.findViewById<Button>(R.id.switchOption1)?.let { switchOption1 ->
-                switchOption1.isEnabled = false
-            }
-            view?.findViewById<Button>(R.id.switchOption2)?.let { switchOption2 ->
-                switchOption2.isEnabled = false
-            }
-            view?.findViewById<Button>(R.id.switchOption3)?.let { switchOption3 ->
-                switchOption3.isEnabled = false
-            }
-            //define en false cuando ya fue guardado el pedido
+
+            // Deshabilitamos los switches
+            view?.findViewById<SwitchCompat>(R.id.switchOption1)?.isEnabled = false
+            view?.findViewById<SwitchCompat>(R.id.switchOption2)?.isEnabled = false
+            view?.findViewById<SwitchCompat>(R.id.switchOption3)?.isEnabled = false
+
+            // Deshabilitamos los ítems
             SharedDataModel.detalleItems.value?.forEach { it.isEnabled = false }
             SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
         }
 
         dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancelar") { _, _ ->
-            // Dismiss the dialog and go back to the previous fragment.
             dialog.dismiss()
             requireActivity().onBackPressed()
-            // Clear the SharedDataModel.detalleItems list
+            // Limpiar la lista de ítems
             SharedDataModel.detalleItems.postValue(mutableListOf())
-
-
         }
 
-        dialog.setCancelable(false)  // Prevents cancelling the dialog by tapping outside or pressing back.
+        dialog.setCancelable(false)
         dialog.show()
     }
-
 
     fun convertHtmlToPdf(htmlContent: String): ByteArrayOutputStream {
         val outputStream = ByteArrayOutputStream()
@@ -333,7 +345,8 @@ class ResumenFragment : Fragment() {
         try {
             val pdfWriter = PdfWriter.getInstance(document, outputStream)
             document.open()
-            XMLWorkerHelper.getInstance().parseXHtml(pdfWriter, document,
+            XMLWorkerHelper.getInstance().parseXHtml(
+                pdfWriter, document,
                 ByteArrayInputStream(htmlContent.toByteArray(StandardCharsets.UTF_8))
             )
         } finally {
@@ -342,6 +355,7 @@ class ResumenFragment : Fragment() {
         Log.d("PDF Creation", "PDF byte length: ${outputStream.size()}")
         return outputStream
     }
+
     fun savePdfToFile(context: Context, pdfStream: ByteArrayOutputStream, fileName: String) {
         val file = File(context.getExternalFilesDir(null), fileName)
         try {
@@ -353,6 +367,7 @@ class ResumenFragment : Fragment() {
             Log.e("PDF Creation", "Error saving PDF", e)
         }
     }
+
     fun openPdfWithExternalViewer(context: Context, file: File) {
         val contentUri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
         val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -362,38 +377,48 @@ class ResumenFragment : Fragment() {
         }
         context.startActivity(intent)
     }
+
     fun printpedido(pedidoId: Int) {
         val fechaEmision = SimpleDateFormat("dd/MM/yyyy").format(Date())
-        var pedidoinfo: PedidoPrintModel
         CoroutineScope(Dispatchers.IO).launch {
             val db = context?.let { DatabaseApplication.getDatabase(it) }
             db?.let {
-                val pedido= db.PedidoHdrDAO().getPedidoPrinteById(pedidoId)
-                val cliente=db.ClientesDAO().getClientById(pedido.clientecodigo)
-                val agente=db.AgenteDAO().getAgente()
-                pedidoinfo= PedidoPrintModel(
-                    pedidoId=pedido.id,
+                val pedido = db.PedidoHdrDAO().getPedidoPrinteById(pedidoId)
+                val cliente = db.ClientesDAO().getClientById(pedido.clientecodigo)
+                val agente = db.AgenteDAO().getAgente()
+                val pedidoinfo = PedidoPrintModel(
+                    pedidoId = pedido.id,
                     fechaEmision = Date().toString(),
                     tipoventa = pedido.tipopago,
-                    clientenombre = cliente.nombrecliente?:"",
-                    codigocliente = cliente.Codigocliente?:"",
-                    rtncliente = cliente.Rtncliente?:"",
+                    clientenombre = cliente.nombrecliente ?: "",
+                    codigocliente = cliente.Codigocliente ?: "",
+                    rtncliente = cliente.Rtncliente ?: "",
                     rutanombre = agente.rutadesc,
-                    vendedornombre = agente.descripcionCorta?:""
+                    vendedornombre = agente.descripcionCorta ?: ""
                 )
                 val df = DecimalFormat("#.##")
                 df.roundingMode = RoundingMode.FLOOR
-                val details =db.PedidoDtlDAO().getDetallePrint(pedidoId)
-                val subtotal=Math.round((pedido.subtotal+pedido.descuento)*100.00)/100.00
-                val descuento=Math.round(pedido.descuento*100.00)/100.00
-                val impuesto=Math.round(pedido.impuesto*100.00)/100.00
-                val total=Math.round((pedido.subtotal+pedido.impuesto)*100.00)/100.00
+                val details = db.PedidoDtlDAO().getDetallePrint(pedidoId)
+                val subtotal = Math.round((pedido.subtotal + pedido.descuento) * 100.0) / 100.0
+                val descuento = Math.round(pedido.descuento * 100.0) / 100.0
+                val impuesto = Math.round(pedido.impuesto * 100.0) / 100.0
+                val total = Math.round((pedido.subtotal + pedido.impuesto) * 100.0) / 100.0
                 val tableRows = generateTableRows(details)
-                val numeroletras= NumeroLetras.Convertir(total.toString(),"Lempira","Lempiras"," ","centavos","con",true)
+                val numeroletras = NumeroLetras.Convertir(
+                    total.toString(),
+                    "Lempira",
+                    "Lempiras",
+                    " ",
+                    "centavos",
+                    "con",
+                    true
+                )
                 val htmlContent = pedidoinfo?.let { ped ->
-                    HtmlTemplates.getHtmlForPdf(pedidoId.toString(), fechaEmision,
-                        ped.tipoventa,ped.clientenombre,ped.codigocliente,ped.rtncliente,ped.rutanombre,ped.vendedornombre ,
-                        tableRows,subtotal,descuento,total,numeroletras,impuesto)
+                    HtmlTemplates.getHtmlForPdf(
+                        pedidoId.toString(), fechaEmision,
+                        ped.tipoventa, ped.clientenombre, ped.codigocliente, ped.rtncliente, ped.rutanombre, ped.vendedornombre,
+                        tableRows, subtotal, descuento, total, numeroletras, impuesto
+                    )
                 }
                 val pdfStream = htmlContent?.let { it1 -> convertHtmlToPdf(it1) }
                 val fileName = "Pedido_#$pedidoId.pdf"

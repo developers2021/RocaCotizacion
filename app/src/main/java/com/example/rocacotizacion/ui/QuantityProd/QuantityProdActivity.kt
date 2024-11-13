@@ -1,6 +1,6 @@
 package com.example.rocacotizacion.ui.QuantityProd
 
-import QuantityProdFragment
+import com.example.rocacotizacion.ui.QuantityProd.QuantityProdFragment
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.rocacotizacion.R

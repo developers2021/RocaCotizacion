@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+
 object HtmlTemplates {
     fun getHtmlForPdf(pedidoId: String, fechaEmision: String, tipoventa: String, clientenombre: String,
                       codigocliente: String, rtncliente: String, rutanombre: String, vendedornombre: String,

@@ -17,6 +17,9 @@
             layout="@layout/content_main"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <!-- NavigationView for the drawer -->
@@ -27,6 +30,7 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
+
 
 </androidx.drawerlayout.widget.DrawerLayout>
 

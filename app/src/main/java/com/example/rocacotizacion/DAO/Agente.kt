@@ -28,3 +28,4 @@ data class Agente(
     @ColumnInfo (name ="idbodega") val idbodega : String,
     @ColumnInfo (name ="idruta") val idruta : Int
     )
+

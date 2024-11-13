@@ -12,9 +12,13 @@ interface invdescuentoporrutaDAO {
 
     @Query("DELETE FROM invdescuentoporruta")
     fun deleteAll()
-    @Query("SELECT * FROM invdescuentoporruta WHERE idruta   = :idruta LIMIT 1")
+
+    @Query("SELECT * FROM invdescuentoporruta WHERE idruta = :idruta LIMIT 1")
     fun getDescuentoPorRuta(idruta: Int): invdescuentoporruta?
 
     @Query("SELECT * FROM invdescuentoporruta LIMIT 1")
     fun getDescuentoPorRutafirst(): invdescuentoporruta?
+
+    @Query("SELECT * FROM invdescuentoporruta WHERE codigoproducto IN (:codigosProductos)")
+    fun getDescuentoPorRutaMultiple(codigosProductos: List<String>): List<invdescuentoporruta>
 }

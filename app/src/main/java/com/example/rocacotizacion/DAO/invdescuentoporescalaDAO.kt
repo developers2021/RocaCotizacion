@@ -15,4 +15,7 @@ interface invdescuentoporescalaDAO {
 
     @Query("SELECT * FROM invdescuentoporescala WHERE codigoproducto = :codigoproducto ")
     fun getDescuentoPorEscala(codigoproducto: String): List<invdescuentoporescala>
+
+    @Query("SELECT * FROM invdescuentoporescala WHERE codigoproducto IN (:codigosProductos)")
+    fun getDescuentoPorEscalaMultiple(codigosProductos: List<String>): List<invdescuentoporescala>
 }
