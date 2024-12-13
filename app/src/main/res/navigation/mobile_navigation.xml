@@ -5,19 +5,21 @@
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/nav_login">
 
+    <!-- Fragmento de Login -->
     <fragment
         android:id="@+id/nav_login"
         android:name="com.example.rocacotizacion.LoginFragment"
         android:label="@string/menu_login"
         tools:layout="@layout/fragment_login" />
 
-    <!-- The rest of your fragments -->
+    <!-- Fragmento de Home -->
     <fragment
         android:id="@+id/nav_home"
         android:name="com.example.rocacotizacion.ui.home.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
 
+    <!-- Fragmentos adicionales -->
     <fragment
         android:id="@+id/nav_gallery"
         android:name="com.example.rocacotizacion.ui.gallery.GalleryFragment"
@@ -30,6 +32,7 @@
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
 
+    <!-- Fragmento de Clientes -->
     <fragment
         android:id="@+id/nav_clientes"
         android:name="com.example.rocacotizacion.ui.Clientes.ClientesFragment"
@@ -40,23 +43,47 @@
             app:destination="@id/nav_facturacion" />
     </fragment>
 
+    <!-- Fragmento de Facturación -->
     <fragment
         android:id="@+id/nav_facturacion"
         android:name="com.example.rocacotizacion.ui.Facturacion.FacturacionFragment"
         android:label="Facturacion"
         tools:layout="@layout/fragment_facturacion" />
+
+    <!-- Fragmento Mi Día -->
     <fragment
         android:id="@+id/nav_midia"
         android:name="com.example.rocacotizacion.ui.MiDia.MiDiaFragment"
         android:label="MiDia"
-        tools:layout="@layout/fragment_midia" />
+        tools:layout="@layout/fragment_midia">
+        <action
+            android:id="@+id/action_miDiaFragment_to_detallePedidoFragment"
+            app:destination="@id/nav_detallePedido" />
+    </fragment>
 
+
+    <!-- Fragmento Mi Día Pedidos -->
+    <fragment
+        android:id="@+id/miDiaPedidosFragment"
+        android:name="com.example.rocacotizacion.ui.MiDia.MiDiaPedidosFragment"
+        android:label="Mi Día Pedidos"
+        tools:layout="@layout/fragment_pedidos">
+        <action
+            android:id="@+id/action_miDiaPedidosFragment_to_detallePedidoFragment"
+            app:destination="@id/nav_detallePedido" />
+    </fragment>
+
+    <!-- Fragmento de Detalle Pedido -->
     <fragment
         android:id="@+id/nav_detallePedido"
         android:name="com.example.rocacotizacion.ui.DetallePedido.DetallePedidoFragment"
-        android:label="Detalle Pedido Fragment" >
+        android:label="Detalle Pedido Fragment"
+        tools:layout="@layout/fragment_detalle_pedido">
         <argument
             android:name="pedidoId"
             app:argType="integer" />
     </fragment>
+
+
+
 </navigation>

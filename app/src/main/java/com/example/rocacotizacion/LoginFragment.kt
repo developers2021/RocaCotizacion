@@ -134,7 +134,9 @@ class LoginFragment : Fragment() {
             nombodega= userJson.optString("nombodega"),
             tipoagente = userJson.optString("tipoagente"),
             idbodega = userJson.optString("idbodega"),
-            idruta = userJson.getInt("idruta")
+            idruta = userJson.getInt("idruta"),
+            codigopuntoemision = userJson.getInt("codigopuntoemision"),
+            ultimoidpedido = userJson.getInt("ultimoidpedido")
             )
         val clienteJsonArray = jsonObject.getJSONArray("clnClientes")
         val clientesList = mutableListOf<Clientes>()
@@ -225,7 +227,10 @@ class LoginFragment : Fragment() {
                 idproducto = clienteJsonObject.getInt("idproducto"),
                 monto = clienteJsonObject.getDouble("monto"),
                 codigoproducto=clienteJsonObject.optString("codigoproducto"),
-                codigotipoventa = clienteJsonObject.optString("codigotipoventa")
+                codigotipoventa = clienteJsonObject.optString("codigotipoventa"),
+                fechaInicio = clienteJsonObject.optString("fechainicio", "-"),
+                fechaFin = clienteJsonObject.optString("fechafin", "-")
+
             )
             invdescuentoportipoventaList.add(list)
         }
@@ -244,9 +249,11 @@ class LoginFragment : Fragment() {
                 monto = clienteJsonObject.getDouble("monto"),
                 rangoinicial = clienteJsonObject.getInt("rangoinicial"),
                 rangofinal = clienteJsonObject.getInt("rangofinal"),
-                codigoproducto=clienteJsonObject.optString("codigoproducto")
-
+                codigoproducto = clienteJsonObject.optString("codigoproducto"),
+                fechaInicio = clienteJsonObject.optString("fechaInicio"),
+                fechaFin = clienteJsonObject.optString("fechaFin")
             )
+
             invdescuentoporescalaList.add(list)
         }
 
@@ -265,6 +272,8 @@ class LoginFragment : Fragment() {
                 monto = JsonObject.getDouble("monto"),
                 codigoproducto=JsonObject.optString("codigoproducto"),
                 idruta = JsonObject.getInt("idRuta"),
+                fechaInicio = JsonObject.optString("fechainicio", "-"),
+                fechaFin = JsonObject.optString("fechafin", "-")
             )
             invdescuentoporrutaList.add(list)
         }

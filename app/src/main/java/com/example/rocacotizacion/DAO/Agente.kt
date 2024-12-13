@@ -26,6 +26,8 @@ data class Agente(
     @ColumnInfo (name ="rutadesc") val rutadesc : String,
     @ColumnInfo (name ="tipoagente") val tipoagente : String,
     @ColumnInfo (name ="idbodega") val idbodega : String,
-    @ColumnInfo (name ="idruta") val idruta : Int
+    @ColumnInfo (name ="idruta") val idruta : Int,
+    @ColumnInfo (name ="codigopuntoemision") val codigopuntoemision : Int,
+    @ColumnInfo (name ="ultimoidpedido") val ultimoidpedido : Int
     )
 

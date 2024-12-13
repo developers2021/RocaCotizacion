@@ -9,6 +9,5 @@ data class Clientes(
     @PrimaryKey @ColumnInfo(name = "idcliente") val idcliente: Int,
     @ColumnInfo(name = "nombrecliente") val nombrecliente: String?,
     @ColumnInfo(name = "Codigocliente") val Codigocliente: String?,
-    @ColumnInfo(name = "Rtncliente") val Rtncliente: String? )
-
-
+    @ColumnInfo(name = "Rtncliente") val Rtncliente: String?
+)

@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.navigation.Navigation
 import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.R
+import com.tuapp.nombredepaquete.PedidoManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,6 +21,7 @@ object ConditionHandler {
             }
         }
     }
+    
     fun deletedbLogOut(context: Context){
         CoroutineScope(Dispatchers.IO).launch {
             val db = DatabaseApplication.getDatabase(context)
@@ -34,6 +36,8 @@ object ConditionHandler {
             db.invdescuentoportipoventaDAO().deleteAll()
             db.invdescuentoporescalaDAO().deleteAll()
             db.invdescuentoporrutaDAO().deleteAll()
+
+            PedidoManager.clearData()
         }
     }
     fun clearAllSharedPreferences(context: Context) {

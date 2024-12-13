@@ -28,4 +28,13 @@ interface PedidoHdrDAO {
     fun updateSincForIds(ids: List<Int>, sinc: Boolean)
     @Query("SELECT sinc FROM pedido_hdr WHERE id = :pedidoId")
     fun getSincByPedidoId(pedidoId: Int): LiveData<Boolean?>
+
+    // Nuevo método para obtener el último ID
+    @Query("SELECT MAX(id) FROM pedido_hdr")
+    fun getLastPedidoId(): Int?
+
+    @Query("UPDATE pedido_hdr SET anulado = :status WHERE id = :pedidoId")
+    fun updateAnuladoStatus(pedidoId: Int, status: String)
+
+
 }

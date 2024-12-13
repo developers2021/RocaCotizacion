@@ -42,11 +42,15 @@ class ClientesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Cambiar el color de fondo de la Toolbar
+        val toolbar = view.findViewById<Toolbar>(R.id.toolbar_clientes)
+        toolbar.setBackgroundColor(requireContext().getColor(R.color.white))
+        toolbar.setTitleTextColor(requireContext().getColor(R.color.textPrimary))
         val searchView: SearchView = view.findViewById(R.id.searchViewClientes)
         recyclerView = view.findViewById(R.id.recyclerViewClientes)
 
         val drawerLayout: DrawerLayout = view.findViewById(R.id.drawer_layout_clientes)
-        val toolbar: Toolbar = view.findViewById(R.id.toolbar_clientes)
+        //val toolbar: Toolbar = view.findViewById(R.id.toolbar_clientes)
         val toggle = ActionBarDrawerToggle(
             activity,
             drawerLayout,
@@ -57,14 +61,19 @@ class ClientesFragment : Fragment() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // Initialize the adapter
+        // Expandir automáticamente el SearchView al hacer clic en cualquier parte
+        searchView.setIconifiedByDefault(false)
+        searchView.isFocusable = true
+        searchView.requestFocusFromTouch()
+
+        // Inicializar el adaptador
         adapter = ClientesAdapter(listOf()) { cliente ->
-            // Handle click if needed
+            // Aquí puedes manejar el clic en el cliente si es necesario
         }
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
 
-        // Setup search view to filter clients as you type
+        // Configurar el SearchView para filtrar clientes
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return true
@@ -76,7 +85,7 @@ class ClientesFragment : Fragment() {
             }
         })
 
-        // Set up the username and description in the title for the ActionBarDrawer
+        // Configurar el nombre de usuario en el Navigation Drawer
         val sharedPreferences = activity?.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
         val loggedInUsername = sharedPreferences?.getString("LoggedInUsername", null)
         val navigationView: NavigationView = view.findViewById(R.id.nav_clientes)
@@ -119,6 +128,7 @@ class ClientesFragment : Fragment() {
             }.execute()
         }
     }
+
 
     class GetClienteAsyncTask(
         private val context: Context,
@@ -215,4 +225,5 @@ class ClientesFragment : Fragment() {
             notifyDataSetChanged()
         }
     }
+
 }

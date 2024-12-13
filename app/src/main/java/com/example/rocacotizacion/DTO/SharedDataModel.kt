@@ -9,4 +9,7 @@ import java.util.Locale
 
 object SharedDataModel {
     var detalleItems: MutableLiveData<MutableList<DetalleItem>> = MutableLiveData(mutableListOf())
+    var checkedDescuentoEscala: Boolean = false
+    var checkedDescuentoTipoPago: Boolean = false
+    var checkedDescuentoRuta: Boolean = false
 }

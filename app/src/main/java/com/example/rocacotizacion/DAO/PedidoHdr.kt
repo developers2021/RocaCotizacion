@@ -13,5 +13,7 @@ data class PedidoHdr(
     @ColumnInfo(name = "impuesto") val impuesto: Double,
     @ColumnInfo(name = "total") val total: Double,
     @ColumnInfo(name="sinc") val sinc:Boolean,
-    @ColumnInfo(name="clientecodigo") val clientecodigo:String
+    @ColumnInfo(name="clientecodigo") val clientecodigo:String,
+    @ColumnInfo(name = "codigopedido") val codigopedido: String,
+    @ColumnInfo(name = "anulado") val anulado: String
 )

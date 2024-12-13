@@ -2,10 +2,13 @@ package com.example.rocacotizacion.DAO
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(entities = [Agente::class,Clientes::class,Productos::class,Grupos::class,
     PreciosNivelTipoVenta::class,NivelPrecioPredeterminado::class, PedidoHdr::class, PedidoDtl::class,
-    invdescuentoportipoventa::class,invdescuentoporescala::class,invdescuentoporruta::class], version = 7)
+    invdescuentoportipoventa::class,invdescuentoporescala::class,invdescuentoporruta::class], version = 14)
+
 abstract class AppDatabase : RoomDatabase() {
     abstract fun AgenteDAO(): AgenteDAO
     abstract fun ClientesDAO():ClientesDAO
@@ -19,4 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun invdescuentoporescalaDAO(): invdescuentoporescalaDAO
     abstract fun invdescuentoporrutaDAO(): invdescuentoporrutaDAO
 
+
+
 }
+

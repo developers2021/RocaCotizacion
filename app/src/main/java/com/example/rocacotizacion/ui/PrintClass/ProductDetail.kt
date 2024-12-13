@@ -15,15 +15,11 @@ fun generateTableRows(details: List<ProductDetail>): String {
         <tr>
             <td>${detail.und}</td>
             <td>${detail.prod}</td>
-            <td>${"%.2f".format(detail.precio)}</td>
-            <td>${"%.2f".format(detail.monto)}</td>
-        </tr>
-        <tr>
-            <td> </td>
-            <td> </td>
-            <td>ISV: ${"%.2f".format(detail.impuesto)}</td>
-            <td>Desc. ${"%.2f".format(detail.descuento)}</td>
+            <td style="text-align: right;">${"%.2f".format(detail.precio)}</td> <!-- Precio alineado a la derecha -->
+            <td style="text-align: right;">${"%.2f".format(detail.monto)}</td> <!-- Monto alineado a la derecha -->
+            <td style="text-align: right; font-size: 40px;">${if (detail.impuesto < 0.1) "*" else ""}</td> <!-- Asterisco alineado a la derecha y más grande -->
         </tr>
         """
     }
 }
+

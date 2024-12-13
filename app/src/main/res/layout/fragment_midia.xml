@@ -12,70 +12,69 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Toolbar mejorado -->
+        <!-- Toolbar mejorado con ícono dinámico -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_midia"
             android:layout_width="0dp"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@color/grayLight"
             android:elevation="4dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Título de la Toolbar -->
-            <TextView
-                android:id="@+id/toolbar_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Mi Día"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_gravity="start" />
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
 
-            <!-- Botón de Subir Información -->
-            <ImageButton
-                android:id="@+id/btnsubirinfo"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_cloud"
-            android:contentDescription="Subir información"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="@android:color/white"
-            android:padding="8dp"
-            android:layout_gravity="end"
-            android:scaleType="centerInside" />
+                <TextView
+                    android:id="@+id/toolbar_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Mi Día"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp"
+                    android:gravity="start|center_vertical" />
+
+                <!-- Botón de acción dinámico -->
+                <ImageButton
+                    android:id="@+id/toolbar_action_button"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_cloud"
+                android:contentDescription="Acción"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="@android:color/black"
+                android:padding="8dp"
+                android:scaleType="centerInside" />
+            </LinearLayout>
 
         </androidx.appcompat.widget.Toolbar>
 
-        <!-- Texto de encabezado -->
-        <TextView
-            android:id="@+id/tvMidia"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mi Día"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="16dp"
+
+        <!-- ViewPager2 para deslizar entre las páginas -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:layout_constraintTop_toBottomOf="@id/toolbar_midia"
+            app:layout_constraintBottom_toTopOf="@id/tabLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- RecyclerView para mostrar los pedidos -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewPedidos"
+        <!-- TabLayout para las pestañas (movido al final) -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/tvMidia"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Navigation Drawer -->

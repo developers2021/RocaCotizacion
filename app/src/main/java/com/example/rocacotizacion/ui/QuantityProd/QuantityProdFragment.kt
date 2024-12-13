@@ -6,20 +6,18 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import com.example.rocacotizacion.DAO.DatabaseApplication
 import com.example.rocacotizacion.DTO.SharedDataModel
 import com.example.rocacotizacion.DataModel.DetalleItem
 import com.example.rocacotizacion.R
+import com.example.rocacotizacion.ui.Facturacion.FacturacionActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.DecimalFormat
 
 class QuantityProdFragment : Fragment() {
     private lateinit var editTextNumber: EditText
@@ -28,7 +26,24 @@ class QuantityProdFragment : Fragment() {
     private lateinit var tvnombreproducto: TextView
     private lateinit var tvcodigoproducto: TextView
     private lateinit var tvimpuesto: TextView
-    private lateinit var iconDiscount: ImageView // Referencia al ImageView de descuento
+    private lateinit var iconDiscount: ImageView
+
+    private val decimalFormat = DecimalFormat("#,###.00")
+
+    private fun formatNumber(number: Double): String {
+        return if (number == 0.0) "0.00" else decimalFormat.format(number)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Cambiar el color de la barra de estado y barra de navegación
+        requireActivity().window.apply {
+            statusBarColor = requireContext().getColor(R.color.white)
+            navigationBarColor = requireContext().getColor(R.color.white)
+            decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,18 +64,28 @@ class QuantityProdFragment : Fragment() {
         tvnombreproducto = view.findViewById(R.id.tvLargeText)
         tvcodigoproducto = view.findViewById(R.id.tvSmallText)
         tvimpuesto = view.findViewById(R.id.tvValueRight2)
-        iconDiscount = view.findViewById(R.id.iconDiscount) // Inicializar el ImageView de descuento
+        iconDiscount = view.findViewById(R.id.iconDiscount)
 
-        // Evento para ver descuentos a través del ícono de descuento
         iconDiscount.setOnClickListener {
             val codigoproducto = tvcodigoproducto.text.toString()
-            if (codigoproducto.isNotEmpty() && tipoPago.isNotEmpty()) {
-                val discountsDialog = DiscountsDialogFragment(codigoproducto, tipoPago)
+            val nombreproducto = tvnombreproducto.text.toString()
+            val tipoPago = activity?.intent?.getStringExtra("tipoPago") // Recuperar tipoPago desde el Intent
+
+            if (codigoproducto.isNotEmpty() && nombreproducto.isNotEmpty() && !tipoPago.isNullOrEmpty()) {
+                val discountsDialog = DiscountsDialogFragment(codigoproducto, nombreproducto, tipoPago)
                 discountsDialog.show(parentFragmentManager, "DiscountsDialog")
             } else {
-                Toast.makeText(context, "Información del producto incompleta", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Información del producto o tipo de pago incompleta", Toast.LENGTH_SHORT).show()
             }
         }
+
+
+
+
+
+
+
+
 
         btnAgregar.setOnClickListener {
             agregarProducto()
@@ -86,8 +111,8 @@ class QuantityProdFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        if (idproducto != null && tipoPago.isNotEmpty()) {
-            loadProductDetails(idproducto.toInt(), tipoPago)
+        if (idproducto != null) {
+            loadProductDetails(idproducto.toInt())
         }
 
         return view
@@ -95,8 +120,8 @@ class QuantityProdFragment : Fragment() {
 
     private fun agregarProducto() {
         val quantity = editTextNumber.text.toString().toIntOrNull() ?: 0
-        val price = tvPrice.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
-        var subtotal = tvSubtotal.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
+        val price = tvPrice.text.toString().removePrefix("L. ").replace(",", "").toDoubleOrNull() ?: 0.0
+        var subtotal = price * quantity
         val impuesto = tvimpuesto.text.toString().toDoubleOrNull() ?: 0.0
         val nombreproducto = tvnombreproducto.text.toString()
         val codigoproducto = tvcodigoproducto.text.toString()
@@ -104,26 +129,28 @@ class QuantityProdFragment : Fragment() {
         var total = subtotal + valorimpuesto
 
         CoroutineScope(Dispatchers.IO).launch {
-            val firstItem = SharedDataModel.detalleItems.value?.firstOrNull()
             var porcentajeTotal = 0.0
             var descuento = 0.0
 
-            firstItem?.let {
+            // Verificar si los descuentos están habilitados antes de aplicarlos
+            if (SharedDataModel.checkedDescuentoEscala) {
                 val escalaDiscount = DatabaseApplication.getDatabase(requireContext())
                     .invdescuentoporescalaDAO().getDescuentoPorEscala(codigoproducto)
                     .firstOrNull { discount ->
                         quantity in discount.rangoinicial..discount.rangofinal
                     }
 
-                porcentajeTotal += escalaDiscount?.monto ?: 0.0
-
-                descuento = subtotal * (porcentajeTotal / 100)
-                subtotal -= descuento
-                valorimpuesto = subtotal * (impuesto / 100)
-                total = subtotal + valorimpuesto
+                if (escalaDiscount != null) {
+                    porcentajeTotal += escalaDiscount.monto
+                    descuento = subtotal * (porcentajeTotal / 100)
+                    subtotal -= descuento
+                }
             }
 
-            val detalleItem = DetalleItem(
+            valorimpuesto = subtotal * (impuesto / 100)
+            total = subtotal + valorimpuesto
+
+            val newItem = DetalleItem(
                 quantity = quantity,
                 price = price,
                 subtotal = subtotal,
@@ -136,12 +163,27 @@ class QuantityProdFragment : Fragment() {
                 total = total
             )
 
+            // Obtener la lista actual de ítems en el carrito
+            val currentItems = SharedDataModel.detalleItems.value?.toMutableList() ?: mutableListOf()
+
+            // Buscar si el producto ya existe en el carrito
+            val existingItemIndex = currentItems.indexOfFirst { it.codigoproducto == newItem.codigoproducto }
+
+            if (existingItemIndex != -1) {
+                // El producto ya existe en el carrito, suma las cantidades y actualiza los valores
+                val existingItem = currentItems[existingItemIndex]
+                existingItem.quantity += newItem.quantity
+                existingItem.subtotal += newItem.subtotal
+                existingItem.descuento += newItem.descuento
+                existingItem.valorimpuesto += newItem.valorimpuesto
+                existingItem.total += newItem.total
+            } else {
+                // El producto no existe en el carrito, agrégalo a la lista
+                currentItems.add(newItem)
+            }
+
             withContext(Dispatchers.Main) {
-                SharedDataModel.detalleItems.value?.let { items ->
-                    val updatedItems = ArrayList(items)
-                    updatedItems.add(detalleItem)
-                    SharedDataModel.detalleItems.postValue(updatedItems)
-                }
+                SharedDataModel.detalleItems.postValue(currentItems)
                 requireActivity().onBackPressed()
             }
         }
@@ -149,9 +191,9 @@ class QuantityProdFragment : Fragment() {
 
     private fun calculateSubtotal() {
         val quantity = editTextNumber.text.toString().toIntOrNull() ?: 0
-        val price = tvPrice.text.toString().removePrefix("L. ").toDoubleOrNull() ?: 0.0
+        val price = tvPrice.text.toString().removePrefix("L. ").replace(",", "").toDoubleOrNull() ?: 0.0
         val subtotal = quantity * price
-        tvSubtotal.text = "L. ${String.format("%.2f", subtotal)}"
+        tvSubtotal.text = "L. ${formatNumber(subtotal)}"
     }
 
     private fun incrementQuantity() {
@@ -168,16 +210,16 @@ class QuantityProdFragment : Fragment() {
         }
     }
 
-    private fun loadProductDetails(idproducto: Int, codigotipoventa: String) {
+    private fun loadProductDetails(idproducto: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val db = DatabaseApplication.getDatabase(requireContext())
-                val productDetails = db.ProductosDAO().getProductoConPrecio(idproducto, codigotipoventa)
+                val productDetails = db.ProductosDAO().getProductoConPrecio(idproducto)
                 withContext(Dispatchers.Main) {
                     tvnombreproducto.text = productDetails.producto
                     tvcodigoproducto.text = productDetails.codigoproducto
-                    tvPrice.text = "L. ${productDetails.precio}"
-                    tvimpuesto.text = productDetails.porcentajeimpuesto.toString()
+                    tvPrice.text = "L. ${formatNumber(productDetails.precio ?: 0.0)}"
+                    tvimpuesto.text = formatNumber(productDetails.porcentajeimpuesto)
                     calculateSubtotal()
                 }
             } catch (e: Exception) {

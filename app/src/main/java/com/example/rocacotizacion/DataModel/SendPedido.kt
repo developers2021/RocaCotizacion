@@ -17,6 +17,14 @@ data class PedidoHdrS(
     val descuento: Double? = null,
     val total: Double,
     val isSincronizado: Boolean,
+    val codigopedido: String,
+    val anulado: String,
+    val ruta: String?,
+    val rtncliente: String?,
+    val clientenombre: String?,
+    val fecha: String,
+    val hora: String,
+    val venCodigo: String?,
     val pedidoDtls: List<PedidoDtlS>
 )
 

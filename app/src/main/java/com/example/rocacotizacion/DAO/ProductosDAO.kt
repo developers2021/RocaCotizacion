@@ -16,8 +16,13 @@ interface ProductosDAO {
     @Query("DELETE FROM productos")
      fun deleteAll()
 
-    @Query(" SELECT p.*, pn.precio FROM Productos p JOIN PreciosNivelTipoVenta pn ON p.idproducto = pn.idproducto WHERE pn.codigotipoventa = :codigoTipoVenta")
-    fun getProductosConPrecio(codigoTipoVenta: String): List<ProductoConPrecio>
+    @Query("""
+    SELECT p.*, pn.precio 
+    FROM Productos p 
+    JOIN PreciosNivelTipoVenta pn ON p.idproducto = pn.idproducto
+""")
+    fun getProductosConPrecioSinFiltro(): List<ProductoConPrecio>
+
 
     @Query("""
         SELECT p.idproducto, p.codigoproducto, p.producto, p.idgrupo, p.grupo, 
@@ -25,9 +30,8 @@ interface ProductosDAO {
         pn.precio,p.descuento 
         FROM Productos p 
         INNER JOIN PreciosNivelTipoVenta pn ON p.idproducto = pn.idproducto 
-        WHERE p.idproducto = :idProducto 
-        AND pn.codigotipoventa = :codigoTipoVenta
+        WHERE p.idproducto = :idProducto
     """)
-    fun getProductoConPrecio(idProducto: Int, codigoTipoVenta: String): ProductoConPrecio
+    fun getProductoConPrecio(idProducto: Int ): ProductoConPrecio
 
 }

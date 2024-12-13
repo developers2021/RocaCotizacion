@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Colores Existentes -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -7,12 +8,49 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="verde_roca">#2CC250</color>
     <color name="red">#DF0011</color>
-    <!-- Colores Primarios -->
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryVariant">#3700B3</color>
-    <color name="colorSecondary">#03DAC6</color>
-    <color name="colorAccent">#03DAC6</color>
-    <color name="divider_color">#CCCCCC</color>
+
+    <!-- Colores Primarios y Secundarios Actualizados -->
+    <color name="colorPrimary">@color/grayLight</color> <!-- Fondo sutil en gris claro -->
+    <color name="colorPrimaryVariant">@color/grayDark</color> <!-- Gris oscuro para variantes -->
+    <color name="colorSecondary">@color/white</color> <!-- Blanco como color secundario -->
+    <color name="colorAccent">@color/grayDark</color> <!-- Gris oscuro para acentos -->
+
+
+    <!-- Colores Personalizados de tu Aplicación -->
+    <color name="verde_roca">#2CC250</color> <!-- Verde Corporativo -->
+    <color name="verde_roca_oscuro">#228B22</color> <!-- Verde oscuro para el track activado -->
+
+    <color name="yellow">#FFD700</color> <!-- Amarillo Brillante -->
+    <color name="yellow_variant">#FFC107</color> <!-- Amarillo Suave -->
+    <color name="divider_color">#CCCCCC</color> <!-- Color para Separadores -->
+
+    <!-- Colores para Diálogos y Fondos -->
+    <color name="dialogBackground">#FFFFFF</color>
+    <color name="sectionBackground">#F0F0F0</color> <!-- Fondo para Secciones -->
+    <color name="dividerColor">#DDDDDD</color> <!-- Color de la Línea Divisoria -->
+
+    <!-- Colores de Texto -->
+    <color name="textPrimary">#333333</color> <!-- Texto Primario (Oscuro) -->
+    <color name="textSecondary">#666666</color> <!-- Texto Secundario (Gris Suave) -->
+    <color name="textHighlight">#2CC250</color> <!-- Verde para Destacar -->
+
+    <!-- Colores para Botones -->
+    <color name="buttonPrimary">#2CC250</color> <!-- Botón Verde Principal -->
+    <color name="buttonSecondary">#B0B0B0</color> <!-- Botón Secundario Gris -->
+    <color name="buttonCancel">#F44336</color> <!-- Botón de Cancelar (Rojo) -->
+    <color name="buttonClose">#B0B0B0</color> <!-- Botón de Cerrar (Gris Claro) -->
+
+    <!-- Colores para Tarjetas e Ítems -->
+    <color name="itemBackground">#FFFFFF</color>
+    <color name="itemBorder">#E0E0E0</color> <!-- Borde de los Ítems -->
+    <color name="highlightColor">#FFD700</color> <!-- Color de Resaltado (Amarillo) -->
+
+    <!-- Colores Adicionales para Compatibilidad -->
+    <color name="grayLight">#F5F5F5</color>
+    <color name="grayDark">#757575</color>
+    <color name="errorColor">#F44336</color> <!-- Rojo para Mensajes de Error -->
+    <color name="successColor">#4CAF50</color> <!-- Verde para Mensajes de Éxito -->
+    <color name="closeButtonColor">#B0B0B0</color> <!-- Gris claro, puedes ajustarlo según tu diseño -->
+
 </resources>

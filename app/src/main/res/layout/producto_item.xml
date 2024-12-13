@@ -39,7 +39,7 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_discount"
         android:contentDescription="Descuento Activo"
-        android:tint="@color/verde_roca"
+            android:tint="@color/yellow"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

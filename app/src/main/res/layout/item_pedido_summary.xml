@@ -5,102 +5,106 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="6dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
-        <!-- Pedido ID -->
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- Número de Pedido -->
+        <!-- <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="4dp">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tvPedidoIdLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Pedido ID:"
+                android:text="Número de Pedido:"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/tvPedidoId"
-                app:layout_constraintHorizontal_bias="0" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
             <TextView
                 android:id="@+id/tvPedidoId"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="12345"
                 android:textSize="16sp"
-                android:textColor="@color/black"
                 app:layout_constraintStart_toEndOf="@id/tvPedidoIdLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tvPedidoIdLabel"
-                app:layout_constraintBottom_toBottomOf="@id/tvPedidoIdLabel"
-                app:layout_constraintHorizontal_bias="1" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout> -->
+
+        <!-- Codigo de Pedido -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvCodigoIdLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Codigo de Pedido:"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tvCodigoPedido"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/tvCodigoPedido"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@id/tvCodigoIdLabel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Divisor -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider_color"
-            android:layout_marginVertical="8dp"/>
+
+
 
         <!-- Tipo de Pago -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="4dp">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tvTipopagoLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Tipo de pago:"
+                android:text="Tipo de Pago:"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/tvTipopago"
-                app:layout_constraintHorizontal_bias="0" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
             <TextView
                 android:id="@+id/tvTipopago"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Efectivo"
                 android:textSize="16sp"
-                android:textColor="@color/black"
                 app:layout_constraintStart_toEndOf="@id/tvTipopagoLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tvTipopagoLabel"
-                app:layout_constraintBottom_toBottomOf="@id/tvTipopagoLabel"
-                app:layout_constraintHorizontal_bias="1" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Divisor -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider_color"
-            android:layout_marginVertical="8dp"/>
 
         <!-- Total -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="4dp">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tvTotalLabel"
@@ -109,107 +113,76 @@
                 android:text="Total:"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/tvTotal"
-                app:layout_constraintHorizontal_bias="0" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
             <TextView
                 android:id="@+id/tvTotal"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="L. 150.00"
                 android:textSize="16sp"
-                android:textColor="@color/black"
                 app:layout_constraintStart_toEndOf="@id/tvTotalLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tvTotalLabel"
-                app:layout_constraintBottom_toBottomOf="@id/tvTotalLabel"
-                app:layout_constraintHorizontal_bias="1" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Divisor -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider_color"
-            android:layout_marginVertical="8dp"/>
-
-        <!-- Sincronizado -->
+        <!-- Estado de Sincronización -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="4dp">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tvSincLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Sincronizado:"
+                android:text="Estado:"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/tvSinc"
-                app:layout_constraintHorizontal_bias="0" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
             <TextView
                 android:id="@+id/tvSinc"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Sí"
                 android:textSize="16sp"
-                android:textColor="@color/black"
                 app:layout_constraintStart_toEndOf="@id/tvSincLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tvSincLabel"
-                app:layout_constraintBottom_toBottomOf="@id/tvSincLabel"
-                app:layout_constraintHorizontal_bias="1" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Divisor -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider_color"
-            android:layout_marginVertical="8dp"/>
-
-        <!-- Código Cliente -->
+        <!-- Nombre del Cliente -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="4dp">
+            android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/tvCodigoclienteLabel"
+                android:id="@+id/tvNombreClienteLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Código Cliente:"
+                android:text="Cliente:"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tvNombreCliente"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/tvCodigocliente"
-                app:layout_constraintHorizontal_bias="0" />
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
             <TextView
-                android:id="@+id/tvCodigocliente"
+                android:id="@+id/tvNombreCliente"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="C-67890"
                 android:textSize="16sp"
-                android:textColor="@color/black"
-                app:layout_constraintStart_toEndOf="@id/tvCodigoclienteLabel"
+                app:layout_constraintStart_toEndOf="@id/tvNombreClienteLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tvCodigoclienteLabel"
-                app:layout_constraintBottom_toBottomOf="@id/tvCodigoclienteLabel"
-                app:layout_constraintHorizontal_bias="1" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>

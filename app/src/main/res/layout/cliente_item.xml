@@ -69,7 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="4dp"
-            android:text="Saldo del Cliente: L. 0.00"
+            android:text="L. 0.00"
             android:textColor="#757575"
             android:textSize="14sp"
             android:textStyle="italic" />

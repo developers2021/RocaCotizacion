@@ -9,4 +9,5 @@ data class PedidoPrintModel(
     var rtncliente: String,
     var rutanombre: String,
     var vendedornombre: String,
+    var codigopedido: String,
 )

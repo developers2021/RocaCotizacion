@@ -10,15 +10,35 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Título -->
-        <TextView
-            android:id="@+id/textViewTitle"
+        <!-- Contenedor horizontal para el título y el botón de cancelar pedido -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Resumen del Pedido"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:layout_marginTop="16dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Título centrado -->
+            <TextView
+                android:id="@+id/textViewTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Resumen del Pedido"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:gravity="center" />
+
+            <!-- Botón de cancelar pedido a la derecha -->
+            <ImageButton
+                android:id="@+id/btnCancelPedido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_trash"
+                android:contentDescription="Cancelar Pedido"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                />
+        </LinearLayout>
+
 
         <!-- Separador -->
         <View
@@ -203,12 +223,12 @@
                 android:padding="8dp"/>
         </LinearLayout>
 
-        <!-- Botones Guardar y Salir -->
+        <!-- Botones Guardar y Cancelar Pedido -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:weightSum="2"
+            android:weightSum="1"
             android:layout_marginTop="16dp">
 
             <Button
@@ -217,16 +237,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Guardar Pedido" />
-
-            <Button
-                android:id="@+id/btnExit"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Salir"
-                android:enabled="false" />
-
         </LinearLayout>
+
+
+
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

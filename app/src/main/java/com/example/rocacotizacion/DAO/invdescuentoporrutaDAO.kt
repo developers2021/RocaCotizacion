@@ -21,4 +21,8 @@ interface invdescuentoporrutaDAO {
 
     @Query("SELECT * FROM invdescuentoporruta WHERE codigoproducto IN (:codigosProductos)")
     fun getDescuentoPorRutaMultiple(codigosProductos: List<String>): List<invdescuentoporruta>
+
+    @Query("SELECT * FROM invdescuentoporruta WHERE idruta = :idruta AND codigoproducto = :codigoproducto LIMIT 1")
+    fun getDescuentoPorRuta(idruta: Int, codigoproducto: String): invdescuentoporruta?
+
 }

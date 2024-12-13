@@ -16,5 +16,6 @@ data class invdescuentoporescala(
     @ColumnInfo(name = "idproducto") val idproducto: Int,
     @ColumnInfo(name = "monto") val monto: Double,
     @ColumnInfo(name = "codigoproducto") val codigoproducto: String,
-
-    )
+    @ColumnInfo(name = "fechaInicio") val fechaInicio: String,
+    @ColumnInfo(name = "fechaFin") val fechaFin: String
+)

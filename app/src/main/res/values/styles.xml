@@ -2,19 +2,34 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Tema general del App -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorPrimary">@color/grayLight</item>
+        <item name="colorPrimaryVariant">@color/grayDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:statusBarColor">@color/colorPrimaryVariant</item>
+        <item name="android:navigationBarColor">@color/colorPrimary</item>
+        <item name="android:windowLightStatusBar">true</item> <!-- Iconos oscuros en la barra de estado -->
+        <item name="android:windowLightNavigationBar">true</item> <!-- Iconos oscuros en la barra de navegación -->
+        <item name="android:forceDarkAllowed">false</item>
     </style>
 
     <!-- Estilo personalizado para el DialogFragment -->
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@drawable/rounded_background</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowMinWidthMajor">90%</item>
         <item name="colorPrimary">@color/verde_roca</item>
-        <item name="colorAccent">@color/red</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.4</item>
+    </style>
+
+    <!-- Estilo para cajas grises (item_discount) -->
+    <style name="ItemDiscountStyle">
+        <item name="android:background">@color/sectionBackground</item>
+        <item name="android:elevation">4dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:padding">12dp</item>
     </style>
 </resources>
-
