@@ -52,6 +52,8 @@ import java.util.Date
 import androidx.fragment.app.viewModels
 import com.example.rocacotizacion.DataModel.PedidoViewModel
 import com.tuapp.nombredepaquete.PedidoManager
+import kotlin.math.roundToLong
+import java.math.BigDecimal
 
 
 class ResumenFragment : Fragment() {
@@ -63,7 +65,15 @@ class ResumenFragment : Fragment() {
         private var isPedidoGuardado = false
         private val pedidoViewModel: PedidoViewModel by viewModels()
 
-        // Agregamos referencias a los botones como variables de clase
+    // Add these properties to track switch states
+    private var isDescuentoRutaActivado = false
+    private var isDescuentoEscalaActivado = false
+    private var isDescuentoTipoPagoActivado = false
+    private var oldItemCount = 0
+    private var oldSubtotal = 0.0
+
+
+    // Agregamos referencias a los botones como variables de clase
         private lateinit var btnsavepedido: Button
         private lateinit var btnExit: Button
 
@@ -86,9 +96,9 @@ class ResumenFragment : Fragment() {
                     item.porcentajeEscala = escalaDiscount?.monto ?: 0.0
                     item.porcentajeTotal = item.porcentajeEscala + item.porcentajeTipoPago + item.porcentajeRuta
                     item.descuento = (item.price * item.quantity) * (item.porcentajeTotal / 100)
-                    item.subtotal = (item.price * item.quantity) - item.descuento
-                    item.valorimpuesto = item.subtotal * (item.porcentajeImpuesto / 100)
-                    item.total = item.subtotal + item.valorimpuesto
+                    item.subtotal = (item.price * item.quantity)
+                    item.valorimpuesto = (item.subtotal - item.descuento) * (item.porcentajeImpuesto / 100)
+                    item.total = (item.subtotal + item.valorimpuesto) - item.descuento
                     item.checkedDescuentoEscala = true
                 }
                 SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
@@ -110,9 +120,9 @@ class ResumenFragment : Fragment() {
                     item.porcentajeTipoPago = discountData?.monto ?: 0.0
                     item.porcentajeTotal = item.porcentajeEscala + item.porcentajeTipoPago + item.porcentajeRuta
                     item.descuento = (item.price * item.quantity) * (item.porcentajeTotal / 100)
-                    item.subtotal = (item.price * item.quantity) - item.descuento
-                    item.valorimpuesto = item.subtotal * (item.porcentajeImpuesto / 100)
-                    item.total = item.subtotal + item.valorimpuesto
+                    item.subtotal = (item.price * item.quantity)
+                    item.valorimpuesto = (item.subtotal - item.descuento) * (item.porcentajeImpuesto / 100)
+                    item.total = (item.subtotal + item.valorimpuesto) - item.descuento
                     item.checkedDescuentoTipoPago = true
                 }
                 SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
@@ -139,9 +149,9 @@ class ResumenFragment : Fragment() {
                     item.porcentajeRuta = discountData?.monto ?: 0.0
                     item.porcentajeTotal = item.porcentajeEscala + item.porcentajeRuta + item.porcentajeTipoPago
                     item.descuento = (item.price * item.quantity) * (item.porcentajeTotal / 100)
-                    item.subtotal = (item.price * item.quantity) - item.descuento
-                    item.valorimpuesto = item.subtotal * (item.porcentajeImpuesto / 100)
-                    item.total = item.subtotal + item.valorimpuesto
+                    item.subtotal = (item.price * item.quantity)
+                    item.valorimpuesto = (item.subtotal - item.descuento) * (item.porcentajeImpuesto / 100)
+                    item.total = (item.subtotal + item.valorimpuesto) - item.descuento
                     item.checkedDescuentoRuta = true
 
                     // Log para depuración
@@ -170,147 +180,296 @@ class ResumenFragment : Fragment() {
 
 
 
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
-            requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-            setStatusBarColor(requireContext())
+        setStatusBarColor(requireContext())
 
-            // Inicializamos los switches
-            val switchEscala = view.findViewById<SwitchCompat>(R.id.switchOption1)
-            val switchTipoPago = view.findViewById<SwitchCompat>(R.id.switchOption2)
-            val switchRuta = view.findViewById<SwitchCompat>(R.id.switchOption3)
+        // Inicializamos los switches
+        val switchEscala = view.findViewById<SwitchCompat>(R.id.switchOption1)
+        val switchTipoPago = view.findViewById<SwitchCompat>(R.id.switchOption2)
+        val switchRuta = view.findViewById<SwitchCompat>(R.id.switchOption3)
 
-            configureSwitchColors(switchEscala, requireContext())
-            configureSwitchColors(switchTipoPago, requireContext())
-            configureSwitchColors(switchRuta, requireContext())
+        configureSwitchColors(switchEscala, requireContext())
+        configureSwitchColors(switchTipoPago, requireContext())
+        configureSwitchColors(switchRuta, requireContext())
 
-            // Inicializamos los botones
-            val btnCancelPedido: ImageButton = view.findViewById(R.id.btnCancelPedido)
-            btnsavepedido = view.findViewById(R.id.btnsavepedido)
+        // Inicializamos los botones
+        val btnCancelPedido: ImageButton = view.findViewById(R.id.btnCancelPedido)
+        btnsavepedido = view.findViewById(R.id.btnsavepedido)
 
-            // Indicador de si el pedido ha sido guardado
-            var isPedidoGuardado = false
+        // Indicador de si el pedido ha sido guardado
+        var isPedidoGuardado = false
 
-            // Inicializamos el callback para bloquear el botón de atrás
-            val backPressedCallback = object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (isPedidoGuardado) {
-                        // Permitir salir si el pedido ha sido guardado
-                        requireActivity().finish()
-                    } else {
-                        Toast.makeText(context, "No puedes salir sin cancelar el pedido.", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
-
-            // Listener para el switch de descuento por escala
-            switchEscala.setOnCheckedChangeListener { _, isChecked ->
-                isEscalaDiscountEnabled = isChecked
-                if (isChecked) {
-                    applyEscalaDiscounts()
+        // Inicializamos el callback para bloquear el botón de atrás
+        val backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isPedidoGuardado) {
+                    // Permitir salir si el pedido ha sido guardado
+                    requireActivity().finish()
                 } else {
-                    removeEscalaDiscounts()
-                    updateTotals()
+                    Toast.makeText(context, "No puedes salir sin cancelar el pedido.", Toast.LENGTH_SHORT).show()
                 }
             }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
 
-            // Listener para el switch de descuento por tipo de pago
-            switchTipoPago.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    applyTipoVentaDiscounts()
-                } else {
-                    SharedDataModel.detalleItems.value?.forEach {
-                        it.porcentajeTipoPago = 0.0
-                        it.porcentajeTotal = it.porcentajeEscala + it.porcentajeRuta
-                        it.descuento = (it.price * it.quantity) * (it.porcentajeTotal / 100)
-                        it.subtotal = (it.price * it.quantity) - it.descuento
-                        it.valorimpuesto = it.subtotal * (it.porcentajeImpuesto / 100)
-                        it.total = it.subtotal + it.valorimpuesto
-                        it.checkedDescuentoTipoPago = false
-                    }
-                    SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
-                    updateTotals()
-                }
-            }
-
-            // Listener para el switch de descuento por ruta
-            switchRuta.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    applyRutaDiscounts()
-                } else {
-                    Log.d("SwitchRuta", "Descuento desactivado, procesando los detalles...")
-
-                    SharedDataModel.detalleItems.value?.forEach {
-                        Log.d("SwitchRuta", "Antes de modificar: ${it}")
-
-                        it.porcentajeRuta = 0.0
-                        it.porcentajeTotal = it.porcentajeEscala + it.porcentajeTipoPago
-                        it.descuento = (it.price * it.quantity) * (it.porcentajeTotal / 100)
-                        it.subtotal = (it.price * it.quantity) - it.descuento
-                        it.valorimpuesto = it.subtotal * (it.porcentajeImpuesto / 100)
-                        it.total = it.subtotal + it.valorimpuesto
-                        it.checkedDescuentoRuta = false
-
-                        Log.d("SwitchRuta", "Después de modificar: ${it}")
-                    }
-
-                    Log.d("SwitchRuta", "Todos los detalles procesados, actualizando SharedDataModel...")
-                    SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
-
-                    Log.d("SwitchRuta", "Actualizando totales...")
-                    updateTotals()
-                }
-            }
-
-
-            // Configuración del botón "Guardar Pedido"
-            btnsavepedido.setOnClickListener {
-                if (SharedDataModel.detalleItems.value.isNullOrEmpty()) {
-                    Toast.makeText(context, "No hay items en el pedido", Toast.LENGTH_SHORT).show()
-                } else {
-                    saveOrder()
-                    isPedidoGuardado = true
-                    btnCancelPedido.isEnabled = false // Desactivar botón de cancelar
-                    backPressedCallback.isEnabled = false // Permitir salir después de guardar
-                    btnsavepedido.text = "Salir" // Cambiar texto del botón
-                    btnsavepedido.setOnClickListener {
-                        requireActivity().finish()
-                    }
-                }
-            }
-
-            // Listener para el botón de cancelar pedido
-            btnCancelPedido.setOnClickListener {
-                cancelarPedido()
-            }
-
-            // Observamos los cambios en detalleItems
-            SharedDataModel.detalleItems.observe(viewLifecycleOwner, Observer { items ->
+        // Listener para el switch de descuento por escala
+        switchEscala.setOnCheckedChangeListener { _, isChecked ->
+            isEscalaDiscountEnabled = isChecked
+            if (isChecked) {
+                applyEscalaDiscounts()
+            } else {
+                removeEscalaDiscounts()
                 updateTotals()
-            })
+            }
+        }
 
-            // Inicialización del RecyclerView y Adapter
-            val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewResumen1)
-            resumenAdapter = ResumenAdapter(listOf())
-            recyclerView.adapter = resumenAdapter
-            recyclerView.layoutManager = LinearLayoutManager(context)
+        // SWITCH DESCUENTO POR ESCALA (parece duplicado, verifica si de verdad lo necesitas 2 veces)
+        switchEscala.setOnCheckedChangeListener { _, isChecked ->
+            isDescuentoEscalaActivado = isChecked
+            isEscalaDiscountEnabled = isChecked
+            if (isChecked) {
+                applyEscalaDiscounts()
+            } else {
+                removeEscalaDiscounts()
+                updateTotals()
+            }
+        }
 
-            // Mostrar el tipo de pago en el TextView correspondiente
-            val textViewtipopago: TextView = view.findViewById(R.id.tipopago)
-            textViewtipopago.text = activity?.intent?.getStringExtra("tipoPago")?.let { stringtipopago(it) }
+        // SWITCH DESCUENTO POR TIPO DE PAGO
+        switchTipoPago.setOnCheckedChangeListener { _, isChecked ->
+            isDescuentoTipoPagoActivado = isChecked
+            if (isChecked) {
+                applyTipoVentaDiscounts()
+            } else {
+                SharedDataModel.detalleItems.value?.forEach {
+                    it.porcentajeTipoPago = 0.0
+                    it.porcentajeTotal = it.porcentajeEscala + it.porcentajeRuta
+                    it.descuento = (it.price * it.quantity) * (it.porcentajeTotal / 100)
+                    it.subtotal = (it.price * it.quantity)
+                    it.valorimpuesto = (it.subtotal - it.descuento) * (it.porcentajeImpuesto / 100)
+                    it.total = (it.subtotal + it.valorimpuesto) - it.descuento
+                    it.checkedDescuentoTipoPago = false
+                }
+                SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+                updateTotals()
+            }
+        }
+
+        // SWITCH DESCUENTO POR RUTA
+        switchRuta.setOnCheckedChangeListener { _, isChecked ->
+            isDescuentoRutaActivado = isChecked
+            if (isChecked) {
+                applyRutaDiscounts()
+            } else {
+                Log.d("SwitchRuta", "Descuento desactivado, procesando los detalles...")
+
+                SharedDataModel.detalleItems.value?.forEach {
+                    Log.d("SwitchRuta", "Antes de modificar: $it")
+                    it.porcentajeRuta = 0.0
+                    it.porcentajeTotal = it.porcentajeEscala + it.porcentajeTipoPago
+                    it.descuento = (it.price * it.quantity) * (it.porcentajeTotal / 100)
+                    it.subtotal = (it.price * it.quantity)
+                    it.valorimpuesto = (it.subtotal - it.descuento) * (it.porcentajeImpuesto / 100)
+                    it.total = (it.subtotal + it.valorimpuesto) - it.descuento
+                    it.checkedDescuentoRuta = false
+                    Log.d("SwitchRuta", "Después de modificar: $it")
+                }
+                Log.d("SwitchRuta", "Todos los detalles procesados, actualizando SharedDataModel...")
+                SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+                Log.d("SwitchRuta", "Actualizando totales...")
+                updateTotals()
+            }
+        }
+
+        // Configuración del botón "Guardar Pedido"
+        btnsavepedido.setOnClickListener {
+            if (SharedDataModel.detalleItems.value.isNullOrEmpty()) {
+                Toast.makeText(context, "No hay items en el pedido", Toast.LENGTH_SHORT).show()
+            } else {
+                saveOrder()
+                isPedidoGuardado = true
+                btnCancelPedido.isEnabled = false // Desactivar botón de cancelar
+                backPressedCallback.isEnabled = false // Permitir salir después de guardar
+                btnsavepedido.text = "Salir" // Cambiar texto del botón
+                btnsavepedido.setOnClickListener {
+                    requireActivity().finish()
+                }
+            }
+        }
+
+        // Listener para el botón de cancelar pedido
+        btnCancelPedido.setOnClickListener {
+            cancelarPedido()
+        }
+
+        // Observamos los cambios en detalleItems
+        SharedDataModel.detalleItems.observe(viewLifecycleOwner) { items ->
+
+            // ---- LÓGICA DE HABILITAR O DESHABILITAR SWITCHES SEGÚN HAYA O NO PRODUCTOS ----
+            val totalPedido = items.sumOf { it.total }
+            if (items.isEmpty() || totalPedido == 0.0) {
+                switchEscala.isEnabled = false
+                switchEscala.isChecked = false
+
+                switchTipoPago.isEnabled = false
+                switchTipoPago.isChecked = false
+
+                switchRuta.isEnabled = false
+                switchRuta.isChecked = false
+            } else {
+                switchEscala.isEnabled = true
+                switchTipoPago.isEnabled = true
+                switchRuta.isEnabled = true
+            }
+
+            // ---- ACTUALIZA TOTALES NORMALMENTE ----
+            updateTotals()
+
+            // ---- Verifica si cambió el subtotal (en lugar de cuántos ítems hay) ----
+            val currentSubtotal = items.sumOf { it.subtotal }
+            if (currentSubtotal != oldSubtotal) {
+
+                // -------------------------------------------------------
+                // Si cambió el subtotal, reiniciamos DESCUENTOS ACTIVOS
+                // -------------------------------------------------------
+
+                // 1) DESCUENTO POR ESCALA
+                if (isDescuentoEscalaActivado && switchEscala.isChecked) {
+                    removeEscalaDiscounts()   // Ponemos a cero el descuento
+                    applyEscalaDiscounts()    // Lo reaplicamos
+                }
+
+                // 2) DESCUENTO POR TIPO DE PAGO
+                if (isDescuentoTipoPagoActivado && switchTipoPago.isChecked) {
+                    // Primero ponemos a cero el tipo de pago actual
+                    SharedDataModel.detalleItems.value?.forEach { item ->
+                        item.porcentajeTipoPago = 0.0
+                        item.porcentajeTotal = item.porcentajeEscala + item.porcentajeRuta
+                        item.descuento = (item.price * item.quantity) * (item.porcentajeTotal / 100)
+                        item.subtotal = (item.price * item.quantity)
+                        item.valorimpuesto = (item.subtotal - item.descuento) * (item.porcentajeImpuesto / 100)
+                        item.total = (item.subtotal + item.valorimpuesto) - item.descuento
+                    }
+                    SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+                    // Luego re-aplicamos
+                    applyTipoVentaDiscounts()
+                }
+
+                // 3) DESCUENTO POR RUTA
+                if (isDescuentoRutaActivado && switchRuta.isChecked) {
+                    // Primero ponemos a cero el descuento por ruta
+                    SharedDataModel.detalleItems.value?.forEach { item ->
+                        item.porcentajeRuta = 0.0
+                        item.porcentajeTotal = item.porcentajeEscala + item.porcentajeTipoPago
+                        item.descuento = (item.price * item.quantity) * (item.porcentajeTotal / 100)
+                        item.subtotal = (item.price * item.quantity)
+                        item.valorimpuesto = (item.subtotal - item.descuento) * (item.porcentajeImpuesto / 100)
+                        item.total = (item.subtotal + item.valorimpuesto) - item.descuento
+                    }
+                    SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+                    // Luego re-aplicamos
+                    applyRutaDiscounts()
+                }
+
+                // ----------------------------------------------------------------------------
+                // AQUI HACEMOS EL "REINICIO" DE LOS SWITCHES AL FINAL (Off->On)
+                // ----------------------------------------------------------------------------
+
+                // 1) Guardamos el estado actual de cada switch
+                val wasEscalaChecked = switchEscala.isChecked
+                val wasTipoPagoChecked = switchTipoPago.isChecked
+                val wasRutaChecked = switchRuta.isChecked
+
+                // 2) Quitamos temporalmente los listeners para que no se dispare la lógica
+                switchEscala.setOnCheckedChangeListener(null)
+                switchTipoPago.setOnCheckedChangeListener(null)
+                switchRuta.setOnCheckedChangeListener(null)
+
+                // 3) Los forzamos a false para "reiniciarlos"
+                switchEscala.isChecked = false
+                switchTipoPago.isChecked = false
+                switchRuta.isChecked = false
+
+                // 4) Regresamos cada uno a su estado anterior
+                switchEscala.isChecked = wasEscalaChecked
+                switchTipoPago.isChecked = wasTipoPagoChecked
+                switchRuta.isChecked = wasRutaChecked
+
+                // 5) Volvemos a colocar los listeners
+                switchEscala.setOnCheckedChangeListener { _, isChecked ->
+                    isDescuentoEscalaActivado = isChecked
+                    isEscalaDiscountEnabled = isChecked
+                    if (isChecked) {
+                        applyEscalaDiscounts()
+                    } else {
+                        removeEscalaDiscounts()
+                        updateTotals()
+                    }
+                }
+
+                switchTipoPago.setOnCheckedChangeListener { _, isChecked ->
+                    isDescuentoTipoPagoActivado = isChecked
+                    if (isChecked) {
+                        applyTipoVentaDiscounts()
+                    } else {
+                        SharedDataModel.detalleItems.value?.forEach {
+                            it.porcentajeTipoPago = 0.0
+                            it.porcentajeTotal = it.porcentajeEscala + it.porcentajeRuta
+                            it.descuento = (it.price * it.quantity) * (it.porcentajeTotal / 100)
+                            it.subtotal = (it.price * it.quantity)
+                            it.valorimpuesto = (it.subtotal -it.descuento) * (it.porcentajeImpuesto / 100)
+                            it.total = (it.subtotal + it.valorimpuesto) - it.descuento
+                            it.checkedDescuentoTipoPago = false
+                        }
+                        SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+                        updateTotals()
+                    }
+                }
+
+                switchRuta.setOnCheckedChangeListener { _, isChecked ->
+                    isDescuentoRutaActivado = isChecked
+                    if (isChecked) {
+                        applyRutaDiscounts()
+                    } else {
+                        SharedDataModel.detalleItems.value?.forEach {
+                            it.porcentajeRuta = 0.0
+                            it.porcentajeTotal = it.porcentajeEscala + it.porcentajeTipoPago
+                            it.descuento = (it.price * it.quantity) * (it.porcentajeTotal / 100)
+                            it.subtotal = (it.price * it.quantity)
+                            it.valorimpuesto = (it.subtotal - it.descuento) * (it.porcentajeImpuesto / 100)
+                            it.total = (it.subtotal + it.valorimpuesto) - it.descuento
+                            it.checkedDescuentoRuta = false
+                        }
+                        SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+                        updateTotals()
+                    }
+                }
+            }
+
+            // ---- Finalmente, guardamos el subtotal actual para la próxima comparación ----
+            oldSubtotal = currentSubtotal
         }
 
 
 
 
+        // Inicialización del RecyclerView y Adapter
+        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerViewResumen1)
+        resumenAdapter = ResumenAdapter(listOf())
+        recyclerView.adapter = resumenAdapter
+        recyclerView.layoutManager = LinearLayoutManager(context)
+
+        // Mostrar el tipo de pago en el TextView correspondiente
+        val textViewtipopago: TextView = view.findViewById(R.id.tipopago)
+        textViewtipopago.text = activity?.intent?.getStringExtra("tipoPago")?.let { stringtipopago(it) }
+    }
 
 
 
-
-
-        private fun cancelarPedido() {
+    private fun cancelarPedido() {
             if (isPedidoGuardado) {
                 Toast.makeText(context, "El pedido ya ha sido guardado, no es necesario cancelar.", Toast.LENGTH_SHORT).show()
                 return
@@ -337,9 +496,9 @@ class ResumenFragment : Fragment() {
                 it.porcentajeEscala = 0.0
                 it.porcentajeTotal = it.porcentajeTipoPago + it.porcentajeRuta
                 it.descuento = (it.price * it.quantity) * (it.porcentajeTotal / 100)
-                it.subtotal = (it.price * it.quantity) - it.descuento
-                it.valorimpuesto = it.subtotal * (it.porcentajeImpuesto / 100)
-                it.total = it.subtotal + it.valorimpuesto
+                it.subtotal = (it.price * it.quantity)
+                it.valorimpuesto = (it.subtotal - it.descuento) * (it.porcentajeImpuesto / 100)
+                it.total = (it.subtotal + it.valorimpuesto) - it.descuento
                 it.checkedDescuentoEscala = false
             }
             SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
@@ -464,7 +623,10 @@ class ResumenFragment : Fragment() {
                     clientecodigo = clientecodigo,
                     impuesto = impuesto,
                     codigopedido = codigopedido,
-                    anulado = anulado
+                    anulado = anulado,
+                    descuentoRutaActivado = isDescuentoRutaActivado,
+                    descuentoEscalaActivado = isDescuentoEscalaActivado,
+                    descuentoTipoPagoActivado = isDescuentoTipoPagoActivado
                 )
 
                 val hdrId = DatabaseApplication.getDatabase(requireContext()).PedidoHdrDAO().insertPedidoHdr(pedidoHdr)
@@ -606,10 +768,10 @@ class ResumenFragment : Fragment() {
                     val df = DecimalFormat("#.##")
                     df.roundingMode = RoundingMode.FLOOR
                     val details = db.PedidoDtlDAO().getDetallePrint(pedidoId)
-                    val subtotal = Math.round((pedido.subtotal + pedido.descuento) * 100.0) / 100.0
+                    val subtotal = BigDecimal(pedido.subtotal).setScale(2, RoundingMode.HALF_UP).toDouble()
                     val descuento = Math.round(pedido.descuento * 100.0) / 100.0
                     val impuesto = Math.round(pedido.impuesto * 100.0) / 100.0
-                    val total = Math.round((pedido.subtotal + pedido.impuesto) * 100.0) / 100.0
+                    val total = (((pedido.subtotal + pedido.impuesto  - pedido.descuento) * 100.0).roundToLong() / 100.0)
                     val tableRows = generateTableRows(details)
                     val numeroletras = NumeroLetras.Convertir(
                         total.toString(),

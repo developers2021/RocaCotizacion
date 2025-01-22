@@ -8,6 +8,8 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.rocacotizacion.R
+import java.text.NumberFormat
+import java.util.Locale
 
 class CierreDiaFragment : Fragment() {
 
@@ -37,6 +39,9 @@ class CierreDiaFragment : Fragment() {
             var credito = 0.0
 
             pedidoHdrList.forEach { pedido ->
+                if (pedido.anulado == "S") {
+                    return@forEach // Continuar al siguiente pedido
+                }
                 total += pedido.total
                 when (pedido.tipopago) {
                     "CTADO" -> contado += pedido.total
@@ -44,10 +49,16 @@ class CierreDiaFragment : Fragment() {
                 }
             }
 
-            // Actualizar los valores de los TextViews
-            totalTextView.text = "L ${String.format("%.2f", total)}"
-            contadoTextView.text = "Contado: L ${String.format("%.2f", contado)}"
-            creditoTextView.text = "Crédito: L ${String.format("%.2f", credito)}"
+
+            val numberFormat = NumberFormat.getNumberInstance(Locale.US).apply {
+                minimumFractionDigits = 2
+                maximumFractionDigits = 2
+            }
+
+
+            totalTextView.text = "L ${numberFormat.format(total)}"
+            contadoTextView.text = "Contado: L ${numberFormat.format(contado)}"
+            creditoTextView.text = "Crédito: L ${numberFormat.format(credito)}"
         }
     }
 }

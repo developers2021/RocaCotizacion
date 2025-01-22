@@ -29,16 +29,14 @@ class PedidoSummaryAdapter(
         val item = items[position]
         holder.bind(item, clickListener)
 
-        //holder.tvPedidoId.text = "${item.id}"
         holder.tvCodigoPedido.text = "${item.codigopedido}"
         holder.tvTipopago.text = when (item.tipopago) {
             "CTADO" -> "CONTADO"
             "CRED" -> "CRÉDITO"
-            else -> item.tipopago // Por si acaso aparece un valor inesperado
+            else -> item.tipopago
         }
         holder.tvTotal.text = "L.${formatNumberWithCommas(item.total)}"
 
-        // Buscar el nombre del cliente usando Room
         CoroutineScope(Dispatchers.IO).launch {
             val nombreCliente = obtenerNombreCliente(holder.itemView.context, item.Codigocliente)
             withContext(Dispatchers.Main) {
@@ -47,7 +45,19 @@ class PedidoSummaryAdapter(
         }
 
         holder.tvSinc.text = if (item.sinc) "Sincronizado" else "No Sincronizado"
+        holder.tvSinc.setTextColor(
+            if (item.sinc) holder.itemView.context.getColor(R.color.verde_roca)
+            else holder.itemView.context.getColor(android.R.color.black)
+        )
+
+        if (item.anulado == "S") {
+            holder.tvEstadoAnulado.visibility = View.VISIBLE
+            holder.tvEstadoAnulado.text = "Anulado" // Opcional, puedes personalizar el texto
+        } else {
+            holder.tvEstadoAnulado.visibility = View.GONE
+        }
     }
+
 
     override fun getItemCount(): Int = items.size
 
@@ -62,6 +72,7 @@ class PedidoSummaryAdapter(
         val tvTotal: TextView = itemView.findViewById(R.id.tvTotal)
         val tvSinc: TextView = itemView.findViewById(R.id.tvSinc)
         val tvNombreCliente: TextView = itemView.findViewById(R.id.tvNombreCliente)
+        val tvEstadoAnulado: TextView = itemView.findViewById(R.id.tvEstadoAnulado)
     }
 
     // Función para obtener el nombre del cliente usando Room

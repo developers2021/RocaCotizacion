@@ -49,7 +49,7 @@ class MiDiaPedidosFragment : Fragment() {
         // Observar los datos del ViewModel
         viewModel.pedidoHdrList.observe(viewLifecycleOwner) { pedidoHdrList ->
             val pedidoSummaryList = pedidoHdrList.map { hdr ->
-                PedidoSummary(hdr.id, hdr.codigopedido, hdr.tipopago, hdr.total, hdr.sinc, hdr.clientecodigo)
+                PedidoSummary(hdr.id, hdr.codigopedido, hdr.tipopago, hdr.total, hdr.sinc, hdr.clientecodigo, hdr.anulado)
             }
             adapter.updateItems(pedidoSummaryList)
         }
@@ -64,12 +64,6 @@ class MiDiaPedidosFragment : Fragment() {
             Toast.makeText(requireContext(), "Error al navegar al detalle del pedido", Toast.LENGTH_SHORT).show()
         }
     }
-
-
-
-
-
-
 
 
 

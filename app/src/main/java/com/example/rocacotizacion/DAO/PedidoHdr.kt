@@ -15,5 +15,9 @@ data class PedidoHdr(
     @ColumnInfo(name="sinc") val sinc:Boolean,
     @ColumnInfo(name="clientecodigo") val clientecodigo:String,
     @ColumnInfo(name = "codigopedido") val codigopedido: String,
-    @ColumnInfo(name = "anulado") val anulado: String
+    @ColumnInfo(name = "anulado") val anulado: String,
+    @ColumnInfo(name = "descuentorutaactivado") val descuentoRutaActivado: Boolean,
+    @ColumnInfo(name = "descuentoescalaactivado") val descuentoEscalaActivado: Boolean,
+    @ColumnInfo(name = "descuentotipopagoactivado") val descuentoTipoPagoActivado: Boolean
+
 )

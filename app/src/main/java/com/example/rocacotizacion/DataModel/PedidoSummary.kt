@@ -6,5 +6,6 @@ data class PedidoSummary(
     val tipopago: String,
     val total: Double,
     val sinc: Boolean,
-    val Codigocliente:String
+    val Codigocliente:String,
+    val anulado: String // Nuevo campo que indica si está anulado
 )

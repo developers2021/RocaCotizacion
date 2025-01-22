@@ -215,6 +215,9 @@ class MiDiaFragment : Fragment() {
             pedidoHdrJson.put("fecha", pedidoHdr.fecha)
             pedidoHdrJson.put("hora", pedidoHdr.hora)
             pedidoHdrJson.put("venCodigo", pedidoHdr.venCodigo)
+            pedidoHdrJson.put("descuentorutaactivado", pedidoHdr.descuentorutaactivado)
+            pedidoHdrJson.put("descuentoescalaactivado", pedidoHdr.descuentoescalaactivado)
+            pedidoHdrJson.put("descuentotipopagoactivado", pedidoHdr.descuentotipopagoactivado)
             val pedidoDtlsArray = JSONArray()
             pedidoHdr.pedidoDtls.forEach { pedidoDtl ->
                 val pedidoDtlJson = JSONObject()
@@ -285,6 +288,9 @@ class MiDiaFragment : Fragment() {
                             clientenombre = cliente?.nombrecliente,
                             fecha = fechaFormatted, // Fecha en formato "yyyy-MM-dd"
                             hora = horaFormatted, // Hora en formato "HH:mm:ss"
+                            descuentorutaactivado = header.descuentoRutaActivado,
+                            descuentoescalaactivado = header.descuentoEscalaActivado,
+                            descuentotipopagoactivado = header.descuentoTipoPagoActivado,
                             pedidoDtls = details.map { detail ->
                                 PedidoDtlS(
                                     id = detail.id,
@@ -295,7 +301,8 @@ class MiDiaFragment : Fragment() {
                                     descuento = detail.descuento,
                                     impuesto = detail.impuesto,
                                 )
-                            }
+                            },
+
                         )
                     }
 

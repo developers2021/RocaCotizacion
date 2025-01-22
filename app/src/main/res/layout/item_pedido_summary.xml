@@ -42,6 +42,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout> -->
 
+
+
         <!-- Codigo de Pedido -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -184,6 +186,18 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tvEstadoAnulado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Anulado"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="gone"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"/>
+
+
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

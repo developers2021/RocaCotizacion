@@ -25,6 +25,9 @@ data class PedidoHdrS(
     val fecha: String,
     val hora: String,
     val venCodigo: String?,
+    val descuentorutaactivado: Boolean,
+    val descuentoescalaactivado: Boolean,
+    val descuentotipopagoactivado: Boolean,
     val pedidoDtls: List<PedidoDtlS>
 )
 

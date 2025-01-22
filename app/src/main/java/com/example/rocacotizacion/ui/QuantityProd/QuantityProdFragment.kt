@@ -182,12 +182,43 @@ class QuantityProdFragment : Fragment() {
                 currentItems.add(newItem)
             }
 
+            // Recalcular descuentos para todos los productos en el carrito
+            currentItems.forEach { item ->
+                var itemPorcentajeTotal = 0.0
+                var itemDescuento = 0.0
+
+                if (SharedDataModel.checkedDescuentoEscala) {
+                    val escalaDiscount = DatabaseApplication.getDatabase(requireContext())
+                        .invdescuentoporescalaDAO().getDescuentoPorEscala(item.codigoproducto)
+                        .firstOrNull { discount ->
+                            item.quantity in discount.rangoinicial..discount.rangofinal
+                        }
+
+                    if (escalaDiscount != null) {
+                        itemPorcentajeTotal += escalaDiscount.monto
+                        itemDescuento = item.subtotal * (itemPorcentajeTotal / 100)
+                        item.subtotal -= itemDescuento
+                    }
+                }
+
+                item.descuento = itemDescuento
+                item.porcentajeTotal = itemPorcentajeTotal
+                item.valorimpuesto = item.subtotal * (item.porcentajeImpuesto / 100)
+                item.total = item.subtotal + item.valorimpuesto
+            }
+
+            // Actualizar el SharedDataModel después de los cálculos
             withContext(Dispatchers.Main) {
                 SharedDataModel.detalleItems.postValue(currentItems)
+
+                // Actualizar los toggles en SharedDataModel
+                SharedDataModel.checkedDescuentoEscala = currentItems.any { it.descuento > 0 }
+
                 requireActivity().onBackPressed()
             }
         }
     }
+
 
     private fun calculateSubtotal() {
         val quantity = editTextNumber.text.toString().toIntOrNull() ?: 0
