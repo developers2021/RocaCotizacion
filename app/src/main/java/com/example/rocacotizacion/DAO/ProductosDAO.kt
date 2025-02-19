@@ -9,7 +9,7 @@ import com.example.rocacotizacion.DTO.ProductoConPrecio
 @Dao
 interface ProductosDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(productos: MutableList<Productos>)
+    fun insertAll(productos: List<Productos>)
     @Query("SELECT * FROM productos")
     fun getProductos(): List<Productos>
 

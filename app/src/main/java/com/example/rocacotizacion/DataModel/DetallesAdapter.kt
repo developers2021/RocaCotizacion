@@ -8,6 +8,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rocacotizacion.DTO.SharedDataModel
 import com.example.rocacotizacion.R
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -60,17 +62,32 @@ class DetallesAdapter(
 
         private fun updateQuantity(position: Int, decrement: Boolean) {
             val item = detalles[position]
+
+            // Ajustar cantidad
             if (decrement && item.quantity > 1) {
                 item.quantity -= 1
             } else if (!decrement) {
                 item.quantity += 1
             }
 
-            // Recalcular valores después del cambio
-            item.subtotal = item.price * item.quantity
-            item.descuento = item.subtotal * (item.porcentajeTotal / 100)
-            item.valorimpuesto = (item.subtotal - item.descuento) * (item.porcentajeImpuesto / 100)
-            item.total = item.subtotal - item.descuento + item.valorimpuesto
+            // Convertir valores a BigDecimal para evitar errores de precisión
+            val price = BigDecimal.valueOf(item.price).setScale(2, RoundingMode.HALF_UP)
+            val quantity = BigDecimal.valueOf(item.quantity.toDouble()).setScale(2, RoundingMode.HALF_UP)
+            val porcentajeTotal = BigDecimal.valueOf(item.porcentajeTotal).setScale(2, RoundingMode.HALF_UP)
+            val porcentajeImpuesto = BigDecimal.valueOf(item.porcentajeImpuesto).setScale(2, RoundingMode.HALF_UP)
+
+            // Cálculo con redondeo correcto
+            val subtotal = price.multiply(quantity).setScale(2, RoundingMode.HALF_UP)
+            val descuento = subtotal.multiply(porcentajeTotal.divide(BigDecimal(100), 2, RoundingMode.HALF_UP))
+            val baseImponible = subtotal.subtract(descuento).setScale(2, RoundingMode.HALF_UP)
+            val valorImpuesto = baseImponible.multiply(porcentajeImpuesto.divide(BigDecimal(100), 2, RoundingMode.HALF_UP))
+            val total = subtotal.subtract(descuento).add(valorImpuesto).setScale(2, RoundingMode.HALF_UP)
+
+            // Asignar valores redondeados
+            item.subtotal = subtotal.toDouble()
+            item.descuento = descuento.toDouble()
+            item.valorimpuesto = valorImpuesto.toDouble()
+            item.total = total.toDouble()
 
             // Notificar cambios al estado compartido
             SharedDataModel.detalleItems.postValue(detalles.toMutableList())
@@ -90,7 +107,10 @@ class DetallesAdapter(
             groupingSeparator = ','
         }
         val customFormat = DecimalFormat("¤#,##0.00", symbols)
+
         val detalleItem = detalles[position]
+
+        // Mostrar valores en la UI
         holder.textViewQuantity.text = detalleItem.quantity.toString()
         holder.textViewPrice.text = customFormat.format(detalleItem.price)
         holder.textViewSubtotal.text = customFormat.format(detalleItem.subtotal)
@@ -99,6 +119,7 @@ class DetallesAdapter(
         holder.textViewDescuento.text = customFormat.format(detalleItem.descuento)
         holder.textViewTotal.text = customFormat.format(detalleItem.total)
 
+        // Habilitar o deshabilitar botones según el estado del producto
         holder.buttonIncrement.isEnabled = detalleItem.isEnabled ?: true
         holder.buttonDecrement.isEnabled = detalleItem.isEnabled ?: true
         holder.buttonClose.isEnabled = detalleItem.isEnabled ?: true
@@ -112,3 +133,4 @@ class DetallesAdapter(
         notifyDataSetChanged()
     }
 }
+

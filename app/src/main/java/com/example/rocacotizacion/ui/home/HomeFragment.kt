@@ -78,6 +78,11 @@ class HomeFragment : Fragment() {
                     ConditionHandler.showConfirmationDialog(requireContext())
                     true
                 }
+                R.id.nav_configuracion -> {
+                    findNavController().navigate(R.id.nav_configuracion)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
                 // Add more menu item clicks here
                 else -> false
             }

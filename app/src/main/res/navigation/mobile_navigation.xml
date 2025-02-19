@@ -84,6 +84,13 @@
             app:argType="integer" />
     </fragment>
 
+    <!-- Fragmento de Configuración -->
+    <fragment
+        android:id="@+id/nav_configuracion"
+        android:name="com.example.rocacotizacion.ui.configuracion.ConfiguracionFragment"
+        android:label="Configuración"
+        tools:layout="@layout/fragment_configuracion" />
+
 
 
 </navigation>

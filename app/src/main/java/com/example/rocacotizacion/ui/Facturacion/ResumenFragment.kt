@@ -84,98 +84,206 @@ class ResumenFragment : Fragment() {
             window.statusBarColor = ContextCompat.getColor(context, R.color.grayDark)
         }
 
-        private fun applyEscalaDiscounts() {
-            CoroutineScope(Dispatchers.IO).launch {
-                SharedDataModel.detalleItems.value?.forEach { item ->
-                    val escalaDiscounts = DatabaseApplication.getDatabase(requireContext())
-                        .invdescuentoporescalaDAO()
-                        .getDescuentoPorEscala(item.codigoproducto)
-                    val escalaDiscount = escalaDiscounts.firstOrNull {
-                        item.quantity >= it.rangoinicial && item.quantity <= it.rangofinal
-                    }
-                    item.porcentajeEscala = escalaDiscount?.monto ?: 0.0
-                    item.porcentajeTotal = item.porcentajeEscala + item.porcentajeTipoPago + item.porcentajeRuta
-                    item.descuento = (item.price * item.quantity) * (item.porcentajeTotal / 100)
-                    item.subtotal = (item.price * item.quantity)
-                    item.valorimpuesto = (item.subtotal - item.descuento) * (item.porcentajeImpuesto / 100)
-                    item.total = (item.subtotal + item.valorimpuesto) - item.descuento
-                    item.checkedDescuentoEscala = true
+    private fun applyEscalaDiscounts() {
+        CoroutineScope(Dispatchers.IO).launch {
+            SharedDataModel.detalleItems.value?.forEach { item ->
+                Log.d("applyEscalaDiscounts", "-----------------------------")
+                Log.d("applyEscalaDiscounts", "📌 Producto: ${item.codigoproducto}, Cantidad: ${item.quantity}")
+
+                // Obtener descuentos de la base de datos
+                val escalaDiscounts = DatabaseApplication.getDatabase(requireContext())
+                    .invdescuentoporescalaDAO()
+                    .getDescuentoPorEscala(item.codigoproducto)
+
+                Log.d("applyEscalaDiscounts", "🎯 Descuentos disponibles: $escalaDiscounts")
+
+                // Filtrar descuento según la cantidad del producto
+                val escalaDiscount = escalaDiscounts.firstOrNull {
+                    item.quantity >= it.rangoinicial && item.quantity <= it.rangofinal
                 }
-                SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
-                withContext(Dispatchers.Main) {
-                    updateTotals()
-                }
+
+                // Asignar porcentaje de descuento
+                item.porcentajeEscala = escalaDiscount?.monto ?: 0.0
+                Log.d("applyEscalaDiscounts", "✅ Descuento aplicado: ${item.porcentajeEscala}%")
+
+                // Calcular porcentaje total de descuentos
+                item.porcentajeTotal = item.porcentajeEscala + item.porcentajeTipoPago + item.porcentajeRuta
+                Log.d("applyEscalaDiscounts", "📊 Porcentaje total de descuento: ${item.porcentajeTotal}%")
+
+                // Convertir a BigDecimal para evitar errores de precisión
+                val price = BigDecimal.valueOf(item.price)
+                val quantity = BigDecimal.valueOf(item.quantity.toDouble())
+                val porcentajeTotal = BigDecimal.valueOf(item.porcentajeTotal)
+                val porcentajeImpuesto = BigDecimal.valueOf(item.porcentajeImpuesto)
+
+                // Cálculo de valores
+                val subtotal = price.multiply(quantity).setScale(2, RoundingMode.HALF_DOWN)
+                Log.d("applyEscalaDiscounts", "💰 Subtotal: $subtotal")
+
+                val descuento = subtotal.multiply(porcentajeTotal).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                Log.d("applyEscalaDiscounts", "💸 Descuento: $descuento")
+
+                val baseImponible = subtotal.subtract(descuento).setScale(2, RoundingMode.HALF_DOWN)
+                Log.d("applyEscalaDiscounts", "⚖️ Base Imponible: $baseImponible")
+
+                val valorImpuesto = baseImponible.multiply(porcentajeImpuesto).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                Log.d("applyEscalaDiscounts", "🧾 Impuesto: $valorImpuesto")
+
+                val total = subtotal.subtract(descuento).add(valorImpuesto).setScale(2, RoundingMode.HALF_DOWN)
+                Log.d("applyEscalaDiscounts", "🏷️ Total: $total")
+
+                // Asignar valores redondeados al objeto item
+                item.descuento = descuento.toDouble()
+                item.subtotal = subtotal.toDouble()
+                item.valorimpuesto = valorImpuesto.toDouble()
+                item.total = total.toDouble()
+
+                item.checkedDescuentoEscala = true
+
+                Log.d("applyEscalaDiscounts", "✅ Valores finales: Subtotal=${item.subtotal}, Descuento=${item.descuento}, Impuesto=${item.valorimpuesto}, Total=${item.total}")
+                Log.d("applyEscalaDiscounts", "-----------------------------")
+            }
+
+            // Publicar cambios
+            SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+
+            withContext(Dispatchers.Main) {
+                updateTotals()
             }
         }
+    }
 
-        private fun applyTipoVentaDiscounts() {
-            CoroutineScope(Dispatchers.IO).launch {
-                val tipopago = activity?.intent?.getStringExtra("tipoPago")
-                SharedDataModel.detalleItems.value?.forEach { item ->
-                    val discountData = tipopago?.let {
-                        DatabaseApplication.getDatabase(requireContext())
-                            .invdescuentoportipoventaDAO()
-                            .getDescuentoPorTipoVenta(item.codigoproducto, it)
-                    }
-                    item.porcentajeTipoPago = discountData?.monto ?: 0.0
-                    item.porcentajeTotal = item.porcentajeEscala + item.porcentajeTipoPago + item.porcentajeRuta
-                    item.descuento = (item.price * item.quantity) * (item.porcentajeTotal / 100)
-                    item.subtotal = (item.price * item.quantity)
-                    item.valorimpuesto = (item.subtotal - item.descuento) * (item.porcentajeImpuesto / 100)
-                    item.total = (item.subtotal + item.valorimpuesto) - item.descuento
-                    item.checkedDescuentoTipoPago = true
+
+    private fun applyTipoVentaDiscounts() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val tipopago = activity?.intent?.getStringExtra("tipoPago")
+
+            SharedDataModel.detalleItems.value?.forEach { item ->
+                Log.d("applyTipoVentaDiscounts", "-----------------------------")
+                Log.d("applyTipoVentaDiscounts", "📌 Producto: ${item.codigoproducto}, Cantidad: ${item.quantity}")
+
+                // Obtener descuento de la base de datos basado en el tipo de pago
+                val discountData = tipopago?.let {
+                    DatabaseApplication.getDatabase(requireContext())
+                        .invdescuentoportipoventaDAO()
+                        .getDescuentoPorTipoVenta(item.codigoproducto, it)
                 }
-                SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
-                withContext(Dispatchers.Main) {
-                    updateTotals()
-                }
+
+                Log.d("applyTipoVentaDiscounts", "🎯 Descuento por Tipo de Pago: ${discountData?.monto ?: 0.0}")
+
+                // Asignar el porcentaje de descuento
+                item.porcentajeTipoPago = discountData?.monto ?: 0.0
+                item.porcentajeTotal = item.porcentajeEscala + item.porcentajeTipoPago + item.porcentajeRuta
+                Log.d("applyTipoVentaDiscounts", "📊 Porcentaje total de descuento: ${item.porcentajeTotal}%")
+
+                // Convertir valores a BigDecimal
+                val price = BigDecimal.valueOf(item.price)
+                val quantity = BigDecimal.valueOf(item.quantity.toDouble())
+                val porcentajeTotal = BigDecimal.valueOf(item.porcentajeTotal)
+                val porcentajeImpuesto = BigDecimal.valueOf(item.porcentajeImpuesto)
+
+                // Cálculo de valores con `HALF_DOWN`
+                val subtotal = price.multiply(quantity).setScale(2, RoundingMode.HALF_DOWN)
+                Log.d("applyTipoVentaDiscounts", "💰 Subtotal: $subtotal")
+
+                val descuento = subtotal.multiply(porcentajeTotal).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                Log.d("applyTipoVentaDiscounts", "💸 Descuento: $descuento")
+
+                val baseImponible = subtotal.subtract(descuento).setScale(2, RoundingMode.HALF_DOWN)
+                Log.d("applyTipoVentaDiscounts", "⚖️ Base Imponible: $baseImponible")
+
+                val valorImpuesto = baseImponible.multiply(porcentajeImpuesto).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                Log.d("applyTipoVentaDiscounts", "🧾 Impuesto: $valorImpuesto")
+
+                val total = subtotal.subtract(descuento).add(valorImpuesto).setScale(2, RoundingMode.HALF_DOWN)
+                Log.d("applyTipoVentaDiscounts", "🏷️ Total: $total")
+
+                // Asignar valores redondeados al objeto item
+                item.descuento = descuento.toDouble()
+                item.subtotal = subtotal.toDouble()
+                item.valorimpuesto = valorImpuesto.toDouble()
+                item.total = total.toDouble()
+
+                item.checkedDescuentoTipoPago = true
+
+                Log.d("applyTipoVentaDiscounts", "✅ Valores finales: Subtotal=${item.subtotal}, Descuento=${item.descuento}, Impuesto=${item.valorimpuesto}, Total=${item.total}")
+                Log.d("applyTipoVentaDiscounts", "-----------------------------")
+            }
+
+            // Publicar cambios
+            SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+
+            withContext(Dispatchers.Main) {
+                updateTotals()
             }
         }
+    }
 
-        private fun applyRutaDiscounts() {
-            CoroutineScope(Dispatchers.IO).launch {
-                val agente = DatabaseApplication.getDatabase(requireContext())
-                    .AgenteDAO()
-                    .getAgente()
-                val idruta = agente.idruta
+    private fun applyRutaDiscounts() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val agente = DatabaseApplication.getDatabase(requireContext())
+                .AgenteDAO()
+                .getAgente()
+            val idruta = agente.idruta
 
-                SharedDataModel.detalleItems.value?.forEach { item ->
-                    // Obtenemos el descuento específico para la combinación ruta+producto
-                    val discountData = DatabaseApplication.getDatabase(requireContext())
-                        .invdescuentoporrutaDAO()
-                        .getDescuentoPorRuta(idruta, item.codigoproducto)
+            SharedDataModel.detalleItems.value?.forEach { item ->
+                Log.d("applyRutaDiscounts", "-----------------------------")
+                Log.d("applyRutaDiscounts", "📌 Producto: ${item.codigoproducto}, Cantidad: ${item.quantity}, ID Ruta: $idruta")
 
-                    // Calcular descuentos
-                    item.porcentajeRuta = discountData?.monto ?: 0.0
-                    item.porcentajeTotal = item.porcentajeEscala + item.porcentajeRuta + item.porcentajeTipoPago
-                    item.descuento = (item.price * item.quantity) * (item.porcentajeTotal / 100)
-                    item.subtotal = (item.price * item.quantity)
-                    item.valorimpuesto = (item.subtotal - item.descuento) * (item.porcentajeImpuesto / 100)
-                    item.total = (item.subtotal + item.valorimpuesto) - item.descuento
-                    item.checkedDescuentoRuta = true
+                // Obtener descuento de la base de datos basado en la ruta y producto
+                val discountData = DatabaseApplication.getDatabase(requireContext())
+                    .invdescuentoporrutaDAO()
+                    .getDescuentoPorRuta(idruta, item.codigoproducto)
 
-                    // Log para depuración
-                    Log.d(
-                        "ApplyRutaDiscounts",
-                        """
-                    Datos calculados para producto ${item.codigoproducto}:
-                    ID Ruta: $idruta
-                    Descuento Por Ruta (Producto): ${item.porcentajeRuta}
-                    Porcentaje Total: ${item.porcentajeTotal}
-                    Descuento: ${item.descuento}
-                    Subtotal: ${item.subtotal}
-                    Valor Impuesto: ${item.valorimpuesto}
-                    Total: ${item.total}
-                    """.trimIndent()
-                    )
-                }
+                Log.d("applyRutaDiscounts", "🎯 Descuento por Ruta: ${discountData?.monto ?: 0.0}")
 
-                SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
-                withContext(Dispatchers.Main) {
-                    updateTotals()
-                }
+                // Asignar el porcentaje de descuento por ruta
+                item.porcentajeRuta = discountData?.monto ?: 0.0
+                item.porcentajeTotal = item.porcentajeEscala + item.porcentajeRuta + item.porcentajeTipoPago
+                Log.d("applyRutaDiscounts", "📊 Porcentaje total de descuento: ${item.porcentajeTotal}%")
+
+                // Convertir valores a BigDecimal
+                val price = BigDecimal.valueOf(item.price)
+                val quantity = BigDecimal.valueOf(item.quantity.toDouble())
+                val porcentajeTotal = BigDecimal.valueOf(item.porcentajeTotal)
+                val porcentajeImpuesto = BigDecimal.valueOf(item.porcentajeImpuesto)
+
+                // Cálculo de valores con `HALF_DOWN`
+                val subtotal = price.multiply(quantity).setScale(2, RoundingMode.HALF_DOWN)
+                Log.d("applyRutaDiscounts", "💰 Subtotal: $subtotal")
+
+                val descuento = subtotal.multiply(porcentajeTotal).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                Log.d("applyRutaDiscounts", "💸 Descuento: $descuento")
+
+                val baseImponible = subtotal.subtract(descuento).setScale(2, RoundingMode.HALF_DOWN)
+                Log.d("applyRutaDiscounts", "⚖️ Base Imponible: $baseImponible")
+
+                val valorImpuesto = baseImponible.multiply(porcentajeImpuesto).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                Log.d("applyRutaDiscounts", "🧾 Impuesto: $valorImpuesto")
+
+                val total = subtotal.subtract(descuento).add(valorImpuesto).setScale(2, RoundingMode.HALF_DOWN)
+                Log.d("applyRutaDiscounts", "🏷️ Total: $total")
+
+                // Asignar valores redondeados al objeto item
+                item.descuento = descuento.toDouble()
+                item.subtotal = subtotal.toDouble()
+                item.valorimpuesto = valorImpuesto.toDouble()
+                item.total = total.toDouble()
+
+                item.checkedDescuentoRuta = true
+
+                Log.d("applyRutaDiscounts", "✅ Valores finales: Subtotal=${item.subtotal}, Descuento=${item.descuento}, Impuesto=${item.valorimpuesto}, Total=${item.total}")
+                Log.d("applyRutaDiscounts", "-----------------------------")
+            }
+
+            // Publicar cambios
+            SharedDataModel.detalleItems.postValue(SharedDataModel.detalleItems.value)
+
+            withContext(Dispatchers.Main) {
+                updateTotals()
             }
         }
+    }
 
 
 

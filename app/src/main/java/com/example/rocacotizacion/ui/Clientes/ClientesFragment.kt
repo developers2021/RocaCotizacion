@@ -107,6 +107,11 @@ class ClientesFragment : Fragment() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
+                R.id.nav_configuracion -> {
+                    findNavController().navigate(R.id.nav_configuracion)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
                 R.id.nav_slideshow -> {
                     ConditionHandler.showConfirmationDialog(requireContext())
                     true

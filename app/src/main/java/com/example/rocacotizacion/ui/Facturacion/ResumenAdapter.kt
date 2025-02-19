@@ -11,6 +11,7 @@ import com.example.rocacotizacion.DataModel.DetalleItem
 import com.example.rocacotizacion.R
 import java.text.DecimalFormat
 
+
 class ResumenAdapter(private var items: List<DetalleItem>) : RecyclerView.Adapter<ResumenAdapter.ResumenViewHolder>() {
 
     fun updateItems(newItems: List<DetalleItem>) {
