@@ -83,6 +83,11 @@ class HomeFragment : Fragment() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
+                R.id.nav_editarpedido -> {
+                    findNavController().navigate(R.id.nav_editarpedido)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
                 // Add more menu item clicks here
                 else -> false
             }

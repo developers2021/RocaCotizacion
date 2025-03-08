@@ -50,6 +50,7 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import androidx.fragment.app.viewModels
+import androidx.viewpager2.widget.ViewPager2
 import com.example.rocacotizacion.DataModel.PedidoViewModel
 import com.tuapp.nombredepaquete.PedidoManager
 import kotlin.math.roundToLong
@@ -83,6 +84,8 @@ class ResumenFragment : Fragment() {
             // Cambia el color del Status Bar
             window.statusBarColor = ContextCompat.getColor(context, R.color.grayDark)
         }
+
+
 
     private fun applyEscalaDiscounts() {
         CoroutineScope(Dispatchers.IO).launch {
@@ -152,6 +155,8 @@ class ResumenFragment : Fragment() {
             }
         }
     }
+
+
 
 
     private fun applyTipoVentaDiscounts() {
@@ -305,6 +310,14 @@ class ResumenFragment : Fragment() {
 
         // Inicializamos los botones
         val btnCancelPedido: ImageButton = view.findViewById(R.id.btnCancelPedido)
+        val modoboton = activity?.intent?.getStringExtra("modo") ?: "crear"
+        if (modoboton == "editar") {
+            // Cambiamos el ícono, por ejemplo, a un "cerrar" (ic_close)
+            btnCancelPedido.setImageResource(R.drawable.ic_close)
+        } else {
+            // Modo crear → usas el ícono de basura si quieres
+            btnCancelPedido.setImageResource(R.drawable.ic_trash)
+        }
         btnsavepedido = view.findViewById(R.id.btnsavepedido)
 
         // Indicador de si el pedido ha sido guardado
@@ -314,7 +327,7 @@ class ResumenFragment : Fragment() {
         val backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (isPedidoGuardado) {
-                    // Permitir salir si el pedido ha sido guardado
+                    // Permitir salir si el pedido ya se guardó
                     requireActivity().finish()
                 } else {
                     Toast.makeText(context, "No puedes salir sin cancelar el pedido.", Toast.LENGTH_SHORT).show()
@@ -323,18 +336,33 @@ class ResumenFragment : Fragment() {
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
 
-        // Listener para el switch de descuento por escala
-        switchEscala.setOnCheckedChangeListener { _, isChecked ->
-            isEscalaDiscountEnabled = isChecked
-            if (isChecked) {
-                applyEscalaDiscounts()
-            } else {
-                removeEscalaDiscounts()
-                updateTotals()
+
+        // ===== LÓGICA PARA MODO EDICIÓN: LEER ENCABEZADO Y CONFIGURAR SWITCHES =====
+        val modo = activity?.intent?.getStringExtra("modo") ?: "crear"
+        val pedidoId = activity?.intent?.getIntExtra("pedidoId", -1) ?: -1
+
+        if (modo == "editar" && pedidoId != -1) {
+            // Cargar el encabezado desde la BD para obtener descuentoEscalaActivado, etc.
+            CoroutineScope(Dispatchers.IO).launch {
+                val db = DatabaseApplication.getDatabase(requireContext())
+                val existingHdr = db.PedidoHdrDAO().getPedidoPrinteById(pedidoId)
+
+                withContext(Dispatchers.Main) {
+                    // Ajustar el estado de los switches según los campos guardados
+                    switchEscala.isChecked = existingHdr.descuentoEscalaActivado
+                    switchTipoPago.isChecked = existingHdr.descuentoTipoPagoActivado
+                    switchRuta.isChecked = existingHdr.descuentoRutaActivado
+
+                    // También puedes ajustar tus variables booleanas (si las usas):
+
+                }
             }
         }
 
-        // SWITCH DESCUENTO POR ESCALA (parece duplicado, verifica si de verdad lo necesitas 2 veces)
+
+
+
+        // SWITCH DESCUENTO POR ESCALA
         switchEscala.setOnCheckedChangeListener { _, isChecked ->
             isDescuentoEscalaActivado = isChecked
             isEscalaDiscountEnabled = isChecked
@@ -583,16 +611,32 @@ class ResumenFragment : Fragment() {
                 return
             }
 
-            AlertDialog.Builder(requireContext())
-                .setTitle("Cancelar Pedido")
-                .setMessage("¿Estás seguro de que deseas cancelar el pedido?")
-                .setPositiveButton("Sí") { _, _ ->
-                    SharedDataModel.detalleItems.postValue(mutableListOf())
-                    requireActivity().finish()
-                }
-                .setNegativeButton("No", null)
-                .setCancelable(false)
-                .show()
+        val modo = activity?.intent?.getStringExtra("modo") ?: "crear"
+
+        // Título y mensaje distintos según el modo
+        val tituloDialogo = if (modo == "editar") {
+            "Dejar de editar"
+        } else {
+            "Cancelar Pedido"
+        }
+
+        val mensaje = if (modo == "editar") {
+            "¿Estás seguro de que deseas dejar de editar este pedido? (Se perderán los cambios.)"
+        } else {
+            "¿Estás seguro de que deseas cancelar el pedido?"
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(tituloDialogo)      // <--- Aquí se asigna dinámicamente
+            .setMessage(mensaje)
+            .setPositiveButton("Sí") { _, _ ->
+                // Al cancelar, limpias la lista y cierras
+                SharedDataModel.detalleItems.postValue(mutableListOf())
+                requireActivity().finish()
+            }
+            .setNegativeButton("No", null)
+            .setCancelable(false)
+            .show()
         }
 
 
@@ -706,22 +750,75 @@ class ResumenFragment : Fragment() {
 
 
 
-        private fun saveOrder() {
-            CoroutineScope(Dispatchers.IO).launch {
-                val tipoPago = activity?.intent?.getStringExtra("tipoPago") ?: "Contado"
-                val clientecodigo = activity?.intent?.getStringExtra("clientecodigo") ?: "000"
-                val detalleItems = SharedDataModel.detalleItems.value ?: listOf()
+    private fun saveOrder() {
+        CoroutineScope(Dispatchers.IO).launch {
+            // Recupera los extras para determinar el modo y otros datos
+            val modo = activity?.intent?.getStringExtra("modo") ?: "crear"
+            val tipoPago = activity?.intent?.getStringExtra("tipoPago") ?: "Contado"
+            val clientecodigo = activity?.intent?.getStringExtra("clientecodigo") ?: "000"
+            val detalleItems = SharedDataModel.detalleItems.value ?: listOf()
 
+            // Cálculo de totales (usando los valores ya calculados en los DetalleItem)
+            val subtotal = detalleItems.sumOf { it.subtotal }
+            val descuento = detalleItems.sumOf { it.descuento }
+            val impuesto = detalleItems.sumOf { it.valorimpuesto }
+            val total = detalleItems.sumOf { it.total }
+            val anulado = "N"
 
-                // Cálculo de totales
-                val subtotal = detalleItems.sumOf { it.subtotal }
-                val descuento = detalleItems.sumOf { it.descuento }
-                val impuesto = detalleItems.sumOf { it.valorimpuesto }
-                val total = detalleItems.sumOf { it.total }
+            val db = DatabaseApplication.getDatabase(requireContext())
 
+            if (modo == "editar") {
+                // Modo edición: actualizamos el pedido existente
+                val pedidoId = activity?.intent?.getIntExtra("pedidoId", -1) ?: -1
+                if (pedidoId != -1) {
+                    // Obtenemos el encabezado actual (asegúrate de que getPedidoPrinteById() devuelva el objeto completo)
+                    val existingHdr: PedidoHdr = db.PedidoHdrDAO().getPedidoPrinteById(pedidoId)
+                    // Actualizamos el encabezado manteniendo, por ejemplo, el código original
+                    val updatedHdr = existingHdr.copy(
+                        tipopago = tipoPago,
+                        subtotal = subtotal,
+                        descuento = descuento,
+                        total = total,
+                        sinc = false,
+                        impuesto = impuesto,
+                        anulado = anulado,
+                        descuentoRutaActivado = isDescuentoRutaActivado,
+                        descuentoEscalaActivado = isDescuentoEscalaActivado,
+                        descuentoTipoPagoActivado = isDescuentoTipoPagoActivado
+                    )
+                    db.PedidoHdrDAO().updatePedidoHdr(updatedHdr)
+
+                    // Eliminamos los detalles existentes
+                    db.PedidoDtlDAO().deletedtlid(pedidoId)
+
+                    // Insertamos nuevamente los detalles actuales
+                    detalleItems.forEach { item ->
+                        val pedidoDtl = PedidoDtl(
+                            idhdr = pedidoId,
+                            codigoproducto = item.codigoproducto,
+                            cantidad = item.quantity,
+                            precio = item.price,
+                            descuento = item.descuento,
+                            nombre = item.nombreproducto,
+                            impuesto = item.valorimpuesto,
+                            porcentajeimpuesto = item.porcentajeImpuesto
+                        )
+                        db.PedidoDtlDAO().insertPedidoDtl(pedidoDtl)
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        // Cambiar estado y actualizar UI
+                        isPedidoGuardado = true
+                        view?.findViewById<ImageButton>(R.id.btnCancelPedido)?.isEnabled = false
+                        btnsavepedido.text = "Salir"
+                        btnsavepedido.setBackgroundColor(resources.getColor(R.color.yellow))
+                        btnsavepedido.setOnClickListener { requireActivity().finish() }
+                        showDialogAfterSave(pedidoId)
+                    }
+                }
+            } else {
+                // Modo creación: se inserta un nuevo pedido (código existente)
                 val codigopedido = generateCodigoPedido()
-                val anulado = "N"
-
                 val pedidoHdr = PedidoHdr(
                     tipopago = tipoPago,
                     subtotal = subtotal,
@@ -736,9 +833,7 @@ class ResumenFragment : Fragment() {
                     descuentoEscalaActivado = isDescuentoEscalaActivado,
                     descuentoTipoPagoActivado = isDescuentoTipoPagoActivado
                 )
-
-                val hdrId = DatabaseApplication.getDatabase(requireContext()).PedidoHdrDAO().insertPedidoHdr(pedidoHdr)
-
+                val hdrId = db.PedidoHdrDAO().insertPedidoHdr(pedidoHdr)
                 if (hdrId > 0) {
                     detalleItems.forEach { item ->
                         val pedidoDtl = PedidoDtl(
@@ -748,38 +843,30 @@ class ResumenFragment : Fragment() {
                             precio = item.price,
                             descuento = item.descuento,
                             nombre = item.nombreproducto,
-                            impuesto = item.valorimpuesto
+                            impuesto = item.valorimpuesto,
+                            porcentajeimpuesto = item.porcentajeImpuesto
                         )
-                        DatabaseApplication.getDatabase(requireContext()).PedidoDtlDAO().insertPedidoDtl(pedidoDtl)
+                        db.PedidoDtlDAO().insertPedidoDtl(pedidoDtl)
                     }
-
                     withContext(Dispatchers.Main) {
-                        // Cambiar el estado del pedido a guardado
                         isPedidoGuardado = true
-
-                        // Desactivar botón de cancelar
                         view?.findViewById<ImageButton>(R.id.btnCancelPedido)?.isEnabled = false
-
-                        // Cambiar texto del botón "Guardar Pedido" a "Salir"
                         btnsavepedido.text = "Salir"
                         btnsavepedido.setBackgroundColor(resources.getColor(R.color.yellow))
-
-                        // Configurar el botón para salir del fragmento
-                        btnsavepedido.setOnClickListener {
-                            requireActivity().finish()
-                        }
-
+                        btnsavepedido.setOnClickListener { requireActivity().finish() }
                         showDialogAfterSave(hdrId.toInt())
                     }
                 }
             }
         }
+    }
 
 
 
 
 
-        private fun showDialogAfterSave(pedidoId: Int) {
+
+    private fun showDialogAfterSave(pedidoId: Int) {
             val dialogBuilder = AlertDialog.Builder(requireContext())
             dialogBuilder.setTitle("Impresión de Pedido")
             dialogBuilder.setMessage("¿Desea imprimir el pedido?")
@@ -943,7 +1030,5 @@ class ResumenFragment : Fragment() {
             switch.thumbTintList = thumbColors
             switch.trackTintList = trackColors
         }
-
-
-
 }
+

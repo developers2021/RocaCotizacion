@@ -85,11 +85,37 @@
     </fragment>
 
     <!-- Fragmento de Configuración -->
+
     <fragment
         android:id="@+id/nav_configuracion"
         android:name="com.example.rocacotizacion.ui.configuracion.ConfiguracionFragment"
         android:label="Configuración"
-        tools:layout="@layout/fragment_configuracion" />
+        tools:layout="@layout/fragment_configuracion">
+
+        <!-- Acción para navegar a DetallePedidoEditarFragment -->
+        <action
+            android:id="@+id/action_configuracionFragment_to_detallePedidoEditarFragment"
+            app:destination="@id/nav_detallePedidoEditar" />
+    </fragment>
+
+
+    <!-- Fragmento de Detalle Pedido Editar (para la edición) -->
+    <fragment
+        android:id="@+id/nav_detallePedidoEditar"
+        android:name="com.example.rocacotizacion.ui.DetallePedido.DetallePedidoEditarFragment"
+        android:label="Detalle Pedido Editar"
+        tools:layout="@layout/fragment_detalle_editar_pedido">
+        <argument
+            android:name="pedidoId"
+            app:argType="integer" />
+    </fragment>
+
+    <!-- Fragmento de Editar Pedidos -->
+    <fragment
+        android:id="@+id/nav_editarpedido"
+        android:name="com.example.rocacotizacion.ui.MiDia.MiDiaPedidosEditarFragment"
+        android:label="Editar Pedidos"
+        tools:layout="@layout/fragment_editar_pedidos" />
 
 
 

@@ -190,7 +190,8 @@ class PartialSyncFragment : Fragment() {
                 idcliente = item.getInt("idcliente"),
                 nombrecliente = item.optString("nombrecliente"),
                 Codigocliente = item.optString("codigocliente"),
-                Rtncliente = item.optString("rtncliente")
+                Rtncliente = item.optString("rtncliente"),
+                totalValorSaldoFactura = item.optDouble("totalValorSaldoFactura")
             )
             list.add(cliente)
         }

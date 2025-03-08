@@ -407,6 +407,11 @@ class MiDiaFragment : Fragment() {
                         ConditionHandler.showConfirmationDialog(requireContext())
                         true
                     }
+                    R.id.nav_editarpedido -> {
+                        findNavController().navigate(R.id.nav_editarpedido)
+                        drawerLayout.closeDrawer(GravityCompat.START)
+                        true
+                    }
                     else -> false
                 }
             }

@@ -24,10 +24,17 @@
             android:title="Configuración" />
 
 
+        <item
+            android:id="@+id/nav_editarpedido"
+            android:icon="@drawable/ic_edit"
+            android:title="Editar Pedidos" />
+
 
         <item
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="@string/menu_slideshow" />
+
+
     </group>
 </menu>

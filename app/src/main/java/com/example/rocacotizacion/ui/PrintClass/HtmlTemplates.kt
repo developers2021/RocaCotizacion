@@ -86,7 +86,7 @@ object HtmlTemplates {
                             <th style="width: 10%;">Und</th>
                             <th style="width: 50%;">Prod</th>
                             <th style="width: 20%;">Precio</th>
-                            <th style="width: 15%;">Monto</th>
+                            <th style="width: 20%;">Monto</th>
                             <th style="width: 5%;"></th> <!-- Columna para el asterisco -->
                         </tr>
                     </thead>

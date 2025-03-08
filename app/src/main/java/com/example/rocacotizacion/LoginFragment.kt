@@ -147,7 +147,9 @@ class LoginFragment : Fragment() {
                 idcliente = clienteJsonObject.getInt("idcliente"),
                 nombrecliente = clienteJsonObject.optString("nombrecliente"),
                 Codigocliente = clienteJsonObject.optString("codigocliente"),
-                Rtncliente = clienteJsonObject.optString("rtncliente")
+                Rtncliente = clienteJsonObject.optString("rtncliente"),
+                totalValorSaldoFactura = clienteJsonObject.optDouble("totalValorSaldoFactura")
+
             )
             clientesList.add(cliente)
         }

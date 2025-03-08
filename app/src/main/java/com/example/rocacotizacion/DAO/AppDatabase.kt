@@ -7,7 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(entities = [Agente::class,Clientes::class,Productos::class,Grupos::class,
     PreciosNivelTipoVenta::class,NivelPrecioPredeterminado::class, PedidoHdr::class, PedidoDtl::class,
-    invdescuentoportipoventa::class,invdescuentoporescala::class,invdescuentoporruta::class], version = 15)
+    invdescuentoportipoventa::class,invdescuentoporescala::class,invdescuentoporruta::class], version = 18)
 
 abstract class AppDatabase : RoomDatabase() {
     abstract fun AgenteDAO(): AgenteDAO

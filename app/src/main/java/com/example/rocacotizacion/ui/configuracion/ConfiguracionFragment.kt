@@ -2,10 +2,12 @@ package com.example.rocacotizacion.ui.configuracion
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -17,6 +19,8 @@ import com.example.rocacotizacion.Adapter.ConditionHandler
 import com.example.rocacotizacion.R
 import com.example.rocacotizacion.ui.home.HomeFragment
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 
 class ConfiguracionFragment : Fragment() {
 
@@ -72,6 +76,11 @@ class ConfiguracionFragment : Fragment() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
+                R.id.nav_editarpedido -> {
+                    findNavController().navigate(R.id.nav_editarpedido)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
                 R.id.nav_gallery -> {
                     findNavController().navigate(R.id.nav_midia)
                     drawerLayout.closeDrawer(GravityCompat.START)
@@ -104,7 +113,30 @@ class ConfiguracionFragment : Fragment() {
         viewPager = view.findViewById(R.id.viewPagerConfiguracion)
         adapter = ConfiguracionPagerAdapter(this)
         viewPager.adapter = adapter
+
+        val tabLayout = view.findViewById<TabLayout>(R.id.tabLayoutConfiguracion)
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Sincronizacion Parcial"
+                else -> "Pestaña $position"
+            }
+        }.attach()
+
     }
+
+    // Función en ConfiguracionFragment para navegar a la edición del pedido
+    fun navigateToDetallePedidoEditar(pedidoId: Int) {
+        val bundle = Bundle().apply {
+            putInt("pedidoId", pedidoId)
+        }
+        try {
+            findNavController().navigate(R.id.action_configuracionFragment_to_detallePedidoEditarFragment, bundle)
+        } catch (e: Exception) {
+            Log.e("ConfiguracionFragment", "Error al navegar: ${e.message}")
+            Toast.makeText(requireContext(), "Error al navegar al detalle del pedido", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     override fun onResume() {
         super.onResume()

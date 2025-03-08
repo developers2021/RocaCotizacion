@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -28,6 +29,9 @@ import com.example.rocacotizacion.R
 import com.example.rocacotizacion.ui.Facturacion.FacturacionActivity
 import com.example.rocacotizacion.ui.home.HomeFragment
 import com.google.android.material.navigation.NavigationView
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 
 class ClientesFragment : Fragment() {
     private lateinit var adapter: ClientesAdapter
@@ -112,6 +116,11 @@ class ClientesFragment : Fragment() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
+                R.id.nav_editarpedido -> {
+                    findNavController().navigate(R.id.nav_editarpedido)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
                 R.id.nav_slideshow -> {
                     ConditionHandler.showConfirmationDialog(requireContext())
                     true
@@ -160,7 +169,7 @@ class ClientesFragment : Fragment() {
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val nombreTextView: TextView = view.findViewById(R.id.textViewCliente)
             val codigoTextView: TextView = view.findViewById(R.id.textViewCodigo)
-            val saldoTextView: TextView = view.findViewById(R.id.textViewSaldo)
+            val saldoStaticTextView: TextView = view.findViewById(R.id.textViewSaldoStatic)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -172,7 +181,32 @@ class ClientesFragment : Fragment() {
             val cliente = clientesList[position]
             holder.nombreTextView.text = cliente.nombrecliente
             holder.codigoTextView.text = "Código: ${cliente.Codigocliente}"
-            holder.saldoTextView.text = cliente.Rtncliente
+            val saldo = cliente.totalValorSaldoFactura ?: 0.0
+
+            val localeHn = Locale("es", "HN")
+            val decimalFormatSymbols = DecimalFormatSymbols(localeHn).apply {
+
+            }
+            val decimalFormat = DecimalFormat("#,##0.00", decimalFormatSymbols)
+            val saldoFormateado = decimalFormat.format(saldo)
+
+
+            holder.saldoStaticTextView.text = "L. $saldoFormateado"
+
+
+
+
+            if (saldo > 0.0) {
+                // Si es mayor a 0, poner en rojo
+                holder.saldoStaticTextView.setTextColor(
+                    ContextCompat.getColor(holder.itemView.context, R.color.red)
+                )
+            } else {
+                // Si no, poner en gris
+                holder.saldoStaticTextView.setTextColor(
+                    ContextCompat.getColor(holder.itemView.context, android.R.color.darker_gray)
+                )
+            }
 
             holder.itemView.setOnClickListener {
                 val context = holder.itemView.context

@@ -10,23 +10,27 @@ class FacturacionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_facturacion)
 
-        // Retrieve the extras from the intent
+        // Recupera los extras del Intent
+        val modo = intent.getStringExtra("modo")
         val tipoPago = intent.getStringExtra("tipoPago")
         val clienteNombre = intent.getStringExtra("clienteNombre")
         val clientecodigo = intent.getStringExtra("clientecodigo")
 
-        // Create a new instance of FacturacionFragment with arguments
-        val fragment = FacturacionFragment().apply {
-            arguments = Bundle().apply {
-                putString("tipoPago", tipoPago)
-                putString("clienteNombre", clienteNombre)
-                putString("clientecodigo", clientecodigo)
-            }
+        // Crear la instancia del fragmento según el modo
+        val fragment = if (modo == "editar") {
+            // Recupera el pedidoId para edición
+            val pedidoId = intent.getIntExtra("pedidoId", -1)
+            // Usa el método de fábrica para modo edición (ver siguiente paso)
+            FacturacionFragment.newInstanceEditMode(pedidoId, tipoPago, clienteNombre, clientecodigo)
+        } else {
+            // Modo creación
+            FacturacionFragment.newInstanceCreateMode(tipoPago, clienteNombre, clientecodigo)
         }
 
-        // Replace the container with the FacturacionFragment with arguments
+        // Reemplazar el contenedor con el fragmento creado
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
     }
 }
+
