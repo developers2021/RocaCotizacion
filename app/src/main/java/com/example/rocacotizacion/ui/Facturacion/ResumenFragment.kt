@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.ColorStateList
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,6 +20,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,6 +29,7 @@ import com.example.rocacotizacion.DAO.PedidoDtl
 import com.example.rocacotizacion.DAO.PedidoHdr
 import com.example.rocacotizacion.DTO.SharedDataModel
 import com.example.rocacotizacion.DataModel.PedidoPrintModel
+import com.example.rocacotizacion.DataModel.PedidoViewModel
 import com.example.rocacotizacion.R
 import com.example.rocacotizacion.ui.PrintClass.HtmlTemplates
 import com.example.rocacotizacion.ui.PrintClass.generateTableRows
@@ -36,6 +37,7 @@ import com.example.rocacotizacion.ui.PrintUtility.NumeroLetras
 import com.itextpdf.text.Document
 import com.itextpdf.text.pdf.PdfWriter
 import com.itextpdf.tool.xml.XMLWorkerHelper
+import com.tuapp.nombredepaquete.PedidoManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,17 +46,15 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.math.BigDecimal
 import java.math.RoundingMode
 import java.nio.charset.StandardCharsets
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
-import androidx.fragment.app.viewModels
-import androidx.viewpager2.widget.ViewPager2
-import com.example.rocacotizacion.DataModel.PedidoViewModel
-import com.tuapp.nombredepaquete.PedidoManager
 import kotlin.math.roundToLong
-import java.math.BigDecimal
 
 
 class ResumenFragment : Fragment() {
@@ -84,7 +84,6 @@ class ResumenFragment : Fragment() {
             // Cambia el color del Status Bar
             window.statusBarColor = ContextCompat.getColor(context, R.color.grayDark)
         }
-
 
 
     private fun applyEscalaDiscounts() {
@@ -119,28 +118,37 @@ class ResumenFragment : Fragment() {
                 val porcentajeTotal = BigDecimal.valueOf(item.porcentajeTotal)
                 val porcentajeImpuesto = BigDecimal.valueOf(item.porcentajeImpuesto)
 
-                // Cálculo de valores
-                val subtotal = price.multiply(quantity).setScale(2, RoundingMode.HALF_DOWN)
+                // 1) Subtotal exacto y truncado
+                val rawSubtotal   = price.multiply(quantity)
+                val subtotal      = rawSubtotal.setScale(2, RoundingMode.DOWN)
                 Log.d("applyEscalaDiscounts", "💰 Subtotal: $subtotal")
 
-                val descuento = subtotal.multiply(porcentajeTotal).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                // 2) Descuento (porcentaje) calculado y truncado
+                val rawDescuento  = rawSubtotal.multiply(porcentajeTotal)
+                    .divide(BigDecimal(100), 10, RoundingMode.HALF_UP)
+                val descuento     = rawDescuento.setScale(2, RoundingMode.DOWN)
                 Log.d("applyEscalaDiscounts", "💸 Descuento: $descuento")
 
-                val baseImponible = subtotal.subtract(descuento).setScale(2, RoundingMode.HALF_DOWN)
+                // 3) Base imponible
+                val baseImponible = rawSubtotal.subtract(descuento)
                 Log.d("applyEscalaDiscounts", "⚖️ Base Imponible: $baseImponible")
 
-                val valorImpuesto = baseImponible.multiply(porcentajeImpuesto).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                // 4) Impuesto siempre hacia arriba
+                val rawImpuesto   = baseImponible.multiply(porcentajeImpuesto)
+                    .divide(BigDecimal(100), 10, RoundingMode.HALF_UP)
+                val valorImpuesto = rawImpuesto.setScale(2, RoundingMode.HALF_UP)
                 Log.d("applyEscalaDiscounts", "🧾 Impuesto: $valorImpuesto")
 
-                val total = subtotal.subtract(descuento).add(valorImpuesto).setScale(2, RoundingMode.HALF_DOWN)
+                // 5) Total neto + impuesto truncado
+                val total         = baseImponible.add(valorImpuesto)
+                    .setScale(2, RoundingMode.HALF_UP)
                 Log.d("applyEscalaDiscounts", "🏷️ Total: $total")
 
-                // Asignar valores redondeados al objeto item
-                item.descuento = descuento.toDouble()
-                item.subtotal = subtotal.toDouble()
-                item.valorimpuesto = valorImpuesto.toDouble()
-                item.total = total.toDouble()
-
+                // Asignar valores al item
+                item.subtotal        = subtotal.toDouble()
+                item.descuento       = descuento.toDouble()
+                item.valorimpuesto   = valorImpuesto.toDouble()
+                item.total           = total.toDouble()
                 item.checkedDescuentoEscala = true
 
                 Log.d("applyEscalaDiscounts", "✅ Valores finales: Subtotal=${item.subtotal}, Descuento=${item.descuento}, Impuesto=${item.valorimpuesto}, Total=${item.total}")
@@ -155,9 +163,6 @@ class ResumenFragment : Fragment() {
             }
         }
     }
-
-
-
 
     private fun applyTipoVentaDiscounts() {
         CoroutineScope(Dispatchers.IO).launch {
@@ -182,33 +187,42 @@ class ResumenFragment : Fragment() {
                 Log.d("applyTipoVentaDiscounts", "📊 Porcentaje total de descuento: ${item.porcentajeTotal}%")
 
                 // Convertir valores a BigDecimal
-                val price = BigDecimal.valueOf(item.price)
-                val quantity = BigDecimal.valueOf(item.quantity.toDouble())
-                val porcentajeTotal = BigDecimal.valueOf(item.porcentajeTotal)
+                val price            = BigDecimal.valueOf(item.price)
+                val quantity         = BigDecimal.valueOf(item.quantity.toDouble())
+                val porcentajeTotal  = BigDecimal.valueOf(item.porcentajeTotal)
                 val porcentajeImpuesto = BigDecimal.valueOf(item.porcentajeImpuesto)
 
-                // Cálculo de valores con `HALF_DOWN`
-                val subtotal = price.multiply(quantity).setScale(2, RoundingMode.HALF_DOWN)
+                // 1) Subtotal exacto y truncado
+                val rawSubtotal   = price.multiply(quantity)
+                val subtotal      = rawSubtotal.setScale(2, RoundingMode.DOWN)
                 Log.d("applyTipoVentaDiscounts", "💰 Subtotal: $subtotal")
 
-                val descuento = subtotal.multiply(porcentajeTotal).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                // 2) Descuento (porcentaje) calculado y truncado
+                val rawDescuento  = rawSubtotal.multiply(porcentajeTotal)
+                    .divide(BigDecimal(100), 10, RoundingMode.HALF_UP)
+                val descuento     = rawDescuento.setScale(2, RoundingMode.DOWN)
                 Log.d("applyTipoVentaDiscounts", "💸 Descuento: $descuento")
 
-                val baseImponible = subtotal.subtract(descuento).setScale(2, RoundingMode.HALF_DOWN)
+                // 3) Base imponible
+                val baseImponible = rawSubtotal.subtract(descuento)
                 Log.d("applyTipoVentaDiscounts", "⚖️ Base Imponible: $baseImponible")
 
-                val valorImpuesto = baseImponible.multiply(porcentajeImpuesto).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                // 4) Impuesto siempre hacia arriba
+                val rawImpuesto   = baseImponible.multiply(porcentajeImpuesto)
+                    .divide(BigDecimal(100), 10, RoundingMode.HALF_UP)
+                val valorImpuesto = rawImpuesto.setScale(2, RoundingMode.HALF_UP)
                 Log.d("applyTipoVentaDiscounts", "🧾 Impuesto: $valorImpuesto")
 
-                val total = subtotal.subtract(descuento).add(valorImpuesto).setScale(2, RoundingMode.HALF_DOWN)
+                // 5) Total neto + impuesto truncado
+                val total         = baseImponible.add(valorImpuesto)
+                    .setScale(2, RoundingMode.HALF_UP)
                 Log.d("applyTipoVentaDiscounts", "🏷️ Total: $total")
 
-                // Asignar valores redondeados al objeto item
-                item.descuento = descuento.toDouble()
-                item.subtotal = subtotal.toDouble()
-                item.valorimpuesto = valorImpuesto.toDouble()
-                item.total = total.toDouble()
-
+                // Asignar valores al item
+                item.subtotal         = subtotal.toDouble()
+                item.descuento        = descuento.toDouble()
+                item.valorimpuesto    = valorImpuesto.toDouble()
+                item.total            = total.toDouble()
                 item.checkedDescuentoTipoPago = true
 
                 Log.d("applyTipoVentaDiscounts", "✅ Valores finales: Subtotal=${item.subtotal}, Descuento=${item.descuento}, Impuesto=${item.valorimpuesto}, Total=${item.total}")
@@ -226,9 +240,7 @@ class ResumenFragment : Fragment() {
 
     private fun applyRutaDiscounts() {
         CoroutineScope(Dispatchers.IO).launch {
-            val agente = DatabaseApplication.getDatabase(requireContext())
-                .AgenteDAO()
-                .getAgente()
+            val agente = DatabaseApplication.getDatabase(requireContext()).AgenteDAO().getAgente()
             val idruta = agente.idruta
 
             SharedDataModel.detalleItems.value?.forEach { item ->
@@ -248,33 +260,42 @@ class ResumenFragment : Fragment() {
                 Log.d("applyRutaDiscounts", "📊 Porcentaje total de descuento: ${item.porcentajeTotal}%")
 
                 // Convertir valores a BigDecimal
-                val price = BigDecimal.valueOf(item.price)
-                val quantity = BigDecimal.valueOf(item.quantity.toDouble())
-                val porcentajeTotal = BigDecimal.valueOf(item.porcentajeTotal)
+                val price            = BigDecimal.valueOf(item.price)
+                val quantity         = BigDecimal.valueOf(item.quantity.toDouble())
+                val porcentajeTotal  = BigDecimal.valueOf(item.porcentajeTotal)
                 val porcentajeImpuesto = BigDecimal.valueOf(item.porcentajeImpuesto)
 
-                // Cálculo de valores con `HALF_DOWN`
-                val subtotal = price.multiply(quantity).setScale(2, RoundingMode.HALF_DOWN)
+                // 1) Subtotal exacto y truncado
+                val rawSubtotal   = price.multiply(quantity)
+                val subtotal      = rawSubtotal.setScale(2, RoundingMode.DOWN)
                 Log.d("applyRutaDiscounts", "💰 Subtotal: $subtotal")
 
-                val descuento = subtotal.multiply(porcentajeTotal).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                // 2) Descuento (porcentaje) calculado y truncado
+                val rawDescuento  = rawSubtotal.multiply(porcentajeTotal)
+                    .divide(BigDecimal(100), 10, RoundingMode.HALF_UP)
+                val descuento     = rawDescuento.setScale(2, RoundingMode.DOWN)
                 Log.d("applyRutaDiscounts", "💸 Descuento: $descuento")
 
-                val baseImponible = subtotal.subtract(descuento).setScale(2, RoundingMode.HALF_DOWN)
+                // 3) Base imponible
+                val baseImponible = rawSubtotal.subtract(descuento)
                 Log.d("applyRutaDiscounts", "⚖️ Base Imponible: $baseImponible")
 
-                val valorImpuesto = baseImponible.multiply(porcentajeImpuesto).divide(BigDecimal(100), 2, RoundingMode.HALF_DOWN)
+                // 4) Impuesto siempre hacia arriba
+                val rawImpuesto   = baseImponible.multiply(porcentajeImpuesto)
+                    .divide(BigDecimal(100), 10, RoundingMode.HALF_UP)
+                val valorImpuesto = rawImpuesto.setScale(2, RoundingMode.HALF_UP)
                 Log.d("applyRutaDiscounts", "🧾 Impuesto: $valorImpuesto")
 
-                val total = subtotal.subtract(descuento).add(valorImpuesto).setScale(2, RoundingMode.HALF_DOWN)
+                // 5) Total neto + impuesto truncado
+                val total         = baseImponible.add(valorImpuesto)
+                    .setScale(2, RoundingMode.HALF_UP)
                 Log.d("applyRutaDiscounts", "🏷️ Total: $total")
 
-                // Asignar valores redondeados al objeto item
-                item.descuento = descuento.toDouble()
-                item.subtotal = subtotal.toDouble()
-                item.valorimpuesto = valorImpuesto.toDouble()
-                item.total = total.toDouble()
-
+                // Asignar valores al item
+                item.subtotal       = subtotal.toDouble()
+                item.descuento      = descuento.toDouble()
+                item.valorimpuesto  = valorImpuesto.toDouble()
+                item.total          = total.toDouble()
                 item.checkedDescuentoRuta = true
 
                 Log.d("applyRutaDiscounts", "✅ Valores finales: Subtotal=${item.subtotal}, Descuento=${item.descuento}, Impuesto=${item.valorimpuesto}, Total=${item.total}")
@@ -289,6 +310,8 @@ class ResumenFragment : Fragment() {
             }
         }
     }
+
+
 
 
 
@@ -765,6 +788,10 @@ class ResumenFragment : Fragment() {
             val total = detalleItems.sumOf { it.total }
             val anulado = "N"
 
+            val now = LocalDateTime.now()
+            val fecha = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val hora  = now.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+
             val db = DatabaseApplication.getDatabase(requireContext())
 
             if (modo == "editar") {
@@ -785,6 +812,7 @@ class ResumenFragment : Fragment() {
                         descuentoRutaActivado = isDescuentoRutaActivado,
                         descuentoEscalaActivado = isDescuentoEscalaActivado,
                         descuentoTipoPagoActivado = isDescuentoTipoPagoActivado
+
                     )
                     db.PedidoHdrDAO().updatePedidoHdr(updatedHdr)
 

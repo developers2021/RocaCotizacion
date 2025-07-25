@@ -22,7 +22,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun invdescuentoporescalaDAO(): invdescuentoporescalaDAO
     abstract fun invdescuentoporrutaDAO(): invdescuentoporrutaDAO
 
-
-
 }
 
